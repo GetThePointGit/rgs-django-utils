@@ -1,0 +1,124 @@
+[project]
+channels = ["conda-forge"]
+name = "rgs-django-utils"
+platforms = ["win-64", "linux-64", "osx-arm64"]
+repository = "https://github.com/GetThePointGit/rgs-django-utils"
+
+
+[tasks]
+# Starting vs code using vs-code.cmd (pixi run code)
+lab = "jupyter lab --notebook-dir=jupyter"  # start notebook
+code = "code"
+code_insiders = "code-insiders"
+
+pre-commit-install = "pre-commit install --install-hooks -t=pre-push" #-t=pre-commit
+postinstall = { depends-on = ["pre-commit-install"] }
+pre-commit-run = "pre-commit run --all-files"
+
+
+[feature.dev.tasks]
+# Styling
+sort_imports = "ruff check  ./**/*.py --select I --fix --force-exclude"
+fmt = "ruff format ./**/*.py --force-exclude"
+style = { depends-on = ["sort_imports", "fmt"] } # `pixi run style`
+# test
+tests = "pytest --cov-report term-missing --cov=gta_uploadportaal --cov-report=xml"
+# build
+build_wheels = "rm -rf dist/ && python -m build" # build wheels
+twine_check = "twine check dist/*"
+build = { depends-on = ["build_wheels", "twine_check"] }
+
+manage = "python manage.py"
+
+[dependencies]
+python = "3.12.*"
+
+GDAL = "*"
+geopandas = "1.0.*"
+pandas = "2.2.*"
+numpy = "1.26.*"
+matplotlib = "*"
+# scipy = "==1.10.1"
+# h5py = "*"
+fiona = "==1.9.5"
+shapely = "==2.0.2"
+
+python-dotenv = ">=1.1.0,<2"
+
+psycopg = "3.2.*"
+
+pip = "*"
+
+[pypi-dependencies]
+django = "==5.2.*"
+
+uvicorn = "==0.29.*"
+
+celery = "==5.5.*"
+django-celery-beat = ">=2.8.0"
+django-celery-results = ">=2.5.0"
+flower = ">=2.0.1"
+
+django-ninja = "==1.4.*"
+django-cors-headers = ">=4.4.0"
+
+python-multipart = ">=0.0.9"
+
+requests = "==2.32.*"  # todo: replace requests with httpx
+httpx = "*"
+
+# task execution (try out as alternative for celery..)
+temporalio = ">=1.6.0"
+
+# used for generation of RSA keys (for JWT) and for pyJWT
+cryptography = ">=42.0.0"
+pyJWT = ">=2.8.0"
+# used by Django ImageField and to resample images for exports and thumbnails
+pillow = ">=10.3.0"
+
+# used for uuid7 (no native support in python yet)
+uuid-utils = "==0.6.*"
+
+# used for geopandas
+SqlAlchemy = "==2.0.*"
+GeoAlchemy2 = "==0.15.*"
+
+# xlsxwriter (over openpyxl) because it is faster and has better support for styling
+xlsxwriter = "==3.*"  # used for exporting excel files
+
+rgs-django-utils = { path = ".", editable = true }
+
+[feature.dev.dependencies]
+jupyterlab = "*"
+ipywidgets = "*"
+jupytext = "*"
+pytest = "*"
+pytest-cov = "*"
+pre-commit = "*"
+twine = "*"
+ruff = "*"
+
+# for memory profiling of tasks
+psutil = "*"
+
+pixi-pycharm = ">=0.0.8,<0.0.9"
+
+# todo: extentd with pre-commit to enforce code formatting
+# todo: add Bandit to find potential security issues
+# todo: for better type checking, add mypy, to optimize imports, add unimport, for dead code detection, add vulture
+# todo: to inspect dependencies, add pydeps
+# todo: for debugging, add pysnooper
+# todo: overall add jypyter notebook for better development experience/ data exploration
+# also add PyGWalker
+
+[feature.dev.pypi-dependencies]
+notebook = "*"
+build = "*"
+
+[feature.prod.tasks]
+echo_info = "echo $PATH"
+
+[environments]
+dev = { features=["dev"], no-default-feature = false }
+prod = { features=["prod"], no-default-feature = false }
+# test = { features=["test"], no-default-feature = false }

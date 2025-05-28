@@ -1,0 +1,1 @@
+from .sync_db_description import sync_db_meta_tables

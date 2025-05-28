@@ -1,0 +1,39 @@
+import logging
+
+__all__ = [
+    "DEBUG",
+    "PROGRESS_DEBUG",
+    "DATA_DEBUG",
+    "INFO",
+    "PROGRESS_INFO",
+    "DATA_INFO",
+    "WARNING",
+    "PROGRESS_WARNING",
+    "DATA_WARNING",
+    "ERROR",
+    "PROGRESS_ERROR",
+    "DATA_ERROR",
+    "CRITICAL",
+    "PROGRESS_CRITICAL",
+    "DATA_CRITICAL",
+]
+
+DEBUG = logging.DEBUG
+PROGRESS_DEBUG = logging.DEBUG + 1
+DATA_DEBUG = logging.DEBUG + 5
+
+INFO = logging.INFO
+PROGRESS_INFO = logging.INFO + 1
+DATA_INFO = logging.INFO + 5
+
+WARNING = logging.WARNING
+PROGRESS_WARNING = logging.WARNING + 1
+DATA_WARNING = logging.WARNING + 5
+
+ERROR = logging.ERROR
+PROGRESS_ERROR = logging.ERROR + 1
+DATA_ERROR = logging.ERROR + 5
+
+CRITICAL = logging.CRITICAL
+PROGRESS_CRITICAL = logging.CRITICAL + 1
+DATA_CRITICAL = logging.CRITICAL + 5
