@@ -17,7 +17,7 @@ keywords = []
 repository = "https://github.com/GetThePointGit/rgs-django-utils"
 
 [tool.setuptools]
-packages = { find = { include = ["rgs_utils"] } }
+packages = { find = { where = ["rgs_django_utils"] } }
 include-package-data = true
 
 # FORMATTING

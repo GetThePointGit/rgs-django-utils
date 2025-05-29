@@ -22,7 +22,7 @@ sort_imports = "ruff check  ./**/*.py --select I --fix --force-exclude"
 fmt = "ruff format ./**/*.py --force-exclude"
 style = { depends-on = ["sort_imports", "fmt"] } # `pixi run style`
 # test
-tests = "pytest --cov-report term-missing --cov=gta_uploadportaal --cov-report=xml"
+tests = "pytest --cov-report term-missing --cov=rgs_django_utils --cov-report=xml"
 # build
 build_wheels = "rm -rf dist/ && python -m build" # build wheels
 twine_check = "twine check dist/*"
@@ -48,6 +48,8 @@ python-dotenv = ">=1.1.0,<2"
 psycopg = "3.2.*"
 
 pip = "*"
+
+
 
 [pypi-dependencies]
 django = "==5.2.*"
