@@ -11,7 +11,6 @@ if __name__ == "__main__":
 
     setup_django(log)
 
-from core.models.enums.module import EnumModule
 from rgs_django_utils.database.dj_extended_models import Config, TableSection, section_register
 from rgs_django_utils.models import (
     DescriptionField,
@@ -20,15 +19,12 @@ from rgs_django_utils.models import (
     DescriptionTable,
     DescriptionTableSection,
 )
+from rgs_django_utils.models.enums import EnumModule
+from django.conf import settings
 
-_available_modules = [
-    EnumModule.DATA,
-    EnumModule.MJP,
-    EnumModule.VOORBEREIDING,
-    EnumModule.METINGEN,
-    EnumModule.UITVOERING,
-]
-_all_modules_str = "".join(_available_modules)
+
+_available_modules = getattr(settings, "AVAILABLE_MODULES", [])
+_all_modules_str = "".join([m["id"] for m in _available_modules])
 
 
 def get_modules_string(modules: str | typing.Iterable[typing.AnyStr | "EnumModule"]) -> str:
@@ -180,7 +176,7 @@ def sync_db_meta_tables():
                     default_value=default_value,
                     with_history=False if config.ignore_for_history else with_history,
                     modules=get_modules_string(config.modules) if config.modules else modules,
-                    import_mode_id=config.import_mode,
+                    import_mode=config.import_mode,
                     export=config.export,
                 ),
             )

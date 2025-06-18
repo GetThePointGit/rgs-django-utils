@@ -37,9 +37,10 @@ from rgs_django_utils.database.custom_fields import TextStringField
 
 # for type
 if TYPE_CHECKING:
-    from core.models.enums.module import EnumModule
-
     from rgs_django_utils.models.enums.import_mode import EnumImportModeEnum
+
+    from rgs_django_utils.models import EnumModule
+#     from rgs_django_utils.models.enums.import_mode import EnumImportModeEnum
 
 
 ##  postgres see https://pgxn.org/dist/pg_uuidv7/
@@ -361,7 +362,7 @@ class Config:
         ignore_for_history: bool = False,
         precision: int = None,
         dbf_name: str = None,
-        import_mode: "EnumImportModeEnum" = "all",
+        import_mode: str = "all",  # "EnumImportModeEnum"
         export: bool = True,
     ):
         self.modules = modules

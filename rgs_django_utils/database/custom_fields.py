@@ -1,7 +1,6 @@
-from django.db.models import Field
+from django.db.models import Field, TextField
 from django.utils.translation import gettext_lazy as _
 
-from rgs_django_utils.database.dj_extended_models import TextField
 
 
 class TextStringField(TextField):

@@ -5,8 +5,9 @@ if __name__ == "__main__":
 
     setup_django()
 
-from core import models
-from rgs_django_utils.tasks.token_validator import decode_jwt
+from django.contrib.auth import get_user_model
+
+from rgs_django_utils.utils.token_validator import decode_jwt
 
 hasura_namespace = "https://hasura.io/jwt/claims"
 
@@ -19,7 +20,7 @@ class Claims(collections.abc.Mapping):
         self.jwt = decode_jwt(token)
         if self.jwt is not None:
             user_id = self.user_id
-            self._user = models.User.objects.get(pk=user_id) if user_id is not None else None
+            self._user = get_user_model().objects.get(pk=user_id) if user_id is not None else None
         else:
             self._user = None
 
@@ -32,7 +33,7 @@ class Claims(collections.abc.Mapping):
         return self.user and self.has_allowed_role("user_self")
 
     @property
-    def user(self) -> models.User | None:
+    def user(self) -> get_user_model() | None:
         """Get the user object from the claims.
 
         **Note**: It does not check if the user is authenticated. Use `is_authenticated` for that.

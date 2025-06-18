@@ -1,6 +1,6 @@
 from rgs_django_utils.database import dj_extended_models as models
 from rgs_django_utils.database.base_models.enums import BaseEnumExtended
-
+from ._enum_sections import section_enum_auth
 
 class EnumAuthMethod(BaseEnumExtended):
     """Enum for authentication methods."""
@@ -55,7 +55,7 @@ class EnumAuthMethod(BaseEnumExtended):
         verbose_name_plural = "authenticatie methoden"
 
     class TableDescription:
-        section = "enum_permission"
+        section = section_enum_auth
         order = 10
         modules = "*"
 

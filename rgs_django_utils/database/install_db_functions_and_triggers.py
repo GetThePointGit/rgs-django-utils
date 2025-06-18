@@ -47,6 +47,10 @@ def install_db_functions(install_before=False, install_last=False):
 
     base_path = _get_base_path()
 
+    if not os.path.isdir(base_path):
+        log.warning("folder %s voor installatie van postgres scripts bestaat niet", base_path)
+        return
+
     for sub_dir in sorted(os.listdir(base_path)):
         if not install_before and sub_dir == SUB_DIR_BEFORE:
             continue

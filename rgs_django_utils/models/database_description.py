@@ -1,7 +1,6 @@
 from django.apps import apps
 from rgs_django_utils.database import dj_extended_models as models
 from rgs_django_utils.database.base_models.enums import BaseEnum
-from rgs_django_utils.models import EnumImportMode
 
 section_db_description = models.TableSection(
     "model_descr", "modelbeschrijving", 900, "Beschrijving van de database tabellen en velden"
@@ -556,12 +555,9 @@ class DescriptionField(models.Model):
         ),
     )
 
-    import_mode = models.ForeignKey(
-        EnumImportMode,
-        on_delete=models.PROTECT,
-        default=EnumImportMode.ALL,
+    import_mode = models.TextStringField(
+        default="all",
         verbose_name="import mode",
-        related_name="+",
         config=models.Config(
             doc_short="Import modus van het veld.",
             permissions=models.FPerm("-s-", user_self="-s-"),

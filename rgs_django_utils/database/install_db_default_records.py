@@ -70,12 +70,12 @@ def add_default_records(model_selection: List[str] = None, *args, **kwargs):
             database_install_order = 2
 
         @classmethod
-        def default_records(self):
+        def default_records(cls):
             return dict(
                 fields=['id', 'name', 'order'],
                 data=[
-                (self.OPTION_ONE, 'one is this', 1),
-                (self.OPTION_TWO, 'two is this', 2),
+                (cls.OPTION_ONE, 'one is this', 1),
+                (cls.OPTION_TWO, 'two is this', 2),
                 ]
             )
 
