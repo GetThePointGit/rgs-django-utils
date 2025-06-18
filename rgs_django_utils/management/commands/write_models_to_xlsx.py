@@ -8,7 +8,7 @@ if __name__ == "__main__":
 
     setup_django()
 
-from rgs_utils.commands.export_datamodel_to_excel import export_datamodel_to_excel
+from rgs_django_utils.commands.export_datamodel_to_excel import export_datamodel_to_excel
 
 
 class Command(BaseCommand):

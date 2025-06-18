@@ -20,7 +20,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write("Start sync_db_meta_tables")
 
-        from rgs_utils.commands.sync_db_description import sync_db_meta_tables
+        from rgs_django_utils.commands.sync_db_description import sync_db_meta_tables
 
         sync_db_meta_tables()
 

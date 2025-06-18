@@ -31,13 +31,15 @@ __all__ = base_all + [
     "Validation",
 ]
 
-from rgs_django_utils.database.custom_fields import TextStringField
 from sqlalchemy.sql.type_api import TypeEngineMixin
+
+from rgs_django_utils.database.custom_fields import TextStringField
 
 # for type
 if TYPE_CHECKING:
     from core.models.enums.module import EnumModule
-    from rgs_utils.models.enums.import_mode import EnumImportModeEnum
+
+    from rgs_django_utils.models.enums.import_mode import EnumImportModeEnum
 
 
 ##  postgres see https://pgxn.org/dist/pg_uuidv7/
@@ -178,7 +180,7 @@ class Permission(object):
 
 
 T = TypeVar("T")
-type Roles = Literal["public", "user_man", "org_roles", "user_self", "module_auth", "module_auth_2" "developer"]
+type Roles = Literal["public", "user_man", "org_roles", "user_self", "module_auth", "module_auth_2developer"]
 """Roles.
 
 Roles are used to define permissions.
@@ -407,11 +409,14 @@ class FieldConfig:
 
 
 class CharField(base_models.CharField, FieldConfig):
+    pd_type = pd.StringDtype()
+
     def __init__(self, *args, **kwargs):
         config = kwargs.pop("config", None)
         super().__init__(*args, **kwargs)
-        dtype = "U" if self.max_length is None else f"U{self.max_length}"
-        self._init_extras(config, np.dtype(dtype), sql_types.String(length=self.max_length))
+        # dtype = "U" if self.max_length is None else f"U{self.max_length}"
+        # dtype = np.dtype(dtype)
+        self._init_extras(config, sql_alchemy_type=sql_types.String(length=self.max_length))
 
 
 class TextField(base_models.TextField, FieldConfig):
@@ -437,21 +442,24 @@ class TextStringField(TextStringField, FieldConfig):
 
 
 class EmailField(base_models.EmailField, FieldConfig):
+    pd_type = pd.StringDtype()
+
     def __init__(self, *args, **kwargs):
         config = kwargs.pop("config", None)
         super().__init__(*args, **kwargs)
-        dtype = "U" if self.max_length is None else f"U{self.max_length}"
-        self._init_extras(config, np.dtype(dtype), sql_types.String(length=self.max_length))
+        # dtype = "U" if self.max_length is None else f"U{self.max_length}"
+        # np.dtype(dtype)
+        self._init_extras(config, sql_alchemy_type=sql_types.String(length=self.max_length))
 
 
 class FloatField(base_models.FloatField, FieldConfig):
-    pd_type = pd.Float64Dtype()
+    pd_type = pd.Float64Dtype()  # float32?
     sql_alchemy_type = sql_types.Float(precision=3)
 
     def __init__(self, *args, **kwargs):
         config = kwargs.pop("config", None)
         super().__init__(*args, **kwargs)
-        self._init_extras(config, np.float64, sql_types.Float(precision=getattr(self, "decimal_places", 3)))
+        self._init_extras(config, sql_alchemy_type=sql_types.Float(precision=getattr(self, "decimal_places", 3)))
 
 
 class IntegerField(base_models.IntegerField, FieldConfig):
@@ -526,7 +534,7 @@ class OneToOneField(base_models.OneToOneField, FieldConfig):
 
 
 class UUIDField(base_models.UUIDField, FieldConfig):
-    pd_type = pd.StringDtype
+    pd_type = pd.StringDtype  # klopt dit of is het een Object?
     sql_alchemy_type = sql_types.UUID()
 
     def __init__(self, *args, **kwargs):
@@ -556,7 +564,7 @@ class JSONField(base_models.JSONField, FieldConfig):
 
 
 class ArrayField(pg_fields.ArrayField, FieldConfig):
-    pd_type = np.dtype("O")
+    pd_type = np.dtype("O")  # klopt dit, niet beter een array?
 
     def __init__(self, *args, **kwargs):
         config = kwargs.pop("config", None)
@@ -566,16 +574,22 @@ class ArrayField(pg_fields.ArrayField, FieldConfig):
 
 
 class DateTimeField(base_models.DateTimeField, FieldConfig):
+    # pandas serie of datetime64 - timezone aware?!
+    pd_type = pd.DatetimeTZDtype(tz="UTC")  # timezone aware datetime
+    # np.dtype("datetime64[ms]"),
+
     def __init__(self, *args, **kwargs):
         config = kwargs.pop("config", None)
         super().__init__(*args, **kwargs)
-        self._init_extras(config, np.dtype("datetime64[ms]"), sql_types.DateTime(timezone=True))
+        self._init_extras(config, sql_alchemy_type=sql_types.DateTime(timezone=True))
 
     def pd_type_func(self, serie):
         return pd.to_datetime(serie)
 
 
 class DateField(base_models.DateField, FieldConfig):
+    # pandas object with python datetime.date
+
     def __init__(self, *args, **kwargs):
         config = kwargs.pop("config", None)
         super().__init__(*args, **kwargs)

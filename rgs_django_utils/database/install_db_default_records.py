@@ -14,7 +14,7 @@ if __name__ == "__main__":
 
 from rgs_django_utils.database.base_models.enums import BaseEnum, BaseEnumExtended
 from rgs_django_utils.database.db_types import ImportMethod
-from rgs_utils.database.upsert_multiple_data import upsert_multiple_data
+from rgs_django_utils.database.upsert_multiple_data import upsert_multiple_data
 
 log = logging.getLogger(__name__)
 

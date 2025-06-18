@@ -2,7 +2,7 @@ from time import sleep
 
 import requests
 
-from rgs_utils.models import enums, EnumSourceType
+from rgs_django_utils.models import enums, EnumSourceType
 
 project_id = 1
 workflow_type = enums.EnumWorkflowType.IMPORT

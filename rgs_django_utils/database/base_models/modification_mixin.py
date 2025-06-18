@@ -1,4 +1,5 @@
 from django.conf import settings
+
 from rgs_django_utils.database import dj_extended_models as models
 from rgs_django_utils.database.dj_extended_models import FieldSection
 
@@ -76,8 +77,8 @@ class ModificationSourceMixin(ModificationMetaMixin):
             doc_development="wordt gezet door hasura of import",
         ),
     )
-    source_nr = models.IntegerField(
-        "bron nr",
+    source_ref = models.TextStringField(
+        "bron referentie",
         null=True,
         blank=True,
         config=models.Config(

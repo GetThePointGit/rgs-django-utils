@@ -9,8 +9,8 @@ if __name__ == "__main__":
     setup_django()
 
 
-from rgs_utils.commands.export_datamodel_to_excel import export_datamodel_to_excel
-from rgs_utils.database.install_db_default_records import add_default_records
+from rgs_django_utils.commands.export_datamodel_to_excel import export_datamodel_to_excel
+from rgs_django_utils.database.install_db_default_records import add_default_records
 from thissite import settings
 
 
@@ -37,11 +37,11 @@ class Command(BaseCommand):
 
         self.stdout.write("Start migrate database and update triggers and hasura metadata")
 
-        from rgs_utils.commands.sync_db_description import sync_db_meta_tables
-        from rgs_utils.database.install_db_defaults_and_relation_cascading import (
+        from rgs_django_utils.commands.sync_db_description import sync_db_meta_tables
+        from rgs_django_utils.database.install_db_defaults_and_relation_cascading import (
             install_db_defaults_and_relation_cascading,
         )
-        from rgs_utils.database.install_db_functions_and_triggers import (
+        from rgs_django_utils.database.install_db_functions_and_triggers import (
             install_db_before_functions,
             install_db_functions,
             install_db_last_functions,

@@ -5,16 +5,17 @@ from datetime import datetime
 
 import psutil
 from django.conf import settings
+
 from rgs_django_utils import logging as custom_logging
 from rgs_django_utils.database import dj_extended_models as models
 from rgs_django_utils.database.base_models import ModificationMetaMixin
-from rgs_utils.database.dj_extended_models import Config
-from rgs_utils.models import EnumDataType, EnumWorkflowStep, enums
-from rgs_utils.models.enums.role import EnumRole
-from rgs_utils.models.enums.task_status import EnumTaskStatus
+from rgs_django_utils.database.dj_extended_models import Config
+from rgs_django_utils.models import EnumDataType, EnumWorkflowStep, enums
+from rgs_django_utils.models.enums.role import EnumRole
+from rgs_django_utils.models.enums.task_status import EnumTaskStatus
 
 if typing.TYPE_CHECKING:
-    from rgs_utils.tasks.base_class import WorkflowBase
+    from rgs_django_utils.tasks.base_class import WorkflowBase
 
 
 section_task = models.TableSection("task", "taken", 800, "Import, export en processing gerelateerde modellen")
@@ -130,7 +131,8 @@ class WorkflowTemplate(models.Model):
     @classmethod
     def default_records(cls):
         from django.apps import apps
-        from rgs_utils.tasks.base_class import _registered_classes
+
+        from rgs_django_utils.tasks.base_class import _registered_classes
 
         # load for all django apps the tasks classes
         for name, app in apps.app_configs.items():
@@ -394,7 +396,7 @@ class Workflow(ModificationMetaMixin):
 
     @property
     def workflow_class(self) -> "WorkflowBase":
-        from rgs_utils.tasks.base_class import get_workflow_template_class
+        from rgs_django_utils.tasks.base_class import get_workflow_template_class
 
         template = get_workflow_template_class(self.template_id)
         workflow_class = template(workflow=self)

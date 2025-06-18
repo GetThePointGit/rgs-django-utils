@@ -1,12 +1,12 @@
 import collections
 
 if __name__ == "__main__":
-    from rgs_utils.setup_django import setup_django
+    from rgs_django_utils.setup_django import setup_django
 
     setup_django()
 
 from core import models
-from rgs_utils.tasks.token_validator import decode_jwt
+from rgs_django_utils.tasks.token_validator import decode_jwt
 
 hasura_namespace = "https://hasura.io/jwt/claims"
 
