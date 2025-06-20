@@ -7,7 +7,6 @@ from django.contrib.gis.db import models as base_models
 
 from django.contrib.gis.db.models import *  # NOQA isort:skip
 import geopandas as gpd
-import numpy as np
 from django.contrib.gis.db.models import __all__ as base_all
 from django.contrib.postgres import fields as pg_fields
 from geoalchemy2 import types as geo_types
@@ -37,9 +36,8 @@ from rgs_django_utils.database.custom_fields import TextStringField
 
 # for type
 if TYPE_CHECKING:
-    from rgs_django_utils.models.enums.import_mode import EnumImportModeEnum
-
     from rgs_django_utils.models import EnumModule
+    from rgs_django_utils.models.enums.import_mode import EnumImportModeEnum
 #     from rgs_django_utils.models.enums.import_mode import EnumImportModeEnum
 
 

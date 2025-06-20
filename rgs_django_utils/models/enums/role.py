@@ -1,7 +1,7 @@
 from rgs_django_utils.database import dj_extended_models as models
 from rgs_django_utils.database.base_models.enums import BaseEnumExtended
 
-from ._enum_sections import section_enum_auth
+from .enum_sections import section_enum_auth
 
 # todo: move extended version to core, keep only generic part here
 

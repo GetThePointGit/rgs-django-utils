@@ -2,7 +2,6 @@ from django.db.models import Field, TextField
 from django.utils.translation import gettext_lazy as _
 
 
-
 class TextStringField(TextField):
     # textfield with string widget
 

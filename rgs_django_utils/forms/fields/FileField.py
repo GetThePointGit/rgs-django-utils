@@ -1,5 +1,6 @@
+# from rgs_django_workflow.models.task import ProjectFile
+
 from rgs_django_utils.forms.fields.Field import Field
-from rgs_django_utils.models.task import ProjectFile
 
 
 class FileField(Field):
@@ -32,9 +33,10 @@ class FileField(Field):
             return True
         if self.value is None:
             return False
-        if not ProjectFile.objects.filter(id=self.value, project_id=self.project_id).exists():
-            self.errors.append({"type": "not-found", "message": f"File with id {self.value} does not exist"})
-            return False
+        # todo: add this check?!
+        # if not ProjectFile.objects.filter(id=self.value, project_id=self.project_id).exists():
+        #     self.errors.append({"type": "not-found", "message": f"File with id {self.value} does not exist"})
+        #     return False
         # The user has not sufficient permissions.
         self.errors.append({"type": "not-found", "message": f"File with id {self.value} does not exist"})
         return False
@@ -63,14 +65,16 @@ class FileField(Field):
         if self.accept is not None:
             out["accept"] = self.accept
         if self.value is not None:
-            try:
-                project_file = ProjectFile.objects.get(id=self.value)
-            except ProjectFile.DoesNotExist:
-                return out
-            out["project_file"] = {
-                "id": project_file.id,
-                "filename": project_file.filename,
-                "download_url": self.download_url.replace("{id}", str(project_file.id)),
-                # "size": project_file.file.size,
-            }
+            raise NotImplementedError("todo")
+            # todo: correct this
+            # try:
+            #     project_file = ProjectFile.objects.get(id=self.value)
+            # except ProjectFile.DoesNotExist:
+            #     return out
+            # out["project_file"] = {
+            #     "id": project_file.id,
+            #     "filename": project_file.filename,
+            #     "download_url": self.download_url.replace("{id}", str(project_file.id)),
+            #     # "size": project_file.file.size,
+            # }
         return out

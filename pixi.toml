@@ -28,7 +28,6 @@ build_wheels = "rm -rf dist/ && python -m build" # build wheels
 twine_check = "twine check dist/*"
 build = { depends-on = ["build_wheels", "twine_check"] }
 
-manage = "python manage.py"
 
 [dependencies]
 python = "3.12.*"
@@ -36,50 +35,21 @@ python = "3.12.*"
 GDAL = "*"
 geopandas = "1.0.*"
 pandas = "2.2.*"
-numpy = "1.26.*"
-matplotlib = "*"
-# scipy = "==1.10.1"
-# h5py = "*"
-fiona = "==1.9.5"
-shapely = "==2.0.2"
+shapely = "==2.0.*"
 
 python-dotenv = ">=1.1.0,<2"
-
 psycopg = "3.2.*"
 
 pip = "*"
 
-
-
 [pypi-dependencies]
-django = "==5.2.*"
-
-uvicorn = "==0.29.*"
-
-celery = "==5.5.*"
-django-celery-beat = ">=2.8.0"
-django-celery-results = ">=2.5.0"
-flower = ">=2.0.1"
+django = ">=5.0"
 
 django-ninja = "==1.4.*"
-django-cors-headers = ">=4.4.0"
-
-python-multipart = ">=0.0.9"
-
-requests = "==2.32.*"  # todo: replace requests with httpx
-httpx = "*"
-
-# task execution (try out as alternative for celery..)
-temporalio = ">=1.6.0"
 
 # used for generation of RSA keys (for JWT) and for pyJWT
 cryptography = ">=42.0.0"
 pyJWT = ">=2.8.0"
-# used by Django ImageField and to resample images for exports and thumbnails
-pillow = ">=10.3.0"
-
-# used for uuid7 (no native support in python yet)
-uuid-utils = "==0.6.*"
 
 # used for geopandas
 SqlAlchemy = "==2.0.*"
@@ -121,6 +91,6 @@ build = "*"
 echo_info = "echo $PATH"
 
 [environments]
-dev = { features=["dev"], no-default-feature = false }
-prod = { features=["prod"], no-default-feature = false }
-# test = { features=["test"], no-default-feature = false }
+dev = { features=["dev"] }
+prod = { features=["prod"] }
+# test = { features=["test"] }

@@ -6,6 +6,7 @@ from typing import Type
 from django.db import connection
 from django.db.models import Model
 from psycopg import sql
+
 from rgs_django_utils.database.db_types import ImportMethod
 
 # todo: needed in psycopg3?

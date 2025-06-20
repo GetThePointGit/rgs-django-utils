@@ -1,14 +1,16 @@
 import logging
 
-from ._enum_sections import section_enum_base
 from rgs_django_utils.database import dj_extended_models as models
 from rgs_django_utils.database.base_models.enums import BaseEnumExtended
+
+from .enum_sections import section_enum_base
 
 log = logging.getLogger(__name__)
 
 
 class EnumModule(BaseEnumExtended):
     """Enum for modules"""
+
     order = models.IntegerField(
         config=models.Config(
             doc_short="Volgorde van de modules",
@@ -40,6 +42,7 @@ class EnumModule(BaseEnumExtended):
     @classmethod
     def default_records(cls):
         from django.conf import settings
+
         modules = getattr(settings, "AVAILABLE_MODULES", [])
 
         if not modules:
@@ -48,8 +51,7 @@ class EnumModule(BaseEnumExtended):
         return dict(
             fields=["id", "name", "order", "available"],
             data=[
-                (module["id"], module["name"], index + 1, module["available"])
-                for index, module in enumerate(modules)
+                (module["id"], module["name"], index + 1, module["available"]) for index, module in enumerate(modules)
             ],
         )
 

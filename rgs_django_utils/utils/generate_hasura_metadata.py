@@ -11,9 +11,10 @@ if __name__ == "__main__":
 
 from django.apps import apps
 from django.db import models as dj_models
-from rgs_django_utils.database.dj_extended_models import TPerm, TableType
-from rgs_django_utils.database.dj_settings_helper import TableDescriptionGetter
 from thissite import settings
+
+from rgs_django_utils.database.dj_extended_models import TableType, TPerm
+from rgs_django_utils.database.dj_settings_helper import TableDescriptionGetter
 
 
 def generate_hasura_metadata(file_path: str = None):

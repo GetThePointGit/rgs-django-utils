@@ -1,7 +1,8 @@
+import urllib
 import urllib.parse
+
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
-import urllib
 
 from rgs_django_utils.permissions.claims import Claims
 
@@ -87,7 +88,7 @@ class PasswordlessLoginEmail(EmailTemplate):
 
         email = claims.email
         name = claims.fullname
-        url = f"https://{settings.DOMAIN}/api/auth/callback/{context.get("providerId")}?token={token}&email=${urllib.parse.quote_plus(email)}"
+        url = f"https://{settings.DOMAIN}/api/auth/callback/{context.get('providerId')}?token={token}&email=${urllib.parse.quote_plus(email)}"
         return {
             **context,
             "url": url,

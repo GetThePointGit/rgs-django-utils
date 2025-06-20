@@ -1,7 +1,7 @@
-import os
-import dotenv
-
 import logging
+import os
+
+import dotenv
 
 log = logging.getLogger("settings")
 

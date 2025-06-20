@@ -11,8 +11,9 @@ if __name__ == "__main__":
 
     setup_django(log)
 
-from rgs_django_utils.models import DescriptionField, DescriptionTable, DescriptionTableSection
 from thissite import settings
+
+from rgs_django_utils.models import DescriptionField, DescriptionTable, DescriptionTableSection
 
 table_fields = {
     "naam": "name",
