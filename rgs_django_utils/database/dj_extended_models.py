@@ -37,7 +37,7 @@ from rgs_django_utils.database.custom_fields import TextStringField
 
 # for type
 if TYPE_CHECKING:
-    from rgs_django_utils.models import EnumModule
+    from rgs_django_utils.models import EnumModuleBase
 
 
 ##  postgres see https://pgxn.org/dist/pg_uuidv7/
@@ -355,7 +355,7 @@ class Config:
     def __init__(
         self,
         # verbose_name: str = None,
-        modules: typing.Iterable[typing.AnyStr | "EnumModule"] = None,
+        modules: typing.Iterable[typing.AnyStr | "EnumModuleBase"] = None,
         section: FieldSection = None,
         doc_unit: str = None,
         doc_short: str = None,

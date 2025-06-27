@@ -21,13 +21,13 @@ from rgs_django_utils.models import (
     DescriptionTable,
     DescriptionTableSection,
 )
-from rgs_django_utils.models.enums import EnumModule
+from rgs_django_utils.models.enums import EnumModuleBase
 
 _available_modules = getattr(settings, "AVAILABLE_MODULES", [])
 _all_modules_str = "".join([m["id"] for m in _available_modules])
 
 
-def get_modules_string(modules: str | typing.Iterable[typing.AnyStr | "EnumModule"]) -> str:
+def get_modules_string(modules: str | typing.Iterable[typing.AnyStr | "EnumModuleBase"]) -> str:
     """Get the modules from the EnumModule class.
 
     :param modules: The modules to get.

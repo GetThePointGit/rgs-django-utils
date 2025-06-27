@@ -8,7 +8,7 @@ from .enum_sections import section_enum_base
 log = logging.getLogger(__name__)
 
 
-class EnumModule(BaseEnumExtended):
+class EnumModuleBase(BaseEnumExtended):
     """Enum for modules"""
 
     order = models.IntegerField(
@@ -28,7 +28,7 @@ class EnumModule(BaseEnumExtended):
     # todo: add extra fields with configuration
 
     class Meta:
-        db_table = "enum_module"
+        abstract = True
         verbose_name = "module"
         verbose_name_plural = "modules"
 
@@ -36,24 +36,8 @@ class EnumModule(BaseEnumExtended):
         is_extended_enum = True
 
         section = section_enum_base
-        description = "De modules binnen WIT"
+        description = "De modules binnen applicatie"
         modules = "*"
-
-    @classmethod
-    def default_records(cls):
-        from django.conf import settings
-
-        modules = getattr(settings, "AVAILABLE_MODULES", [])
-
-        if not modules:
-            log.warn("No available modules found in settings.AVAILABLE_MODULES")
-
-        return dict(
-            fields=["id", "name", "order", "available"],
-            data=[
-                (module["id"], module["name"], index + 1, module["available"]) for index, module in enumerate(modules)
-            ],
-        )
 
     @classmethod
     def get_permissions(cls):
