@@ -16,7 +16,7 @@ from rgs_django_utils.database.install_db_default_records import add_default_rec
 
 
 class Command(BaseCommand):
-    help = "Migrate datagse and update triggers, default records and db description"
+    help = "Migrate database and update triggers, default records and db description"
 
     def add_arguments(self, parser):
         pass

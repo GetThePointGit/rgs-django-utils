@@ -40,7 +40,7 @@ def get_modules_string(modules: str | typing.Iterable[typing.AnyStr | "EnumModul
         if modules not in _all_modules_str:
             raise ValueError(f"Module {modules} not found")
         return "".join([m if m == modules else "." for m in _available_modules])
-    if not all(module in _available_modules for module in modules):
+    if not all(module in _all_modules_str for module in modules):
         raise ValueError(f"Module {modules} not found")
     return "".join([m if m in modules else "." for m in _available_modules])
 

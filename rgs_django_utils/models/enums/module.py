@@ -29,15 +29,6 @@ class EnumModuleBase(BaseEnumExtended):
 
     class Meta:
         abstract = True
-        verbose_name = "module"
-        verbose_name_plural = "modules"
-
-    class TableDescription:
-        is_extended_enum = True
-
-        section = section_enum_base
-        description = "De modules binnen applicatie"
-        modules = "*"
 
     @classmethod
     def get_permissions(cls):
