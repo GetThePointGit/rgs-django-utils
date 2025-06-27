@@ -37,8 +37,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "rgs_django_utils.tests.testapp",
-    "rgs_django_utils.tests",
+    "tests.testapp",
     "rgs_django_utils",
 ]
 
@@ -109,3 +108,19 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = "/static/"
+
+
+PERMISSION_TREE = {
+    "public": [],
+    "auth": ["public"],
+    "project": ["auth"],
+    "project_edit": ["project"],
+    "project_management": ["project_edit"],
+    "project_usermanagement": ["project_management"],
+    "organization": ["auth"],
+    "organization_projectmanager": ["project_management"],
+    "organization_usermanagement": ["organization"],
+    "organization_management": ["organization", "project"],
+    "developer": ["project_management", "organization_projectmanager"],
+    "developer_management": ["developer"],
+}

@@ -56,7 +56,7 @@ class EnumModule(BaseEnumExtended):
         )
 
     @classmethod
-    def permissions(cls):
+    def get_permissions(cls):
         no_filt = {}  # authenitcation module must be able to see all users
 
         return models.TPerm(

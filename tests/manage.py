@@ -4,7 +4,7 @@
 import os
 import sys
 
-root_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir, os.pardir)
+root_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir)
 
 sys.path.append(root_dir)
 

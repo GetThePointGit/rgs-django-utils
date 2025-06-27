@@ -2,6 +2,7 @@ import typing
 from abc import ABC
 from typing import TYPE_CHECKING, Any, Generic, List, Literal, TypeVar
 
+import numpy as np
 import pandas as pd
 from django.contrib.gis.db import models as base_models
 
@@ -37,8 +38,6 @@ from rgs_django_utils.database.custom_fields import TextStringField
 # for type
 if TYPE_CHECKING:
     from rgs_django_utils.models import EnumModule
-    from rgs_django_utils.models.enums.import_mode import EnumImportModeEnum
-#     from rgs_django_utils.models.enums.import_mode import EnumImportModeEnum
 
 
 ##  postgres see https://pgxn.org/dist/pg_uuidv7/
@@ -179,7 +178,7 @@ class Permission(object):
 
 
 T = TypeVar("T")
-type Roles = Literal["public", "user_man", "org_roles", "user_self", "module_auth", "module_auth_2developer"]
+type Roles = Literal["public", "auth", "project", "project_edit", "module_auth", "module_auth_2developer"]
 """Roles.
 
 Roles are used to define permissions.
@@ -202,7 +201,7 @@ developer:
 """
 
 type TableAction = Literal["select", "update", "insert", "delete"]
-type FieldActions = Literal["---", "-s-", "i--", "-su", "isu"]
+type FieldActions = Literal["---", "-s-", "i--", "-su", "isu", "is-"]
 """Field Actions.
 
 Can be:
@@ -210,6 +209,7 @@ Can be:
 - '-s-': Select
 - '-su': Select, Update
 - 'isu': Insert, Select, Update
+- 'is-': Insert, Select (for example poid)
 """
 
 
@@ -218,7 +218,7 @@ class Perm(Generic[T], ABC):
 
     empty: T
 
-    def __init__(self, *args, **kwargs: dict[Roles, T]):
+    def __init__(self, *args, **kwargs: typing.Mapping[Roles, T]):
         """Initialize permission.
 
         Args:
@@ -273,20 +273,16 @@ class Perm(Generic[T], ABC):
         return self._dict.__repr__()
 
 
-class FPerm(Perm[FieldActions]):
+class FPerm(Perm[typing.Mapping[Roles, FieldActions]]):
     """Field Permission."""
 
-    def __init__(self, *args, **kwargs: dict[Roles, FieldActions]):
+    def __init__(self, public: FieldActions = "---", *args, **kwargs: typing.Mapping[Roles, FieldActions]):
         """Initialize Field permission.
 
         Args:
             public (FieldActions): Optional. Can be passed as positional argument or additional argument. Default is '---'.
-            user_man (FieldActions): Optional. Can only be passed as additional argument. Default is '---'.
-            org_roles (FieldActions): Optional. Can only be passed as additional argument. Default is '---'.
-            user_self (FieldActions): Optional. Can only be passed as additional argument. Default is '---'.
-            module_auth (FieldActions): Optional. Can only be passed as additional argument. Default is '---'.
-            module_auth_2 (FieldActions): Optional. Can only be passed as additional argument. Default is '---'.
-            developer (FieldActions): Optional. Can only be passed as additional argument. Default is '---'.
+            args: Optional. Can be passed as additional argument. Default is '---'.
+            kwargs: Optional. Can be passed as additional argument. Default is empty.
 
         Raises:
             ValueError: If more than one positional argument is passed.
@@ -303,7 +299,12 @@ class FPerm(Perm[FieldActions]):
             >>> FPerm(public='-s-', user_self='isu')
             FPerm(public='-s-', user_self='isu',)
         """
-        super().__init__(*args, **kwargs)
+        self.config = kwargs
+        if public:
+            self.config["public"] = public
+        # todo: validate
+
+        # super().__init__(*args, **kwargs)
 
     empty = "---"
 
@@ -311,7 +312,16 @@ class FPerm(Perm[FieldActions]):
 class TPerm(Perm[dict[TableAction, dict]]):
     """Table Permission."""
 
-    empty = {}
+    def __init__(self, public=None, *args, **kwargs: typing.Mapping[Roles, dict | typing.Mapping[TableAction, dict]]):
+        """Initialize Table permission."""
+        self.config = kwargs
+        if public:
+            self.config["public"] = public
+
+        for key, value in self.config.items():
+            if not isinstance(value, dict):
+                raise ValueError(f"Permission for {key} should be a dict, got {type(value)}")
+        # todo: validate keys..
 
 
 class Validation(object):

@@ -1,4 +1,5 @@
 from django.apps import apps
+
 from rgs_django_utils.database import dj_extended_models as models
 from rgs_django_utils.database.base_models.enums import BaseEnum
 
@@ -65,7 +66,7 @@ class DescriptionTableSection(models.Model):
         return f"{self.name} - ({self.code})"
 
     @classmethod
-    def permissions(cls):
+    def get_permissions(cls):
         no_filt = {}  # authenitcation module must be able to see all users
 
         return models.TPerm(
@@ -105,7 +106,7 @@ class DescriptionEnumTableType(BaseEnum):
         )
 
     @classmethod
-    def permissions(cls):
+    def get_permissions(cls):
         no_filt = {}  # authenitcation module must be able to see all users
 
         return models.TPerm(
@@ -232,7 +233,7 @@ class DescriptionTable(models.Model):
                 return model
 
     @classmethod
-    def permissions(cls):
+    def get_permissions(cls):
         no_filt = {}  # authenitcation module must be able to see all users
 
         return models.TPerm(
@@ -300,7 +301,7 @@ class DescriptionCalculation(models.Model):
         return f"{self.__class__.__name__}: {self.table} - {self.name}"
 
     @classmethod
-    def permissions(cls):
+    def get_permissions(cls):
         no_filt = {}  # authenitcation module must be able to see all users
 
         return models.TPerm(
@@ -378,7 +379,7 @@ class DescriptionFieldSection(models.Model):
         return self.name
 
     @classmethod
-    def permissions(cls):
+    def get_permissions(cls):
         no_filt = {}  # authenitcation module must be able to see all users
 
         return models.TPerm(
@@ -615,7 +616,7 @@ class DescriptionField(models.Model):
         description = "Beschrijving van de databasevelden"
 
     @classmethod
-    def permissions(cls):
+    def get_permissions(cls):
         no_filt = {}  # authenitcation module must be able to see all users
 
         return models.TPerm(
@@ -663,7 +664,7 @@ class DescriptionFieldInputForCalc(models.Model):
         description = "Beschrijving van de velden die als input dienen voor berekeningen"
 
     @classmethod
-    def permissions(cls):
+    def get_permissions(cls):
         no_filt = {}  # authenitcation module must be able to see all users
 
         return models.TPerm(

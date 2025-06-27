@@ -20,10 +20,12 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write("Start generate_hasura_metadata")
 
-        from rgs_django_utils.utils.generate_hasura_metadata import generate_hasura_metadata
+        from rgs_django_utils.commands.hasura_permissions import HasuraPermissions
+
+        perm = HasuraPermissions()
 
         export_path = options.get("export_path")
-        generate_hasura_metadata(export_path)
+        perm.write_generate_hasura_metadata(export_path)
 
         self.stdout.write(self.style.SUCCESS("Successfully ran generate_hasura_metadata"))
 

@@ -7,7 +7,22 @@ from rgs_django_utils.database import dj_extended_models as models
 from rgs_django_utils.database.dj_extended_models import FPerm, TableType
 
 
-class BaseEnum(models.Model):
+class BaseEnumMetaClass(ModelBase):
+    def __new__(cls, name, bases, attrs, **kwargs):
+        new_cls = super().__new__(cls, name, bases, attrs)
+        if hasattr(new_cls, "TableDescription"):
+            setattr(new_cls.TableDescription, "table_type", TableType.ENUM)
+        else:
+            setattr(
+                new_cls,
+                "TableDescription",
+                type("TableDescription", (), {"table_type": TableType.ENUM}),
+            )
+
+        return new_cls
+
+
+class BaseEnum(models.Model, metaclass=BaseEnumMetaClass):
     """Base class for enums, according to the Hasura standard."""
 
     id = models.TextStringField(
@@ -31,13 +46,12 @@ class BaseEnum(models.Model):
         abstract = True
 
     class TableDescription:
-        description = "Base class for enums. Overwrite this description"
-        is_enum = True
-
+        description = "Base class for enums. Overwrite this TableDescription"
+        table_type = TableType.ENUM
         modules = "*"
 
     @classmethod
-    def permissions(cls):
+    def get_permissions(cls):
         no_filt = {}
 
         return models.TPerm(
@@ -72,18 +86,25 @@ class BaseEnum(models.Model):
 
 
 class SerializableEnum(Enum):
-    """Overwrite __str__ to return the value instead of the name. This is used for API models.
+    """An Enum that serializes to its value when cast to a string.
 
-    Args:
-        Enum (_type_): Enum class that serializes the value instead of the name.
+    This class overrides the `__str__` method to return the member's value
+    instead of its name (e.g., 'a' instead of 'X.A'). This is particularly
+    useful for creating API models, such as in FastAPI, where the enum
+    value is desired in the response.
 
     Example:
-    ```python
-    X = Enum("X", {"A": "a", "B": "b"})
-    assert str(X.A) == "X.A"
-    Y = SerializableEnum("X", {"A": "a", "B": "b"})
-    assert str(Y.A) == "a"
-    ```
+        >>> from enum import Enum
+        >>>
+        >>> # A standard Enum's string representation includes the class name.
+        >>> X = Enum("X", {"A": "a", "B": "b"})
+        >>> str(X.A)
+        'X.A'
+        >>>
+        >>> # A SerializableEnum's string representation is just the value.
+        >>> Y = SerializableEnum("Y", {"A": "a", "B": "b"})
+        >>> str(Y.A)
+        'a'
     """
 
     def __str__(self):
@@ -93,28 +114,35 @@ class SerializableEnum(Enum):
         return {"id": self.name, "name": self.value}
 
 
-class BaseEnumExtendedBaseModel(ModelBase):
-    pass
+class BaseEnumExtendedMetaClass(BaseEnumMetaClass):
+    """Metaclass for BaseEnumExtended."""
 
     def __new__(cls, name, bases, attrs, **kwargs):
         super_new = super().__new__
 
         if "Meta" in attrs and getattr(attrs["Meta"], "abstract", False):
+            # skip abstract model classes
             return super_new(cls, name, bases, attrs, **kwargs)
 
+        # create base enum
         base_enum = copy(bases)
         attr_enum = {k: v for k, v in attrs.items() if not isinstance(v, models.Field)}
-        table_description = type("TableDescription", object.__bases__, dict(attr_enum["TableDescription"].__dict__))
+
+        td = attr_enum.get("TableDescription", None)
+        table_description = type("TableDescription", object.__bases__, dict(td.__dict__) if td else {})
         setattr(table_description, "table_type", TableType.ENUM)
         attr_enum["TableDescription"] = table_description
         base_enum = super_new(cls, name, base_enum, attr_enum, **kwargs)
 
+        # create extended enum
         attr_extended = copy(attrs)
         # Meta.db_table
         attr_extended["Meta"] = copy(attr_extended.get("Meta", object))
         setattr(attr_extended["Meta"], "db_table", getattr(attr_extended["Meta"], "db_table") + "_ext")
         # TableDescription.table_type
-        attr_extended["TableDescription"] = copy(attr_extended.get("TableDescription", object))
+        attr_extended["TableDescription"] = copy(
+            attr_extended.get("TableDescription", type("TableDescription", object.__bases__, {}))
+        )
         setattr(attr_extended["TableDescription"], "table_type", TableType.EXTENDED_ENUM)
         # tablename
         extended_name = name + "Extended"
@@ -135,7 +163,10 @@ class BaseEnumExtendedBaseModel(ModelBase):
 
         extended_enum = super_new(cls, extended_name, bases, attr_extended, **kwargs)
 
-        setattr(base_enum, "extended", extended_enum)
+        # reapply the TableDescription table_type
+        setattr(extended_enum.TableDescription, "table_type", TableType.EXTENDED_ENUM)
+
+        setattr(base_enum, "ExtendedClass", extended_enum)
 
         setattr(base_enum, "is_extended", False)
         setattr(extended_enum, "is_extended", True)
@@ -143,14 +174,18 @@ class BaseEnumExtendedBaseModel(ModelBase):
         return base_enum
 
 
-class BaseEnumExtended(BaseEnum, metaclass=BaseEnumExtendedBaseModel):
-    """Creates enum table(id, name) and table with extended fields (id, name, ...).
+class BaseEnumExtended(BaseEnum, metaclass=BaseEnumExtendedMetaClass):
+    """Creates enum table(id, name) and table with extended fields (id, name, ... on name db_table_ext). So
+    enum could be used as hasura enum, and extra information is accessible through the 'extended' attribute.
 
-    Extended table has db_table = db_table + '_ext'
-    from the Modelclass (=enum), the extended class is accessible via the 'extended' attribute
+    Extended table has Meta.db_table = Meta.db_table + '_ext'
+    from the Modelclass (BaseEnum), the extended class is accessible via the 'extended' field attribute
+    extended class is accessible via the ExtendedClass attribute on the BaseEnum class.
+
     """
 
-    # todo: implement
+    ExtendedClass = None
+    is_extended = None
 
     class Meta:
         abstract = True

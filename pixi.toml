@@ -5,37 +5,37 @@ platforms = ["win-64", "linux-64", "osx-arm64"]
 repository = "https://github.com/GetThePointGit/rgs-django-utils"
 
 
-[tasks]
+[feature.dev.tasks]
 # Starting vs code using vs-code.cmd (pixi run code)
 lab = "jupyter lab --notebook-dir=jupyter"  # start notebook
-code = "code"
-code_insiders = "code-insiders"
 
 pre-commit-install = "pre-commit install --install-hooks -t=pre-push" #-t=pre-commit
 postinstall = { depends-on = ["pre-commit-install"] }
 pre-commit-run = "pre-commit run --all-files"
 
-
-[feature.dev.tasks]
 # Styling
 sort_imports = "ruff check  ./**/*.py --select I --fix --force-exclude"
 fmt = "ruff format ./**/*.py --force-exclude"
 style = { depends-on = ["sort_imports", "fmt"] } # `pixi run style`
-# test
-tests = "pytest --cov-report term-missing --cov=rgs_django_utils --cov-report=xml"
+
 # build
 build_wheels = "rm -rf dist/ && python -m build" # build wheels
 twine_check = "twine check dist/*"
 build = { depends-on = ["build_wheels", "twine_check"] }
 
+[feature.test.tasks]
+# test
+tests = 'pytest --cov-report term-missing --cov=rgs_django_utils --cov-report=xml'
+test_manage = 'python tests/manage.py'
 
 [dependencies]
 python = "3.12.*"
 
 GDAL = "*"
 geopandas = "1.0.*"
+numpy = "1.26.*"
 pandas = "2.2.*"
-shapely = "==2.0.*"
+shapely = "2.0.*"
 
 python-dotenv = ">=1.1.0,<2"
 psycopg = "3.2.*"
@@ -64,8 +64,6 @@ rgs-django-utils = { path = ".", editable = true }
 jupyterlab = "*"
 ipywidgets = "*"
 jupytext = "*"
-pytest = "*"
-pytest-cov = "*"
 pre-commit = "*"
 twine = "*"
 ruff = "*"
@@ -75,6 +73,14 @@ psutil = "*"
 
 pixi-pycharm = ">=0.0.8,<0.0.9"
 
+[feature.dev.pypi-dependencies]
+notebook = "*"
+build = "*"
+
+[feature.test.dependencies]
+pytest-django = "*"
+pytest-cov = "*"
+
 # todo: extentd with pre-commit to enforce code formatting
 # todo: add Bandit to find potential security issues
 # todo: for better type checking, add mypy, to optimize imports, add unimport, for dead code detection, add vulture
@@ -83,14 +89,10 @@ pixi-pycharm = ">=0.0.8,<0.0.9"
 # todo: overall add jypyter notebook for better development experience/ data exploration
 # also add PyGWalker
 
-[feature.dev.pypi-dependencies]
-notebook = "*"
-build = "*"
-
 [feature.prod.tasks]
 echo_info = "echo $PATH"
 
 [environments]
-dev = { features=["dev"] }
+dev = { features=["dev", "test"] }
 prod = { features=["prod"] }
-# test = { features=["test"] }
+test = { features=["test"] }

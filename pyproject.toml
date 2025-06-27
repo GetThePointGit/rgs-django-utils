@@ -20,6 +20,11 @@ repository = "https://github.com/GetThePointGit/rgs-django-utils"
 packages = { find = { include = ["rgs_django_utils*"] } }
 include-package-data = true
 
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "testapp.settings_test"
+django_find_project = false
+
 # FORMATTING
 [tool.ruff]
 # see https://docs.astral.sh/ruff/rules/ for meaning of rules
