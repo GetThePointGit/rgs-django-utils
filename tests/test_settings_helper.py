@@ -46,8 +46,8 @@ class TestDoubleIdentifier(TestCase):
         self.assertEqual(len(td.one_to_one_relationships), 1)
         self.assertEqual(td.one_to_one_relationships[0].related_model, MiddleExtendedModel)
 
-        self.assertEqual(len(td.array_relationships), 2)
-        self.assertListEqual([rel.related_model for rel in td.array_relationships], [ChildModel, ManyToManyModel])
+        self.assertEqual(len(td.one_to_many_relationships), 2)
+        self.assertListEqual([rel.related_model for rel in td.one_to_many_relationships], [ChildModel, ManyToManyModel])
 
     def test_permission_helper(self):
         ph = get_permission_helper()

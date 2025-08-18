@@ -146,7 +146,7 @@ class PermissionHelper:
 
         return out
 
-    def get_hasura_model_permissions(self, model):
+    def get_hasura_model_permissions(self, model, wrap_role_table_filter=None):
         table_perms = self.get_rol_table_permissions(model)
         if table_perms is None:
             log.warning(f"{model} has no hasura permissions")
@@ -160,6 +160,8 @@ class PermissionHelper:
         delete_permissions = []
         for role in self.role_perm_lists.keys():
             role_table_filter = table_perms.get(role)
+            if wrap_role_table_filter:
+                role_table_filter = wrap_role_table_filter(role_table_filter)
             role_fields = [(k, perms.get(role)) for k, perms in field_perms.items()]
             # select
             try:

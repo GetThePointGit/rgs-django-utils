@@ -41,9 +41,13 @@ class TableDescriptionGetter:
         return [f for f in self.model._meta.related_objects if f.is_relation and f.one_to_one]
 
     @property
-    def array_relationships(self):
+    def one_to_many_relationships(self):
         """Reverse relations of one to many or one to one."""
-        return [f for f in self.model._meta.related_objects if f.is_relation and (f.one_to_many or f.many_to_many)]
+        return [f for f in self.model._meta.related_objects if f.is_relation and (f.one_to_many)]
+
+    @property
+    def many_to_many_relationships(self):
+        return [f for f in self.model._meta.related_objects if f.is_relation and f.many_to_many]
 
     @property
     def raw_permissions(self):

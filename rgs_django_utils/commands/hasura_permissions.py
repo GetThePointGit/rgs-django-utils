@@ -1,11 +1,14 @@
 import json
 import logging
 import os
+from typing import Type
 
+from attrs import field
 from django.apps import apps
 from django.conf import settings
 from django.db import models as dj_models
 
+from core import models
 from rgs_django_utils.database.dj_extended_models import TableType, TPerm
 from rgs_django_utils.database.dj_settings_helper import TableDescriptionGetter
 from rgs_django_utils.database.permission_helper import PermissionHelper
@@ -186,7 +189,7 @@ class HasuraPermissions(object):
 
     def write_generate_hasura_metadata(self, file_path: str = None):
         if file_path is None:
-            file_path = os.path.join(settings.BASE_DIR, os.pardir, "hasura", "hasura_metadata_exported.json")
+            file_path = os.path.join(settings.BASE_DIR, "hasura", "hasura_metadata_exported.json")
 
         with open(file_path, "w") as f:
             f.write(json.dumps(self.generate_hasura_metadata()))
@@ -200,6 +203,10 @@ class HasuraPermissions(object):
         perm_helper = PermissionHelper()
 
         app_models = [model for model in apps.get_models() if callable(model) and issubclass(model, dj_models.Model)]
+
+        # Many-to-many relationships have through models which are not in app_models.
+        # After generating the initial tables list, we need to include those through models.
+        through_models: list[dict] = []
 
         for model in app_models:
             if model._meta.abstract:
@@ -221,30 +228,28 @@ class HasuraPermissions(object):
             object_relationships = []
             # many_to_one
             for field in tc.object_relationships:
-                object_relationships.extend(
+                object_relationships.append(
                     {
                         "name": field.name,
-                        "using": {"foreign_key_constraint_on": field.column},
+                        "using": {"foreign_key_constraint_on": getattr(field, "column", field.name)},
                     }
                 )
 
             # one_to_one
-            # also works for reverse?
             for field in tc.one_to_one_relationships:
                 if isinstance(field, dj_models.OneToOneRel):
-                    # todo: does this work?
                     if field.name != field.remote_field._related_name:
                         log.warning(
                             f"Related name for field {field.remote_field.name} "
                             f"of table {field.related_model._meta.object_name} is not provided"
                         )
 
-                    object_relationships.extend(
+                    object_relationships.append(
                         {
                             "name": field.name,
                             "using": {
                                 "foreign_key_constraint_on": {
-                                    "column": field.remote_field.column,
+                                    "column": getattr(field.remote_field, "column", field.remote_field.name),
                                     "table": {
                                         "name": field.related_model._meta.db_table,
                                         "schema": "public",
@@ -254,10 +259,10 @@ class HasuraPermissions(object):
                         }
                     )
                 else:
-                    object_relationships.extend(
+                    object_relationships.append(
                         {
                             "name": field.name,
-                            "using": {"foreign_key_constraint_on": field.column},
+                            "using": {"foreign_key_constraint_on": getattr(field, "column", field.name)},
                         }
                     )
 
@@ -265,7 +270,7 @@ class HasuraPermissions(object):
                 out["object_relationships"] = object_relationships
 
             array_relationships = []
-            for field in tc.array_relationships:
+            for field in tc.one_to_many_relationships:
                 if field.name != field.remote_field._related_name:
                     log.warning(
                         f"Related name for field {field.remote_field.name} "
@@ -277,18 +282,69 @@ class HasuraPermissions(object):
                         "name": field.name,
                         "using": {
                             "foreign_key_constraint_on": {
-                                "column": field.remote_field.column,
+                                "column": getattr(field.remote_field, "column", field.remote_field.name),
                                 "table": {"name": field.related_model._meta.db_table, "schema": "public"},
                             }
                         },
                     }
                 )
+
             if len(array_relationships):
                 out["array_relationships"] = array_relationships
 
+            for field in tc.many_to_many_relationships:
+                if hasattr(field, 'through'):
+                    through_model = field.through
+                    through_models.append({
+                        "from_model": field.model,
+                        "through_model": through_model,
+                        "to_model": field.related_model,
+                    })
+
             log.debug("start permissions")
-            out.update(perm_helper.get_hasura_model_permissions(model))
+            # FIX: Use actual DB column names for permissions
+            permissions = perm_helper.get_hasura_model_permissions(model)
+            for perm_type in ["select_permissions", "insert_permissions", "update_permissions", "delete_permissions"]:
+                if perm_type in permissions:
+                    for perm in permissions[perm_type]:
+                        if "permission" in perm and "columns" in perm["permission"]:
+                            perm["permission"]["columns"] = [
+                                getattr(model._meta.get_field(col), "column", col)
+                                for col in perm["permission"]["columns"]
+                            ]
 
             tables.append(out)
 
+        for model in through_models:
+            # Add through model
+            out = {
+                "table": {
+                    "name": model.get("through_model")._meta.db_table,
+                    "schema": "public",
+                },
+            }
+            from_model = model.get("from_model")
+            through_model = model.get("through_model")
+            to_model = model.get("to_model")
+            array_relationships = []
+            for field in [field for field in through_model._meta.fields if field != through_model._meta.pk]:
+                array_relationships.append(
+                    {
+                        "name": field.name,
+                        "using": {
+                            "foreign_key_constraint_on": getattr(field, "column", getattr(field, 'field_name', field.name)),
+                        },
+                    }
+                )
+            out["object_relationships"] = array_relationships
+            permissions = perm_helper.get_hasura_model_permissions(from_model, lambda x: {
+                from_model._meta.db_table: x
+            })
+            out.update(permissions)
+            tables.append(out)
+
+            # TODO: add field to from_model
+
+            # TODO: add field to to_model
+        
         return tables
