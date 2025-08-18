@@ -294,11 +294,12 @@ class HasuraPermissions(object):
 
             for field in tc.many_to_many_relationships:
                 if hasattr(field, 'through'):
-                    through_model = field.through
                     through_models.append({
+                        'from_field': field,
                         "from_model": field.model,
-                        "through_model": through_model,
+                        "through_model": field.through,
                         "to_model": field.related_model,
+                        "to_field": field.target_field,
                     })
 
             log.debug("start permissions")
@@ -323,20 +324,22 @@ class HasuraPermissions(object):
                     "schema": "public",
                 },
             }
+            from_field = model.get("from_field")
             from_model = model.get("from_model")
             through_model = model.get("through_model")
             to_model = model.get("to_model")
+            to_field = model.get("to_field")
             array_relationships = []
-            for field in [field for field in through_model._meta.fields if field != through_model._meta.pk]:
-                array_relationships.append(
-                    {
-                        "name": field.name,
-                        "using": {
-                            "foreign_key_constraint_on": getattr(field, "column", getattr(field, 'field_name', field.name)),
-                        },
-                    }
-                )
-            out["object_relationships"] = array_relationships
+            # for field in [field for field in through_model._meta.fields if field != through_model._meta.pk]:
+            #     array_relationships.append(
+            #         {
+            #             "name": field.name,
+            #             "using": {
+            #                 "foreign_key_constraint_on": getattr(field, "column", getattr(field, 'field_name', field.name)),
+            #             },
+            #         }
+            #     )
+            # out["object_relationships"] = array_relationships
             permissions = perm_helper.get_hasura_model_permissions(from_model, lambda x: {
                 from_model._meta.db_table: x
             })
@@ -344,7 +347,56 @@ class HasuraPermissions(object):
             tables.append(out)
 
             # TODO: add field to from_model
+            try:
+                out = next(filter(lambda x: x["table"]["name"] == from_model._meta.db_table, tables))
+                existing_names = {rel["name"] for rel in out.get("array_relationships", [])}
+                relationship_name = from_field.accessor_name
+                reverse_from_field = next(f for f in through_model._meta.fields if hasattr(f, 'target_field') and f.target_field.model == from_model)
+                if relationship_name in existing_names:
+                    log.warning("Array relationship already exists for through model: %s", relationship_name)
+                else:
+                    out["array_relationships"] = out.get("array_relationships", []) or []
+                    out["array_relationships"].append({
+                            "name": relationship_name,
+                            "using": {
+                                "foreign_key_constraint_on": {
+                                    "column": getattr(reverse_from_field, "column", reverse_from_field.attname),
+                                    "table": {
+                                        "name": reverse_from_field.model._meta.db_table,
+                                        "schema": "public",
+                                    },
+                                }
+                            },
+                        }
+                    )
+            except StopIteration:
+                pass
 
             # TODO: add field to to_model
+            try:
+                out = next(filter(lambda x: x["table"]["name"] == to_model._meta.db_table, tables))
+                existing_names = {rel["name"] for rel in out.get("array_relationships", [])}
+                reverse_from_field = next(f for f in through_model._meta.fields if hasattr(f, 'target_field') and f.target_field.model == to_model)
+                relationship_name = reverse_from_field.cache_name
+                if relationship_name in existing_names:
+                    log.warning("Array relationship already exists for through model: %s", relationship_name)
+                else:
+                    out["array_relationships"] = out.get("array_relationships", []) or []
+                    out["array_relationships"].append(
+                        {
+                            "name": relationship_name,
+                            "using": {
+                                "foreign_key_constraint_on": {
+                                    "column": getattr(reverse_from_field, "column", reverse_from_field.attname),
+                                    "table": {
+                                        "name": reverse_from_field.model._meta.db_table,
+                                        "schema": "public",
+                                    },
+                                }
+                            },
+                        }
+                    )
+            except StopIteration:
+                pass
         
         return tables
