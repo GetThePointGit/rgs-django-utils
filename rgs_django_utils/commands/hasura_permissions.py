@@ -222,49 +222,51 @@ class HasuraPermissions(object):
                 },
             }
             tc = TableDescriptionGetter(model)
-            if tc.is_enum:
+            if tc.is_enum and not model._meta.db_table.endswith("_ext"):
                 out["is_enum"] = True
 
             object_relationships = []
-            # many_to_one
-            for field in tc.object_relationships:
-                object_relationships.append(
-                    {
-                        "name": field.name,
-                        "using": {"foreign_key_constraint_on": getattr(field, "column", field.name)},
-                    }
-                )
-
-            # one_to_one
-            for field in tc.one_to_one_relationships:
-                if isinstance(field, dj_models.OneToOneRel):
-                    if field.name != field.remote_field._related_name:
-                        log.warning(
-                            f"Related name for field {field.remote_field.name} "
-                            f"of table {field.related_model._meta.object_name} is not provided"
-                        )
-
-                    object_relationships.append(
-                        {
-                            "name": field.name,
-                            "using": {
-                                "foreign_key_constraint_on": {
-                                    "column": getattr(field.remote_field, "column", field.remote_field.name),
-                                    "table": {
-                                        "name": field.related_model._meta.db_table,
-                                        "schema": "public",
-                                    },
-                                }
-                            },
-                        }
-                    )
-                else:
+            # Only add object relationships if not enum
+            if not tc.is_enum and not model._meta.db_table.startswith("enum_"):
+                # many_to_one
+                for field in tc.object_relationships:
                     object_relationships.append(
                         {
                             "name": field.name,
                             "using": {"foreign_key_constraint_on": getattr(field, "column", field.name)},
                         }
                     )
+
+                # one_to_one
+                for field in tc.one_to_one_relationships:
+                    if isinstance(field, dj_models.OneToOneRel):
+                        if field.name != field.remote_field._related_name:
+                            log.warning(
+                                f"Related name for field {field.remote_field.name} "
+                                f"of table {field.related_model._meta.object_name} is not provided"
+                            )
+
+                        object_relationships.append(
+                            {
+                                "name": field.name,
+                                "using": {
+                                    "foreign_key_constraint_on": {
+                                        "column": getattr(field.remote_field, "column", field.remote_field.name),
+                                        "table": {
+                                            "name": field.related_model._meta.db_table,
+                                            "schema": "public",
+                                        },
+                                    }
+                                },
+                            }
+                        )
+                    else:
+                        object_relationships.append(
+                            {
+                                "name": field.name,
+                                "using": {"foreign_key_constraint_on": getattr(field, "column", field.name)},
+                            }
+                        )
 
             if len(object_relationships):
                 out["object_relationships"] = object_relationships
@@ -313,6 +315,8 @@ class HasuraPermissions(object):
                                 getattr(model._meta.get_field(col), "column", col)
                                 for col in perm["permission"]["columns"]
                             ]
+
+            out.update(permissions)
 
             tables.append(out)
 

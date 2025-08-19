@@ -89,6 +89,36 @@ class PermissionHelper:
                         if out[k]["update"] is None:
                             out[k]["update"] = rol_table_permissions
 
+        if table_permissions.config.get("module_auth") is not None:
+            # only select permission for module_auth
+            rol_table_permissions = table_permissions.config["module_auth"]
+            if "module_auth_" not in out:
+                out["module_auth_2"] = {
+                    "insert": None,
+                    "select": None,
+                    "update": None,
+                    "delete": None,
+                }
+            if rol_table_permissions.get("select") is not None:
+                out["module_auth_2"]["select"] = rol_table_permissions["select"] 
+            pass
+        if table_permissions.config.get("module_auth_2") is not None:
+            rol_table_permissions = table_permissions.config["module_auth_2"]
+            if "module_auth_2" not in out:
+                out["module_auth_2"] = {
+                    "insert": None,
+                    "select": None,
+                    "update": None,
+                    "delete": None,
+                }
+            if rol_table_permissions.get("select") is not None:
+                out["module_auth_2"]["select"] = rol_table_permissions["select"]
+            if rol_table_permissions.get("insert") is not None:
+                out["module_auth_2"]["insert"] = rol_table_permissions["insert"]
+            if rol_table_permissions.get("update") is not None:
+                out["module_auth_2"]["update"] = rol_table_permissions["update"]
+            if rol_table_permissions.get("delete") is not None:
+                out["module_auth_2"]["delete"] = rol_table_permissions["delete"]
         return out
 
     @cache
@@ -144,6 +174,32 @@ class PermissionHelper:
 
                 out[name][k] = out_fr
 
+            table_permissions = model.get_permissions()
+            table_permissions: TPerm
+            if table_permissions.config.get("module_auth") is not None:
+                out_fr = {
+                    "insert": False,
+                    "select": False,
+                    "update": False,
+                }
+                role_field_permission = field_permissions.config.get("module_auth", "---")
+                if role_field_permission and not out_fr["select"] and role_field_permission[1] == "s":
+                    out_fr["select"] = True
+                out[name]["module_auth"] = out_fr
+            if table_permissions.config.get("module_auth_2") is not None:
+                out_fr = {
+                    "insert": False,
+                    "select": False,
+                    "update": False,
+                }
+                role_field_permission = field_permissions.config.get("module_auth_2", "---")
+                if role_field_permission and not out_fr["insert"] and role_field_permission[0] == "i":
+                    out_fr["insert"] = True
+                if role_field_permission and not out_fr["select"] and role_field_permission[1] == "s":
+                    out_fr["select"] = True
+                if role_field_permission and not out_fr["update"] and role_field_permission[2] == "u":
+                    out_fr["update"] = True
+                out[name]["module_auth_2"] = out_fr
         return out
 
     def get_hasura_model_permissions(self, model, wrap_role_table_filter=None):
@@ -158,10 +214,9 @@ class PermissionHelper:
         insert_permissions = []
         update_permissions = []
         delete_permissions = []
-        for role in self.role_perm_lists.keys():
+
+        def _permissions_for_role(role):
             role_table_filter = table_perms.get(role)
-            if wrap_role_table_filter:
-                role_table_filter = wrap_role_table_filter(role_table_filter)
             role_fields = [(k, perms.get(role)) for k, perms in field_perms.items()]
             # select
             try:
@@ -173,7 +228,7 @@ class PermissionHelper:
                     {
                         "role": role,
                         "permission": {
-                            "filter": role_table_filter.get("select"),
+                            "filter": wrap_role_table_filter(role_table_filter.get("select")) if wrap_role_table_filter else role_table_filter.get("select"),
                             "columns": action_fields,
                             "allow_aggregations": True,  # todo
                         },
@@ -185,7 +240,7 @@ class PermissionHelper:
                     {
                         "role": role,
                         "permission": {
-                            "check": role_table_filter.get("insert"),
+                            "check": wrap_role_table_filter(role_table_filter.get("insert")) if wrap_role_table_filter else role_table_filter.get("insert"),
                             "columns": action_fields,
                             "set": {},  # todo
                         },
@@ -198,7 +253,7 @@ class PermissionHelper:
                     {
                         "role": role,
                         "permission": {
-                            "filter": role_table_filter.get("update"),
+                            "filter": wrap_role_table_filter(role_table_filter.get("update")) if wrap_role_table_filter else role_table_filter.get("update"),
                             "check": {},  # todo: also support?
                             "columns": action_fields,
                             "set": {},  # todo: also support?
@@ -210,10 +265,18 @@ class PermissionHelper:
                     {
                         "role": role,
                         "permission": {
-                            "filter": role_table_filter.get("delete"),
+                            "filter": wrap_role_table_filter(role_table_filter.get("delete")) if wrap_role_table_filter else role_table_filter.get("delete"),
                         },
                     }
                 )
+
+        for role in self.role_perm_lists.keys():
+            _permissions_for_role(role)
+        if "module_auth" in table_perms:
+            _permissions_for_role("module_auth")
+        if "module_auth_2" in table_perms:
+            _permissions_for_role("module_auth_2")
+
         return OrderedDict(
             (
                 ("select_permissions", select_permissions),

@@ -34,7 +34,7 @@ class TableDescriptionGetter:
 
     @property
     def object_relationships(self):
-        return [f for f in self.model._meta.fields if f.many_to_one]
+        return [f for f in self.model._meta.fields if f.many_to_one or f.one_to_one]
 
     @property
     def one_to_one_relationships(self):
