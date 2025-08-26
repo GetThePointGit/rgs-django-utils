@@ -70,7 +70,7 @@ def upsert_from_existing_data(
 ):
     cols_dict = collections.OrderedDict((col.get("target"), col) for col in cols)
 
-    pk_field = model._meta.pk.name
+    pk_field = model._meta.pk.column
     if identification_field_names is None:
         identification_field_names = [pk_field]
 
@@ -250,7 +250,7 @@ def upsert_from_existing_data(
             cursor.execute(update_part, values)
             updated = cursor.fetchone()[0]
         if insert_part:
-            # print(insert_part.as_string(cursor.connection))
+            print(insert_part.as_string(cursor.connection))
             cursor.execute(insert_part, {**insert_values, **where_values})
             inserted = cursor.fetchone()[0]
         # --SET LOCAL tapp.skip_recalc_flagging = false;

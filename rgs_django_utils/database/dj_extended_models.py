@@ -20,6 +20,7 @@ from shapely.geometry import (
     Polygon,
 )
 from sqlalchemy import types as sql_types
+from sqlalchemy.dialects import postgresql
 
 __all__ = base_all + [
     "ArrayField",
@@ -578,8 +579,21 @@ class ArrayField(pg_fields.ArrayField, FieldConfig):
     def __init__(self, *args, **kwargs):
         config = kwargs.pop("config", None)
         super().__init__(*args, **kwargs)
-        # todo
-        self._init_extras(config, np.dtype("O"), sql_types.ARRAY(sql_types.Float(precision=3)))
+
+        # nested array not needed is:
+        # https://stackoverflow.com/questions/9729175/postgresql-multidimensional-arrays-in-sqlalchemy
+
+        base_type = self.base_field.sql_alchemy_type
+        while isinstance(base_type, postgresql.ARRAY):
+            base_type = base_type.item_type
+
+        self._init_extras(
+            config,
+            np.dtype("O"),
+            postgresql.ARRAY(
+                base_type,
+            ),
+        )
 
 
 class DateTimeField(base_models.DateTimeField, FieldConfig):
