@@ -133,6 +133,12 @@ def sync_db_meta_tables():
             if config is None:
                 config = Config()
 
+            # Vul column_name correct voor CompositePrimaryKey
+            if getattr(field, "column", None) == None and hasattr(field, "columns"):
+                column_name = ",".join(field.columns)
+            else:
+                column_name = getattr(field, "column", None)
+
             field_section_instance = None
             if config.section is not None:
                 i += config.section.order * 100
@@ -155,7 +161,7 @@ def sync_db_meta_tables():
 
             field_desc, new = DescriptionField.objects.update_or_create(
                 table=table,
-                column_name=field.column,
+                column_name=column_name,
                 defaults=dict(
                     order=i,
                     field_type=field.get_internal_type(),
