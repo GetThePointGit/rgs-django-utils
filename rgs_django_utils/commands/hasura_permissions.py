@@ -134,12 +134,12 @@ HasuraConfig.register_multiple_views(
             "select_permissions": [
                 {
                     "role": "module_auth",
-                    "permission": {"columns": ["id", "email_verified", "email", "organization_id"], "filter": {}},
+                    "permission": {"columns": ["id", "email_verified", "email", "organization_id", "is_active"], "filter": {}},
                     "comment": "",
                 },
                 {
                     "role": "module_auth_2",
-                    "permission": {"columns": ["id", "email_verified", "email", "organization_id"], "filter": {}},
+                    "permission": {"columns": ["id", "email_verified", "email", "organization_id", "is_active"], "filter": {}},
                     "comment": "",
                 }
             ],
