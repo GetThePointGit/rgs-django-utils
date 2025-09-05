@@ -5,7 +5,7 @@ from typing import OrderedDict
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
-from rgs_django_utils.database.dj_extended_models import FPerm, TPerm
+from rgs_django_utils.database.dj_extended_models import FPerm, FPresets, TPerm
 
 # cache permission instance
 _permission_helper = None
@@ -150,6 +150,7 @@ class PermissionHelper:
             if field_permissions is None:
                 log.info(f"'{name}' has no config for with permissions ")
                 continue
+            presets: FPresets | None = getattr(field_config, "presets", None)
 
             out[name] = {}
 
@@ -160,6 +161,8 @@ class PermissionHelper:
                     "insert": False,
                     "select": False,
                     "update": False,
+                    "preset_insert": (False,),
+                    "preset_update": (False,),
                 }
 
                 for role in role_list:
@@ -171,6 +174,18 @@ class PermissionHelper:
                             out_fr["select"] = True
                         if not out_fr["update"] and role_field_permission[2] == "u":
                             out_fr["update"] = True
+                    if presets is not None and role in presets.config:
+                        role_presets = presets.config[role]
+                        if not out_fr["preset_insert"]:
+                            if role_presets[0][0] == "i":
+                                out_fr["preset_insert"] = (True, role_presets[1])
+                            elif type(role_presets[0]) is tuple and role_presets[0][0][0] == "i":
+                                out_fr["preset_insert"] = (True, role_presets[0][1])
+                        if not out_fr["preset_update"]:
+                            if role_presets[0][1] == "u":
+                                out_fr["preset_update"] = (True, role_presets[1])
+                            elif type(role_presets[0]) is tuple and role_presets[1][0][1] == "u":
+                                out_fr["preset_update"] = (True, role_presets[1][1])
 
                 out[name][k] = out_fr
 
@@ -181,6 +196,8 @@ class PermissionHelper:
                     "insert": False,
                     "select": False,
                     "update": False,
+                    "preset_insert": (False,),
+                    "preset_update": (False,),
                 }
                 role_field_permission = field_permissions.config.get("module_auth", "---")
                 if role_field_permission and not out_fr["select"] and role_field_permission[1] == "s":
@@ -191,6 +208,8 @@ class PermissionHelper:
                     "insert": False,
                     "select": False,
                     "update": False,
+                    "preset_insert": (False,),
+                    "preset_update": (False,),
                 }
                 role_field_permission = field_permissions.config.get("module_auth_2", "---")
                 if role_field_permission and not out_fr["insert"] and role_field_permission[0] == "i":
@@ -199,6 +218,19 @@ class PermissionHelper:
                     out_fr["select"] = True
                 if role_field_permission and not out_fr["update"] and role_field_permission[2] == "u":
                     out_fr["update"] = True
+                # TODO auth_module_2 presets
+                if presets is not None and "module_auth_2" in presets.config:
+                    role_presets = presets.config.get("module_auth_2")
+                    if not out_fr["preset_insert"][0]:
+                        if role_presets[0][0] == "i":
+                            out_fr["preset_insert"] = (True, role_presets[1])
+                        elif type(role_presets[0]) is tuple and role_presets[0][0][0] == "i":
+                            out_fr["preset_insert"] = (True, role_presets[0][1])
+                    if not out_fr["preset_update"][0]:
+                        if role_presets[0][1] == "u":
+                            out_fr["preset_update"] = (True, role_presets[1])
+                        elif type(role_presets[0]) is tuple and role_presets[1][0][1] == "u":
+                            out_fr["preset_update"] = (True, role_presets[1][1])
                 out[name]["module_auth_2"] = out_fr
         return out
 
@@ -235,6 +267,7 @@ class PermissionHelper:
                     }
                 )
             action_fields = [k for k, p in role_fields if p["insert"]]
+            set_fields = dict((k, p["preset_insert"][1]) for k, p in role_fields if p["insert"] and p["preset_insert"] and p["preset_insert"][0])
             if role_table_filter.get("insert") is not None and len(action_fields) > 0:
                 insert_permissions.append(
                     {
@@ -242,12 +275,13 @@ class PermissionHelper:
                         "permission": {
                             "check": wrap_role_table_filter(role_table_filter.get("insert")) if wrap_role_table_filter else role_table_filter.get("insert"),
                             "columns": action_fields,
-                            "set": {},  # todo
+                            "set": set_fields,  # todo
                         },
                         "backend_only": False,
                     }
                 )
             action_fields = [k for k, p in role_fields if p["update"]]
+            set_fields = dict((k, p["preset_update"][1]) for k, p in role_fields if p["update"] and p["preset_update"] and p["preset_update"][0])
             if role_table_filter.get("update") is not None and len(action_fields) > 0:
                 update_permissions.append(
                     {
@@ -256,7 +290,7 @@ class PermissionHelper:
                             "filter": wrap_role_table_filter(role_table_filter.get("update")) if wrap_role_table_filter else role_table_filter.get("update"),
                             "check": {},  # todo: also support?
                             "columns": action_fields,
-                            "set": {},  # todo: also support?
+                            "set": set_fields,  # todo: also support?
                         },
                     }
                 )

@@ -309,6 +309,47 @@ class FPerm(Perm[typing.Mapping[Roles, FieldActions]]):
 
     empty = "---"
 
+type PresetActions = Literal["--", "i-", "-u", "iu"]
+type PresetArgument = tuple[PresetActions, str] | tuple[tuple[Literal["i-"], str], tuple[Literal["-u"], str]]
+
+class FPresets(Perm[dict[Roles, PresetArgument]]):
+    """Field Presets."""
+
+    def __init__(self, public=None, *args, **kwargs: typing.Mapping[Roles, PresetArgument]):
+        """Initialize Field Presets.
+        
+
+    Args:
+        public (PresetArgument): Optional. Can be passed as positional argument or additional argument. Default is ('--',).
+        args: Optional. Can be passed as additional argument. Default is ('--',).
+        kwargs: Optional. Can be passed as additional argument. Default is empty.
+
+    Raises:
+        ValueError: If more than one positional argument is passed.
+
+    Examples:
+        >>> FPresets()
+        FPresets()
+        >>> FPresets('i-', 'value')
+        FPresets(public=('i-', 'value'))
+        >>> FPresets(module_auth=('i-', 'value'))
+        FPresets(module_auth=('i-', 'value'))
+        >>> FPresets('i-', 'value', module_auth=('i-', 'value2'))
+        FPresets(public=('i-', 'value'), module_auth=('i-', 'value2'))
+        >>> FPresets(()('i-', 'value'), ('-u', 'value2'))
+        FPresets(public=(('i-', 'value'), ('-u', 'value2')))
+        >>> FPresets(public=('iu', 'value'), user_self=(('i', 'value'), ('-u', 'value2')))
+        FPresets(public=('iu', 'value'), user_self=(('i', 'value'), ('-u', 'value2')))
+    """
+        self.config = kwargs
+        if public:
+            self.config["public"] = public
+
+        for key, value in self.config.items():
+            if not isinstance(value, tuple):
+                raise ValueError(f"Preset for {key} should be a tuple, got {type(value)}")
+
+    empty = ("--",)
 
 class TPerm(Perm[dict[TableAction, dict]]):
     """Table Permission."""
@@ -373,6 +414,7 @@ class Config:
         dbf_name: str = None,
         import_mode: str = "all",  # "EnumImportModeEnum"
         export: bool = True,
+        presets: FPresets = None,
     ):
         self.modules = modules
         self.section = section
@@ -393,6 +435,7 @@ class Config:
         self.dbf_name = dbf_name
         self.import_mode = import_mode
         self.export = export
+        self.presets = presets
 
 
 class FieldConfig:

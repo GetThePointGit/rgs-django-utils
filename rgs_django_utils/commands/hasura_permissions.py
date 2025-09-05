@@ -124,7 +124,7 @@ HasuraConfig.register_multiple_views(
             "select_permissions": [
                 {
                     "role": "module_auth",
-                    "permission": {"columns": ["config", "id", "method_id", "visible"], "filter": {}},
+                    "permission": {"columns": ["auth_method_id", "config", "id", "method_id", "visible"], "filter": {}},
                     "comment": "",
                 }
             ],
