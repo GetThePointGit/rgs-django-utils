@@ -7,6 +7,7 @@ from django.db import connection
 log = logging.getLogger(__name__)
 
 SUB_DIR_BEFORE = getattr(settings, "SUB_DIR_BEFORE", "01_before")
+SUB_DIR_AUTHORIZATION = getattr(settings, "SUB_DIR_AUTHORIZATION", "98_authorization")
 SUB_DIR_LAST = getattr(settings, "SUB_DIR_LAST", "99_last")
 
 _postgres_functions_base_path_cache = None
@@ -33,6 +34,13 @@ def install_db_before_functions():
     functions for default values)"""
 
     return install_db_function_in_directory(SUB_DIR_BEFORE)
+
+
+def install_db_authorization_functions():
+    """installs all provided in directory '98_authorization'. Scripts will be runned after aal default values, cascading and
+    triggers are installed."""
+
+    return install_db_function_in_directory(SUB_DIR_AUTHORIZATION)
 
 
 def install_db_last_functions():

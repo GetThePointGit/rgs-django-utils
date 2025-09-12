@@ -45,6 +45,7 @@ class Command(BaseCommand):
         from rgs_django_utils.database.install_db_functions_and_triggers import (
             install_db_before_functions,
             install_db_functions,
+            install_db_authorization_functions,
             install_db_last_functions,
         )
 
@@ -55,6 +56,9 @@ class Command(BaseCommand):
         if not skip_migration:
             self.stdout.write(self.style.SUCCESS("RUN migrate"))
             call_command("migrate")
+
+        self.stdout.write(self.style.SUCCESS("RUN install_db_authorization_functions"))
+        install_db_authorization_functions()
 
         self.stdout.write(self.style.SUCCESS("RUN install_db_defaults_and_relation_cascading"))
         install_db_defaults_and_relation_cascading()
