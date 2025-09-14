@@ -1,5 +1,5 @@
 
-Testapp wiht model definitions for testing the rgs_django_utils package
+Testapp with model definitions for testing the rgs_django_utils package
 
 
 
