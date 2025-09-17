@@ -100,19 +100,9 @@ HasuraConfig.register_multiple_functions(
             "permissions": [{"role": "module_auth"}],
         },
         {
-            "function": {"name": "auth_account_insert", "schema": "public"},
-            "configuration": {"custom_root_fields": {}, "session_argument": "hasura_session"},
-            "permissions": [{"role": "module_auth_2"}],
-        },
-        {
             "function": {"name": "auth_validate_password", "schema": "public"},
             "configuration": {"custom_root_fields": {}, "session_argument": "hasura_session"},
             "permissions": [{"role": "module_auth"}],
-        },
-        {
-            "function": {"name": "auth_update_user", "schema": "public"},
-            "configuration": {"custom_root_fields": {}, "session_argument": "hasura_session", "exposed_as": "mutation"},
-            "permissions": [{"role": "module_auth_2"}]
         },
     ]
 )
