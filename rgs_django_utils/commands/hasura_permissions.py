@@ -104,6 +104,11 @@ HasuraConfig.register_multiple_functions(
             "configuration": {"custom_root_fields": {}, "session_argument": "hasura_session"},
             "permissions": [{"role": "module_auth"}],
         },
+        {
+            "function": {"name": "auth_user_claim", "schema": "public"},
+            "configuration": {"custom_root_fields": {}, "session_argument": "hasura_session"},
+            "permissions": [{"role": "module_auth"}],
+        }
     ]
 )
 
@@ -141,6 +146,19 @@ HasuraConfig.register_multiple_views(
                     "role": "module_auth",
                     "permission": {
                         "columns": ["id", "method_id", "provider_account_id", "organization_id"],
+                        "filter": {},
+                    },
+                    "comment": "",
+                }
+            ],
+        },
+        {
+            "table": {"name": "vw_hasura_auth_user_claim", "schema": "public"},
+            "select_permissions": [
+                {
+                    "role": "module_auth",
+                    "permission": {
+                        "columns": ["id", "email", "organization_id", "allowed_roles"],
                         "filter": {},
                     },
                     "comment": "",
