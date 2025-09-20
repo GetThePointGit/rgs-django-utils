@@ -61,7 +61,7 @@ class BaseEnum(models.Model, metaclass=BaseEnumMetaClass):
         )
 
     def __str__(self):
-        return self.id
+        return f"{self.name} ({self.id})"
 
     @classmethod
     def choices(cls):
