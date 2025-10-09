@@ -276,6 +276,7 @@ def export_datamodel_to_excel(export_path=None):
             row += 1
             real_table = table.get_real_table()
 
+            print(f"Table {table.name}")
             if hasattr(real_table, "default_records") and len(real_table.default_records().get("data")) > 0:
                 worksheet.write(row, 0, "Default records", styles.h3)
                 row += 1

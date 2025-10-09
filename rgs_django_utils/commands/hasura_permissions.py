@@ -4,11 +4,11 @@ import os
 from typing import Type
 
 from attrs import field
+from core import models
 from django.apps import apps
 from django.conf import settings
 from django.db import models as dj_models
 
-from core import models
 from rgs_django_utils.database.dj_extended_models import TableType, TPerm
 from rgs_django_utils.database.dj_settings_helper import TableDescriptionGetter
 from rgs_django_utils.database.permission_helper import PermissionHelper
@@ -105,10 +105,14 @@ HasuraConfig.register_multiple_functions(
             "permissions": [{"role": "module_auth"}],
         },
         {
-            "function": {"name": "auth_user_claim", "schema": "public"},
-            "configuration": {"custom_root_fields": {}, "session_argument": "hasura_session"},
-            "permissions": [{"role": "module_auth"}],
-        }
+            "function": {"name": "auth_update_user", "schema": "public"},
+            "configuration": {
+                "custom_root_fields": {},
+                "session_argument": "hasura_session",
+                "exposed_as": "mutation",
+            },
+            "permissions": [{"role": "module_auth_2"}],
+        },
     ]
 )
 
@@ -119,7 +123,10 @@ HasuraConfig.register_multiple_views(
             "select_permissions": [
                 {
                     "role": "module_auth",
-                    "permission": {"columns": ["auth_method_id", "config", "id", "method_id", "visible"], "filter": {}},
+                    "permission": {
+                        "columns": ["auth_method_id", "config", "id", "method_id", "visible"],
+                        "filter": {},
+                    },
                     "comment": "",
                 }
             ],
@@ -129,14 +136,20 @@ HasuraConfig.register_multiple_views(
             "select_permissions": [
                 {
                     "role": "module_auth",
-                    "permission": {"columns": ["id", "email_verified", "email", "organization_id", "is_active"], "filter": {}},
+                    "permission": {
+                        "columns": ["id", "email_verified", "email", "organization_id", "is_active"],
+                        "filter": {},
+                    },
                     "comment": "",
                 },
                 {
                     "role": "module_auth_2",
-                    "permission": {"columns": ["id", "email_verified", "email", "organization_id", "is_active"], "filter": {}},
+                    "permission": {
+                        "columns": ["id", "email_verified", "email", "organization_id", "is_active"],
+                        "filter": {},
+                    },
                     "comment": "",
-                }
+                },
             ],
         },
         {
@@ -207,7 +220,7 @@ class HasuraPermissions(object):
 
     def write_generate_hasura_metadata(self, file_path: str = None):
         if file_path is None:
-            file_path = os.path.join(settings.BASE_DIR, "hasura", "hasura_metadata_exported.json")
+            file_path = os.path.join(settings.ROOT_DIR, "hasura", "hasura_metadata_exported.json")
 
         with open(file_path, "w") as f:
             f.write(json.dumps(self.generate_hasura_metadata()))
@@ -313,14 +326,16 @@ class HasuraPermissions(object):
                 out["array_relationships"] = array_relationships
 
             for field in tc.many_to_many_relationships:
-                if hasattr(field, 'through'):
-                    through_models.append({
-                        'from_field': field,
-                        "from_model": field.model,
-                        "through_model": field.through,
-                        "to_model": field.related_model,
-                        "to_field": field.target_field,
-                    })
+                if hasattr(field, "through"):
+                    through_models.append(
+                        {
+                            "from_field": field,
+                            "from_model": field.model,
+                            "through_model": field.through,
+                            "to_model": field.related_model,
+                            "to_field": field.target_field,
+                        }
+                    )
 
             log.debug("start permissions")
             # FIX: Use actual DB column names for permissions
@@ -362,9 +377,9 @@ class HasuraPermissions(object):
             #         }
             #     )
             # out["object_relationships"] = array_relationships
-            permissions = perm_helper.get_hasura_model_permissions(from_model, lambda x: {
-                from_model._meta.db_table: x
-            })
+            permissions = perm_helper.get_hasura_model_permissions(
+                from_model, lambda x: {from_model._meta.db_table: x}
+            )
             out.update(permissions)
             tables.append(out)
 
@@ -373,12 +388,17 @@ class HasuraPermissions(object):
                 out = next(filter(lambda x: x["table"]["name"] == from_model._meta.db_table, tables))
                 existing_names = {rel["name"] for rel in out.get("array_relationships", [])}
                 relationship_name = from_field.accessor_name
-                reverse_from_field = next(f for f in through_model._meta.fields if hasattr(f, 'target_field') and f.target_field.model == from_model)
+                reverse_from_field = next(
+                    f
+                    for f in through_model._meta.fields
+                    if hasattr(f, "target_field") and f.target_field.model == from_model
+                )
                 if relationship_name in existing_names:
                     log.warning("Array relationship already exists for through model: %s", relationship_name)
                 else:
                     out["array_relationships"] = out.get("array_relationships", []) or []
-                    out["array_relationships"].append({
+                    out["array_relationships"].append(
+                        {
                             "name": relationship_name,
                             "using": {
                                 "foreign_key_constraint_on": {
@@ -398,7 +418,11 @@ class HasuraPermissions(object):
             try:
                 out = next(filter(lambda x: x["table"]["name"] == to_model._meta.db_table, tables))
                 existing_names = {rel["name"] for rel in out.get("array_relationships", [])}
-                reverse_from_field = next(f for f in through_model._meta.fields if hasattr(f, 'target_field') and f.target_field.model == to_model)
+                reverse_from_field = next(
+                    f
+                    for f in through_model._meta.fields
+                    if hasattr(f, "target_field") and f.target_field.model == to_model
+                )
                 relationship_name = reverse_from_field.cache_name
                 if relationship_name in existing_names:
                     log.warning("Array relationship already exists for through model: %s", relationship_name)
@@ -420,5 +444,5 @@ class HasuraPermissions(object):
                     )
             except StopIteration:
                 pass
-        
+
         return tables

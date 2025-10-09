@@ -115,20 +115,20 @@ class TableSection(object):
 
     def __init__(
         self,
-        id: str,
+        id_: str,
         name: str = None,
         order: int = 0,
         description: str = None,
     ):
-        self.id = id
+        self.id = id_
         self.name = name
         self.order = order
         self.description = description
 
-        if id in section_register:
-            raise ValueError(f"Section id {id} already exists")
+        if id_ in section_register:
+            raise ValueError(f"Section id {id_} already exists")
 
-        section_register[id] = self
+        section_register[id_] = self
 
 
 class FieldSection(object):
@@ -136,12 +136,12 @@ class FieldSection(object):
 
     def __init__(
         self,
-        id: str,
+        id_: str,
         name: str = None,
         order: int = 0,
         description: str = None,
     ):
-        self.id = id
+        self.id = id_
         self.name = name
         self.order = order
         self.description = description
@@ -164,42 +164,7 @@ class Calculation(object):
     pass
 
 
-class Permission(object):
-    """Permission config for field."""
-
-    def __init__(self, *args, **kwargs):
-        pass
-        # permissions
-        #   - select
-        #   - update
-        #   - insert
-        #   - delete
-        #   - relations_to_authorization (project, organization, user)
-        #   - which roles has select, update, insert, delete rights
-
-
 T = TypeVar("T")
-type Roles = Literal["public", "auth", "project", "project_edit", "module_auth", "module_auth_2developer"]
-"""Roles.
-
-Roles are used to define permissions.
-
-public: 
-    Public - no authentication required. Should only be used for readonly permission on non-sentative data. For example an enum table. **Note**: If public role is configured and another role is not then the other role inherits the public role.
-user_man: 
-    User management - manage users on organization level. 
-org_roles: 
-    Organization roles - access based on organization roles.
-user_self: 
-    User self - access based on user itself.
-module_auth: 
-    Module authentication pre authentication - role for authentication model. The user is not yet authenticated. Grants readonly permission to authentication functions. Must live during the whole login/logout session, but not too long.
-module_auth_2: 
-    Module authentication post authentication - role for authentication model. The user is authenticated. Grants matution permission to authentication tables. Must be short lived because of this.
-developer: 
-    Developer - access for developers
-
-"""
 
 type TableAction = Literal["select", "update", "insert", "delete"]
 type FieldActions = Literal["---", "-s-", "i--", "-su", "isu", "is-"]
@@ -214,33 +179,60 @@ Can be:
 """
 
 
+# todo: move this specific implementation to another file
+class FieldPermissionType(typing.TypedDict, total=False):
+    public: FieldActions
+    module_auth: FieldActions
+    module_auth2: FieldActions
+    auth: FieldActions
+    user_self: FieldActions
+    project_rol: FieldActions
+    project_read: FieldActions
+    proj_read: FieldActions
+    proj_cli: FieldActions
+    proj_con: FieldActions
+    proj_ext: FieldActions
+    project_edit: FieldActions
+    proj_fw: FieldActions
+    proj_coll: FieldActions
+    proj_man: FieldActions
+    org_mem: FieldActions
+    org_uman: FieldActions
+    org_adm: FieldActions
+    sys_adm: FieldActions
+    dev: FieldActions
+    dev_man: FieldActions
+
+
+type Roles = typing.Literal[
+    "public",
+    "module_auth",
+    "module_auth_2",
+    "user_self",
+    "project_rol",
+    "project_read",
+    "project_edit",
+    "proj_read",
+    "proj_cli",
+    "proj_con",
+    "proj_ext",
+    "project_edit",
+    "proj_fw",
+    "proj_coll",
+    "proj_man",
+    "org_mem",
+    "org_uman",
+    "org_adm",
+    "sys_adm",
+    "dev",
+    "dev_man",
+]
+
+
 class Perm(Generic[T], ABC):
     """Abstract permission."""
 
     empty: T
-
-    def __init__(self, *args, **kwargs: typing.Mapping[Roles, T]):
-        """Initialize permission.
-
-        Args:
-            public (Generic[T]): Optional. Can be passed as positional argument or additional argument. Default is empty.
-            user_man (Generic[T]): Optional. Can only be passed as additional argument. Default is empty.
-            org_roles (Generic[T]): Optional. Can only be passed as additional argument. Default is empty.
-            user_self (Generic[T]): Optional. Can only be passed as additional argument. Default is empty.
-            module_auth (Generic[T]): Optional. Can only be passed as additional argument. Default is empty.
-            module_auth_2 (Generic[T]): Optional. Can only be passed as additional argument. Default is empty.
-            developer (Generic[T]): Optional. Can only be passed as additional argument. Default is empty.
-
-        Raises:
-            ValueError: If more than one positional argument is passed.
-        """
-        self._dict = {}
-        if len(args) > 1:
-            raise ValueError("Only argument public is allowed to be positional")
-        if len(args) == 1:
-            self._dict["public"] = args[0]
-        for key, value in kwargs.items():
-            self._dict[key] = value
 
     def __getitem__(
         self,
@@ -258,26 +250,16 @@ class Perm(Generic[T], ABC):
             return self.empty
 
     def items(self):
-        if "public" in self._dict:
-            return {
-                "user_man": self._dict["public"],
-                "org_roles": self._dict["public"],
-                "user_self": self._dict["public"],
-                "module_auth": self._dict["public"],
-                "module_auth_2": self._dict["public"],
-                "developer": self._dict["public"],
-                **self._dict,
-            }.items()
         return self._dict.items()
 
     def __repr__(self):
         return self._dict.__repr__()
 
 
-class FPerm(Perm[typing.Mapping[Roles, FieldActions]]):
+class FPerm(Perm[FieldPermissionType]):
     """Field Permission."""
 
-    def __init__(self, public: FieldActions = "---", *args, **kwargs: typing.Mapping[Roles, FieldActions]):
+    def __init__(self, public: FieldActions = "---", **kwargs: typing.Unpack[FieldPermissionType]):
         """Initialize Field permission.
 
         Args:
@@ -300,6 +282,7 @@ class FPerm(Perm[typing.Mapping[Roles, FieldActions]]):
             >>> FPerm(public='-s-', user_self='isu')
             FPerm(public='-s-', user_self='isu',)
         """
+        super().__init__(public, **kwargs)
         self.config = kwargs
         if public:
             self.config["public"] = public
@@ -309,38 +292,41 @@ class FPerm(Perm[typing.Mapping[Roles, FieldActions]]):
 
     empty = "---"
 
+
 type PresetActions = Literal["--", "i-", "-u", "iu"]
 type PresetArgument = tuple[PresetActions, str] | tuple[tuple[Literal["i-"], str], tuple[Literal["-u"], str]]
+
 
 class FPresets(Perm[dict[Roles, PresetArgument]]):
     """Field Presets."""
 
-    def __init__(self, public=None, *args, **kwargs: typing.Mapping[Roles, PresetArgument]):
+    def __init__(self, public: PresetArgument = None, **kwargs: typing.Unpack[typing.Mapping[Roles, PresetArgument]]):
         """Initialize Field Presets.
-        
 
-    Args:
-        public (PresetArgument): Optional. Can be passed as positional argument or additional argument. Default is ('--',).
-        args: Optional. Can be passed as additional argument. Default is ('--',).
-        kwargs: Optional. Can be passed as additional argument. Default is empty.
 
-    Raises:
-        ValueError: If more than one positional argument is passed.
+        Args:
+            public (PresetArgument): Optional. Can be passed as positional argument or additional argument. Default is ('--',).
+            args: Optional. Can be passed as additional argument. Default is ('--',).
+            kwargs: Optional. Can be passed as additional argument. Default is empty.
 
-    Examples:
-        >>> FPresets()
-        FPresets()
-        >>> FPresets('i-', 'value')
-        FPresets(public=('i-', 'value'))
-        >>> FPresets(module_auth=('i-', 'value'))
-        FPresets(module_auth=('i-', 'value'))
-        >>> FPresets('i-', 'value', module_auth=('i-', 'value2'))
-        FPresets(public=('i-', 'value'), module_auth=('i-', 'value2'))
-        >>> FPresets(()('i-', 'value'), ('-u', 'value2'))
-        FPresets(public=(('i-', 'value'), ('-u', 'value2')))
-        >>> FPresets(public=('iu', 'value'), user_self=(('i', 'value'), ('-u', 'value2')))
-        FPresets(public=('iu', 'value'), user_self=(('i', 'value'), ('-u', 'value2')))
-    """
+        Raises:
+            ValueError: If more than one positional argument is passed.
+
+        Examples:
+            >>> FPresets()
+            FPresets()
+            >>> FPresets('i-', 'value')
+            FPresets(public=('i-', 'value'))
+            >>> FPresets(module_auth=('i-', 'value'))
+            FPresets(module_auth=('i-', 'value'))
+            >>> FPresets('i-', 'value', module_auth=('i-', 'value2'))
+            FPresets(public=('i-', 'value'), module_auth=('i-', 'value2'))
+            >>> FPresets(('i-', 'value'), ('-u', 'value2'))
+            FPresets(public=(('i-', 'value'), ('-u', 'value2')))
+            >>> FPresets(public=('iu', 'value'), user_self=(('i', 'value'), ('-u', 'value2')))
+            FPresets(public=('iu', 'value'), user_self=(('i', 'value'), ('-u', 'value2')))
+        """
+        super().__init__(public, **kwargs)
         self.config = kwargs
         if public:
             self.config["public"] = public
@@ -351,10 +337,16 @@ class FPresets(Perm[dict[Roles, PresetArgument]]):
 
     empty = ("--",)
 
+
 class TPerm(Perm[dict[TableAction, dict]]):
     """Table Permission."""
 
-    def __init__(self, public=None, *args, **kwargs: typing.Mapping[Roles, dict | typing.Mapping[TableAction, dict]]):
+    def __init__(
+        self,
+        public=None,
+        *args,
+        **kwargs: typing.Dict[TableAction, typing.Dict[typing.Any, typing.Any]],
+    ):
         """Initialize Table permission."""
         self.config = kwargs
         if public:

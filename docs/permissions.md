@@ -22,7 +22,7 @@ permissions = [
     ('project_manager', 'auth_project_employee_manager'),
     ('user_account', 'user_self'),
     ('mod_auth_pre', 'mod_auth_pre'),
-    ('mod_auth_post', 'mod_auth_post')
+    ('mod_auth_post', 'mod_auth_post'),
     ('api', 'api'),
     ('superuser', 'auth_development'),
     

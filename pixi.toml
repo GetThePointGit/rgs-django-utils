@@ -6,7 +6,7 @@ repository = "https://github.com/GetThePointGit/rgs-django-utils"
 
 
 [feature.dev.tasks]
-# Starting vs code using vs-code.cmd (pixi run code)
+# development
 lab = "jupyter lab --notebook-dir=jupyter"  # start notebook
 
 pre-commit-install = "pre-commit install --install-hooks -t=pre-push" #-t=pre-commit
@@ -23,7 +23,6 @@ build_wheels = "rm -rf dist/ && python -m build" # build wheels
 twine_check = "twine check dist/*"
 build = { depends-on = ["build_wheels", "twine_check"] }
 
-[feature.test.tasks]
 # test
 tests = 'pytest --cov-report term-missing --cov=rgs_django_utils --cov-report=xml'
 test_manage = 'python tests/manage.py'
@@ -77,22 +76,12 @@ pixi-pycharm = ">=0.0.8,<0.0.9"
 notebook = "*"
 build = "*"
 
-[feature.test.dependencies]
 pytest-django = "*"
 pytest-cov = "*"
-
-# todo: extentd with pre-commit to enforce code formatting
-# todo: add Bandit to find potential security issues
-# todo: for better type checking, add mypy, to optimize imports, add unimport, for dead code detection, add vulture
-# todo: to inspect dependencies, add pydeps
-# todo: for debugging, add pysnooper
-# todo: overall add jypyter notebook for better development experience/ data exploration
-# also add PyGWalker
 
 [feature.prod.tasks]
 echo_info = "echo $PATH"
 
 [environments]
-dev = { features=["dev", "test"] }
-prod = { features=["prod"] }
-test = { features=["test"] }
+default = { features = ["dev"], solve-group = "prod" }
+prod = { features = [], solve-group = "prod" }
