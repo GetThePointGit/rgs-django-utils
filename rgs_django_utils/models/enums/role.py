@@ -8,7 +8,7 @@ from .enum_sections import section_enum_auth
 
 class EnumRole(BaseEnumExtended):
     # general staff roles
-    DEVELOPER = "developer"
+    DEVELOPER = "dev"
     APPLICATION_MANAGER = "appl_manager"
     APPLICATION_ADMIN = "appl_admin"
 

@@ -1,10 +1,14 @@
 import json
 import logging
 import os
-from typing import Type
 
-from attrs import field
-from core import models
+if __name__ == "__main__":
+    import django
+
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "thissite.settings")
+    django.setup()
+
+
 from django.apps import apps
 from django.conf import settings
 from django.db import models as dj_models
@@ -37,7 +41,7 @@ class HasuraConfig(metaclass=HasuraConfigClass):
 
     @classmethod
     def register_function(cls, function, configuration, permissions):
-        """
+        """Todo.
 
         Example:
         function = {"name": "auth_organization_policy", "schema": "public"}
@@ -46,7 +50,7 @@ class HasuraConfig(metaclass=HasuraConfigClass):
 
         :param function:
         :param configuration:
-        :param permission:
+        :param permissions:
         :return:
         """
         cls.registered_functions.append(
@@ -68,7 +72,7 @@ class HasuraConfig(metaclass=HasuraConfigClass):
         table,
         select_permissions=None,
     ):
-        """
+        """Todo.
 
         :param table:
         :param select_permissions:
@@ -104,15 +108,15 @@ HasuraConfig.register_multiple_functions(
             "configuration": {"custom_root_fields": {}, "session_argument": "hasura_session"},
             "permissions": [{"role": "module_auth"}],
         },
-        {
-            "function": {"name": "auth_update_user", "schema": "public"},
-            "configuration": {
-                "custom_root_fields": {},
-                "session_argument": "hasura_session",
-                "exposed_as": "mutation",
-            },
-            "permissions": [{"role": "module_auth_2"}],
-        },
+        # {
+        #     "function": {"name": "auth_update_user", "schema": "public"},
+        #     "configuration": {
+        #         "custom_root_fields": {},
+        #         "session_argument": "hasura_session",
+        #         "exposed_as": "mutation",
+        #     },
+        #     "permissions": [{"role": "module_auth_2"}],
+        # },
     ]
 )
 
@@ -446,3 +450,8 @@ class HasuraPermissions(object):
                 pass
 
         return tables
+
+
+if __name__ == "__main__":
+    hasura_permissions = HasuraPermissions()
+    hasura_permissions.write_generate_hasura_metadata()

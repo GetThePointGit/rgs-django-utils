@@ -183,7 +183,7 @@ Can be:
 class FieldPermissionType(typing.TypedDict, total=False):
     public: FieldActions
     module_auth: FieldActions
-    module_auth2: FieldActions
+    module_auth_2: FieldActions
     auth: FieldActions
     user_self: FieldActions
     project_rol: FieldActions
@@ -282,7 +282,6 @@ class FPerm(Perm[FieldPermissionType]):
             >>> FPerm(public='-s-', user_self='isu')
             FPerm(public='-s-', user_self='isu',)
         """
-        super().__init__(public, **kwargs)
         self.config = kwargs
         if public:
             self.config["public"] = public
@@ -326,7 +325,6 @@ class FPresets(Perm[dict[Roles, PresetArgument]]):
             >>> FPresets(public=('iu', 'value'), user_self=(('i', 'value'), ('-u', 'value2')))
             FPresets(public=('iu', 'value'), user_self=(('i', 'value'), ('-u', 'value2')))
         """
-        super().__init__(public, **kwargs)
         self.config = kwargs
         if public:
             self.config["public"] = public
@@ -497,6 +495,17 @@ class EmailField(base_models.EmailField, FieldConfig):
         self._init_extras(config, sql_alchemy_type=sql_types.String(length=self.max_length))
 
 
+class URLField(base_models.URLField, FieldConfig):
+    pd_type = pd.StringDtype()
+
+    def __init__(self, *args, **kwargs):
+        config = kwargs.pop("config", None)
+        super().__init__(*args, **kwargs)
+        # dtype = "U" if self.max_length is None else f"U{self.max_length}"
+        # np.dtype(dtype)
+        self._init_extras(config, sql_alchemy_type=sql_types.String(length=self.max_length))
+
+
 class FloatField(base_models.FloatField, FieldConfig):
     pd_type = pd.Float64Dtype()  # float32?
     sql_alchemy_type = sql_types.Float(precision=3)
@@ -570,6 +579,15 @@ class ForeignKey(base_models.ForeignKey, FieldConfig):
 
 
 class OneToOneField(base_models.OneToOneField, FieldConfig):
+    def __init__(self, *args, **kwargs):
+        config = kwargs.pop("config", None)
+        super().__init__(*args, **kwargs)
+
+        self._init_extras(config)
+        # todo...
+
+
+class ManyToManyField(base_models.ManyToManyField, FieldConfig):
     def __init__(self, *args, **kwargs):
         config = kwargs.pop("config", None)
         super().__init__(*args, **kwargs)
@@ -712,6 +730,21 @@ def _gpd_make_multi_geometry(
             lambda x: shapely_multi_geom([x])
         )
     return gs
+
+
+class GeometryField(base_models.GeometryField, FieldConfig):
+    def __init__(self, *args, **kwargs):
+        config = kwargs.pop("config", None)
+        super().__init__(*args, **kwargs)
+        self._init_extras(
+            config,
+            "geometry",
+            geo_types.Geometry(geometry_type="GEOMETRY", srid=self.srid),
+        )
+
+    def pd_type_func(self, serie):
+        gs = gpd.GeoSeries.from_wkb(serie, crs=self.srid)
+        return gs
 
 
 class PointField(base_models.PointField, FieldConfig):
