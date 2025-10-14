@@ -3,33 +3,41 @@ from rgs_django_utils.database.base_models.enums import BaseEnumExtended
 
 from .enum_sections import section_enum_auth
 
-# todo: move extended version to core, keep only generic part here
+# todo: application specific roles should be moved to application specific code?!
 
 
 class EnumRole(BaseEnumExtended):
+    # roles use in hasura permission
     # general staff roles
+    DEVELOPER_MANAGER = "dev_man"
     DEVELOPER = "dev"
-    APPLICATION_MANAGER = "appl_manager"
-    APPLICATION_ADMIN = "appl_admin"
+    APPLICATION_MANAGER = "sys_adm"
 
     # organisation
-    ORGANISATION_ADMIN = "org_admin"
-    ORGANISATION_USER_ADMIN = "org_user_admin"
-    ORGANISATION_PROJECT_ADMIN = "org_proj_admin"
-    ORGANISATION_MEMBER = "org_member"
+    ORGANIZATION_ADMIN = "org_adm"
+    ORGANIZATION_USER_ADMIN = "org_uman"
+    ORGANIZATION_MEMBER = "org_mem"
 
     # project
-    PROJECT_ADMIN = "proj_admin"
-    PROJECT_MEMBER = "proj_member"
-    PROJECT_OBSERVER = "proj_observer"
-    PROJECT_OBSERVER_APPROVED = "proj_observer_approved"
+    PROJECT_MANAGER = "proj_man"
+    PROJECT_EMPLOYEE = "proj_coll"
+    PROJECT_FIELDWORKER = "proj_fw"
+    PROJECT_OBSERVER_INTERNAL = "proj_read"
+    PROJECT_CLIENT = "proj_cli"
+    PROJECT_CONTRACTOR = "proj_con"
+    PROJECT_OBSERVER_EXTERNAL = "proj_ext"
+
+    # special roles
+    USER_SELF = "user_self"  # special role to identify the user himself
+    AUTHENTICATED = "auth"  # special role to identify all authenticated users
+    PUBLIC = "public"  # special role to identify all users, also not authenticated
 
     for_staff = models.BooleanField(
         "Voor superuser",
         default=False,
         config=models.Config(
             doc_short="Voor superuser",
-            permissions=models.FPerm("-s-", user_self="-s-"),
+            permissions=models.FPerm("-s-"),
         ),
     )
     for_org = models.BooleanField(
@@ -37,7 +45,7 @@ class EnumRole(BaseEnumExtended):
         default=False,
         config=models.Config(
             doc_short="Voor organisatie",
-            permissions=models.FPerm("-s-", user_self="-s-"),
+            permissions=models.FPerm("-s-"),
         ),
     )
     for_project = models.BooleanField(
@@ -45,7 +53,7 @@ class EnumRole(BaseEnumExtended):
         default=False,
         config=models.Config(
             doc_short="Voor project",
-            permissions=models.FPerm("-s-", user_self="-s-"),
+            permissions=models.FPerm("-s-"),
         ),
     )
 
@@ -54,14 +62,14 @@ class EnumRole(BaseEnumExtended):
         default=0,
         config=models.Config(
             doc_short="Volgorde van de rollen",
-            permissions=models.FPerm("-s-", user_self="-s-"),
+            permissions=models.FPerm("-s-"),
         ),
     )
     description = models.TextField(
         "omschrijving",
         config=models.Config(
             doc_short="Omschrijving van de rol",
-            permissions=models.FPerm("-s-", user_self="-s-"),
+            permissions=models.FPerm("-s-"),
         ),
     )
 
@@ -80,65 +88,123 @@ class EnumRole(BaseEnumExtended):
         return {
             "fields": ["id", "name", "order", "for_staff", "for_org", "for_project", "description"],
             "data": [
-                (
-                    cls.DEVELOPER,
-                    "Ontwikkelaar",
-                    1,
-                    True,
-                    False,
-                    False,
-                    "Heeft alle rechten (voor de organisaties zonder restricties)",
-                ),
-                (cls.APPLICATION_MANAGER, "Applicatie manager", 2, True, False, False, "Heeft alle rechten"),
-                (
-                    cls.APPLICATION_ADMIN,
-                    "Applicatie admin",
-                    3,
-                    True,
-                    False,
-                    False,
-                    "Heeft alle admin (organisatie + project) rechten (voor de organisaties zonder restricties)",
-                ),
-                (
-                    cls.ORGANISATION_ADMIN,
-                    "Organisatie admin",
-                    4,
-                    False,
-                    True,
-                    False,
-                    "Heeft alle rechten binnen de organisatie",
-                ),
-                (
-                    cls.ORGANISATION_USER_ADMIN,
-                    "Organisatie gebruikersbeheerder",
-                    5,
-                    False,
-                    True,
-                    False,
-                    "Mag gebruikers beheren van de organisatie",
-                ),
-                (
-                    cls.ORGANISATION_PROJECT_ADMIN,
-                    "Organisatie project admin",
-                    6,
-                    False,
-                    True,
-                    False,
-                    "Mag projecten beheren van de organisatie",
-                ),
-                (cls.ORGANISATION_MEMBER, "Organisatie lid", 7, False, True, False, "Is lid van de organisatie"),
-                (cls.PROJECT_ADMIN, "Project admin", 8, False, False, True, "Mag project beheren"),
-                (cls.PROJECT_MEMBER, "Project lid", 9, False, False, True, "Is lid van het project"),
-                (cls.PROJECT_OBSERVER, "Project meekijker", 10, False, False, True, "Mag meekijken in het project"),
-                (
-                    cls.PROJECT_OBSERVER_APPROVED,
-                    "Project meekijker goedgekeurd",
-                    11,
-                    False,
-                    False,
-                    True,
-                    "Mag meekijken in het project (goedgekeurd)",
-                ),
+                {
+                    "id": cls.DEVELOPER_MANAGER,
+                    "name": "Developer manager",
+                    "order": 0,
+                    "for_staff": True,
+                    "for_org": False,
+                    "for_project": False,
+                    "description": "Heeft alle rechten (voor de organisaties zonder restricties). Kan ook rechten van developers instellen.",
+                },
+                {
+                    "id": cls.DEVELOPER,
+                    "name": "Developer",
+                    "order": 1,
+                    "for_staff": True,
+                    "for_org": False,
+                    "for_project": False,
+                    "description": "Heeft alle rechten (voor de organisaties zonder restricties)",
+                },
+                {
+                    "id": cls.APPLICATION_MANAGER,
+                    "name": "Applicatie manager",
+                    "order": 2,
+                    "for_staff": True,
+                    "for_org": False,
+                    "for_project": False,
+                    "description": "Heeft alle rechten",
+                },
+                {
+                    "id": cls.ORGANIZATION_ADMIN,
+                    "name": "Organisatie admin",
+                    "order": 3,
+                    "for_staff": False,
+                    "for_org": True,
+                    "for_project": False,
+                    "description": "Heeft alle rechten binnen de organisatie",
+                },
+                {
+                    "id": cls.ORGANIZATION_USER_ADMIN,
+                    "name": "Organisatie gebruikersbeheerder",
+                    "order": 4,
+                    "for_staff": False,
+                    "for_org": True,
+                    "for_project": False,
+                    "description": "Mag gebruikers beheren van de organisatie",
+                },
+                {
+                    "id": cls.ORGANIZATION_MEMBER,
+                    "name": "Organisatie lid",
+                    "order": 5,
+                    "for_staff": False,
+                    "for_org": True,
+                    "for_project": False,
+                    "description": "Is lid van de organisatie",
+                },
+                {
+                    "id": cls.PROJECT_MANAGER,
+                    "name": "Project manager",
+                    "order": 6,
+                    "for_staff": False,
+                    "for_org": False,
+                    "for_project": True,
+                    "description": "Mag projecten beheren",
+                },
+                {
+                    "id": cls.PROJECT_EMPLOYEE,
+                    "name": "Project medewerker",
+                    "order": 7,
+                    "for_staff": False,
+                    "for_org": False,
+                    "for_project": True,
+                    "description": "Is medewerker van het project",
+                },
+                {
+                    "id": cls.PROJECT_FIELDWORKER,
+                    "name": "Project veldwerker",
+                    "order": 8,
+                    "for_staff": False,
+                    "for_org": False,
+                    "for_project": True,
+                    "description": "Is veldwerker van het project",
+                },
+                {
+                    "id": cls.PROJECT_OBSERVER_INTERNAL,
+                    "name": "Project meekijker intern",
+                    "order": 9,
+                    "for_staff": False,
+                    "for_org": False,
+                    "for_project": True,
+                    "description": "Mag meekijken in het project (intern)",
+                },
+                {
+                    "id": cls.PROJECT_CLIENT,
+                    "name": "Project klant",
+                    "order": 10,
+                    "for_staff": False,
+                    "for_org": False,
+                    "for_project": True,
+                    "description": "Is klant van het project",
+                },
+                {
+                    "id": cls.PROJECT_CONTRACTOR,
+                    "name": "Project aannemer",
+                    "order": 11,
+                    "for_staff": False,
+                    "for_org": False,
+                    "for_project": True,
+                    "description": "Is aannemer van het project",
+                },
+                {
+                    "id": cls.PROJECT_OBSERVER_EXTERNAL,
+                    "name": "Project meekijker extern",
+                    "order": 12,
+                    "for_staff": False,
+                    "for_org": False,
+                    "for_project": True,
+                    "description": "Mag meekijken in het project (extern)",
+                },
             ],
         }
 

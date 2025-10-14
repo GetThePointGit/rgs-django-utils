@@ -206,6 +206,7 @@ class FieldPermissionType(typing.TypedDict, total=False):
 
 type Roles = typing.Literal[
     "public",
+    "auth",
     "module_auth",
     "module_auth_2",
     "user_self",
@@ -227,6 +228,33 @@ type Roles = typing.Literal[
     "dev",
     "dev_man",
 ]
+
+roles_list: List[Roles] = [
+    "public",
+    "auth",
+    "module_auth",
+    "module_auth_2",
+    "user_self",
+    "project_rol",
+    "project_read",
+    "project_edit",
+    "proj_read",
+    "proj_cli",
+    "proj_con",
+    "proj_ext",
+    "project_edit",
+    "proj_fw",
+    "proj_coll",
+    "proj_man",
+    "org_mem",
+    "org_uman",
+    "org_adm",
+    "sys_adm",
+    "dev",
+    "dev_man",
+]
+
+roles_set = set(roles_list)
 
 
 class Perm(Generic[T], ABC):
@@ -259,6 +287,8 @@ class Perm(Generic[T], ABC):
 class FPerm(Perm[FieldPermissionType]):
     """Field Permission."""
 
+    empty = "---"
+
     def __init__(self, public: FieldActions = "---", **kwargs: typing.Unpack[FieldPermissionType]):
         """Initialize Field permission.
 
@@ -286,10 +316,13 @@ class FPerm(Perm[FieldPermissionType]):
         if public:
             self.config["public"] = public
         # todo: validate
-
-        # super().__init__(*args, **kwargs)
-
-    empty = "---"
+        for key, value in self.config.items():
+            if not isinstance(value, str) or value not in ["---", "-s-", "i--", "-su", "isu", "is-"]:
+                raise ValueError(
+                    f"Permission for {key} should be one of ['---', '-s-', 'i--', '-su', 'isu', 'is-'], got {value}"
+                )
+            if key not in roles_set:
+                raise ValueError(f"Role {key} is not a valid role")
 
 
 type PresetActions = Literal["--", "i-", "-u", "iu"]
@@ -353,7 +386,8 @@ class TPerm(Perm[dict[TableAction, dict]]):
         for key, value in self.config.items():
             if not isinstance(value, dict):
                 raise ValueError(f"Permission for {key} should be a dict, got {type(value)}")
-        # todo: validate keys..
+            if key not in roles_set:
+                raise ValueError(f"Role {key} is not a valid role")
 
 
 class Validation(object):

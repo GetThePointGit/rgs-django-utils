@@ -91,7 +91,7 @@ HasuraConfig.register_multiple_functions(
         {
             "function": {"name": "auth_organization_policy", "schema": "public"},
             "configuration": {"custom_root_fields": {}, "session_argument": "hasura_session"},
-            "permissions": [{"role": "module_auth"}],
+            "permissions": [{"role": "module_auth"}, {"role": "auth"}],
         },
         {
             "function": {"name": "auth_user", "schema": "public"},
@@ -132,7 +132,15 @@ HasuraConfig.register_multiple_views(
                         "filter": {},
                     },
                     "comment": "",
-                }
+                },
+                {
+                    "role": "auth",
+                    "permission": {
+                        "columns": ["auth_method_id", "config", "id", "method_id", "visible"],
+                        "filter": {},
+                    },
+                    "comment": "",
+                },
             ],
         },
         {

@@ -89,69 +89,7 @@ class PermissionHelper:
                         if out[k]["update"] is None:
                             out[k]["update"] = rol_table_permissions
 
-        if table_permissions.config.get("module_auth") is not None:
-            # only select permission for module_auth
-            rol_table_permissions = table_permissions.config["module_auth"]
-            if "module_auth_" not in out:
-                out["module_auth_2"] = {
-                    "insert": None,
-                    "select": None,
-                    "update": None,
-                    "delete": None,
-                }
-            if rol_table_permissions.get("select") is not None:
-                out["module_auth_2"]["select"] = rol_table_permissions["select"]
-            pass
-        if table_permissions.config.get("module_auth_2") is not None:
-            rol_table_permissions = table_permissions.config["module_auth_2"]
-            if "module_auth_2" not in out:
-                out["module_auth_2"] = {
-                    "insert": None,
-                    "select": None,
-                    "update": None,
-                    "delete": None,
-                }
-            if rol_table_permissions.get("select") is not None:
-                out["module_auth_2"]["select"] = rol_table_permissions["select"]
-            if rol_table_permissions.get("insert") is not None:
-                out["module_auth_2"]["insert"] = rol_table_permissions["insert"]
-            if rol_table_permissions.get("update") is not None:
-                out["module_auth_2"]["update"] = rol_table_permissions["update"]
-            if rol_table_permissions.get("delete") is not None:
-                out["module_auth_2"]["delete"] = rol_table_permissions["delete"]
         return out
-        # disable code. module_auth and module_auth_2 are now handled as normal roles.
-        # if table_permissions.config.get("module_auth") is not None:
-        #     # only select permission for module_auth
-        #     rol_table_permissions = table_permissions.config["module_auth"]
-        #     if "module_auth_" not in out:
-        #         out["module_auth_2"] = {
-        #             "insert": None,
-        #             "select": None,
-        #             "update": None,
-        #             "delete": None,
-        #         }
-        #     if rol_table_permissions.get("select") is not None:
-        #         out["module_auth_2"]["select"] = rol_table_permissions["select"]
-        #     pass
-        # if table_permissions.config.get("module_auth_2") is not None:
-        #     rol_table_permissions = table_permissions.config["module_auth_2"]
-        #     if "module_auth_2" not in out:
-        #         out["module_auth_2"] = {
-        #             "insert": None,
-        #             "select": None,
-        #             "update": None,
-        #             "delete": None,
-        #         }
-        #     if rol_table_permissions.get("select") is not None:
-        #         out["module_auth_2"]["select"] = rol_table_permissions["select"]
-        #     if rol_table_permissions.get("insert") is not None:
-        #         out["module_auth_2"]["insert"] = rol_table_permissions["insert"]
-        #     if rol_table_permissions.get("update") is not None:
-        #         out["module_auth_2"]["update"] = rol_table_permissions["update"]
-        #     if rol_table_permissions.get("delete") is not None:
-        #         out["module_auth_2"]["delete"] = rol_table_permissions["delete"]
-        # return out
 
     @cache
     def get_rol_field_permissions(self, model):
