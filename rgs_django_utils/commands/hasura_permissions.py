@@ -177,19 +177,6 @@ HasuraConfig.register_multiple_views(
                 }
             ],
         },
-        {
-            "table": {"name": "vw_hasura_auth_user_claim", "schema": "public"},
-            "select_permissions": [
-                {
-                    "role": "module_auth",
-                    "permission": {
-                        "columns": ["id", "email", "organization_id", "allowed_roles"],
-                        "filter": {},
-                    },
-                    "comment": "",
-                }
-            ],
-        },
     ]
 )
 

@@ -630,6 +630,14 @@ class ManyToManyField(base_models.ManyToManyField, FieldConfig):
         # todo...
 
 
+class GeneratedField(base_models.GeneratedField, FieldConfig):
+    def __init__(self, *args, **kwargs):
+        config = kwargs.pop("config", None)
+        super().__init__(*args, **kwargs)
+
+        self._init_extras(config)
+
+
 class UUIDField(base_models.UUIDField, FieldConfig):
     pd_type = pd.StringDtype  # klopt dit of is het een Object?
     sql_alchemy_type = sql_types.UUID()
@@ -898,5 +906,6 @@ type_mapping = {
     DateTimeField.__name__: DateTimeField,
     TextStringField.__name__: TextStringField,
     TextField.__name__: TextField,
+    GeneratedField.__name__: GeneratedField,
     # todo: etc...
 }
