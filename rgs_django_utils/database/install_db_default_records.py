@@ -4,7 +4,7 @@ from typing import List
 
 import django
 import django.apps
-from django.db import transaction
+from django.db import connection, models, transaction
 
 if __name__ == "__main__":
     from rgs_django_utils.setup_django import setup_django
@@ -17,6 +17,22 @@ from rgs_django_utils.database.db_types import ImportMethod
 from rgs_django_utils.database.upsert_multiple_data import upsert_multiple_data
 
 log = logging.getLogger(__name__)
+
+
+def reset_autofield_sequence(model):
+    """Reset PostgreSQL sequence for AutoField/BigAutoField primary keys after inserting records with explicit IDs."""
+    pk_field = model._meta.pk
+    if pk_field is None or not isinstance(pk_field, (models.AutoField, models.BigAutoField)):
+        return
+
+    table = model._meta.db_table
+    column = pk_field.column
+    with connection.cursor() as cursor:
+        cursor.execute(
+            f"SELECT setval(pg_get_serial_sequence(%s, %s), GREATEST(COALESCE(MAX(\"{column}\"), 1), 1)) FROM \"{table}\"",
+            [table, column],
+        )
+    log.info("Reset sequence for %s.%s", table, column)
 
 
 def get_value_helper(value):
@@ -171,9 +187,12 @@ def add_default_records(model_selection: List[str] = None, *args, **kwargs):
                     # records worden default aangevuld om ongewenste mutaties te voorkomen. Todo: more advanced?
                 )
 
+
         if hasattr(model, "custom_default_records"):
             log.info("add custom records for %s.", str(model))
             model.custom_default_records()
+
+        reset_autofield_sequence(model)
 
     transaction.commit()
     transaction.set_autocommit(True)

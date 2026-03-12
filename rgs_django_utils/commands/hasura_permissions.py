@@ -86,99 +86,99 @@ class HasuraConfig(metaclass=HasuraConfigClass):
         )
 
 
-HasuraConfig.register_multiple_functions(
-    [
-        {
-            "function": {"name": "auth_organization_policy", "schema": "public"},
-            "configuration": {"custom_root_fields": {}, "session_argument": "hasura_session"},
-            "permissions": [{"role": "module_auth"}, {"role": "auth"}],
-        },
-        {
-            "function": {"name": "auth_user", "schema": "public"},
-            "configuration": {"custom_root_fields": {}, "session_argument": "hasura_session"},
-            "permissions": [{"role": "module_auth"}],
-        },
-        {
-            "function": {"name": "auth_account", "schema": "public"},
-            "configuration": {"custom_root_fields": {}, "session_argument": "hasura_session"},
-            "permissions": [{"role": "module_auth"}],
-        },
-        {
-            "function": {"name": "auth_validate_password", "schema": "public"},
-            "configuration": {"custom_root_fields": {}, "session_argument": "hasura_session"},
-            "permissions": [{"role": "module_auth"}],
-        },
-        # {
-        #     "function": {"name": "auth_update_user", "schema": "public"},
-        #     "configuration": {
-        #         "custom_root_fields": {},
-        #         "session_argument": "hasura_session",
-        #         "exposed_as": "mutation",
-        #     },
-        #     "permissions": [{"role": "module_auth_2"}],
-        # },
-    ]
-)
-
-HasuraConfig.register_multiple_views(
-    [
-        {
-            "table": {"name": "vw_hasura_auth_organization_policy", "schema": "public"},
-            "select_permissions": [
-                {
-                    "role": "module_auth",
-                    "permission": {
-                        "columns": ["auth_method_id", "config", "id", "method_id", "visible"],
-                        "filter": {},
-                    },
-                    "comment": "",
-                },
-                {
-                    "role": "auth",
-                    "permission": {
-                        "columns": ["auth_method_id", "config", "id", "method_id", "visible"],
-                        "filter": {},
-                    },
-                    "comment": "",
-                },
-            ],
-        },
-        {
-            "table": {"name": "vw_hasura_auth_user", "schema": "public"},
-            "select_permissions": [
-                {
-                    "role": "module_auth",
-                    "permission": {
-                        "columns": ["id", "email_verified", "email", "organization_id", "is_active"],
-                        "filter": {},
-                    },
-                    "comment": "",
-                },
-                {
-                    "role": "module_auth_2",
-                    "permission": {
-                        "columns": ["id", "email_verified", "email", "organization_id", "is_active"],
-                        "filter": {},
-                    },
-                    "comment": "",
-                },
-            ],
-        },
-        {
-            "table": {"name": "vw_hasura_auth_account", "schema": "public"},
-            "select_permissions": [
-                {
-                    "role": "module_auth",
-                    "permission": {
-                        "columns": ["id", "method_id", "provider_account_id", "organization_id"],
-                        "filter": {},
-                    },
-                    "comment": "",
-                }
-            ],
-        },
-    ]
-)
+# HasuraConfig.register_multiple_functions(
+#     [
+#         {
+#             "function": {"name": "auth_organization_policy", "schema": "public"},
+#             "configuration": {"custom_root_fields": {}, "session_argument": "hasura_session"},
+#             "permissions": [{"role": "module_auth"}, {"role": "auth"}],
+#         },
+#         {
+#             "function": {"name": "auth_user", "schema": "public"},
+#             "configuration": {"custom_root_fields": {}, "session_argument": "hasura_session"},
+#             "permissions": [{"role": "module_auth"}],
+#         },
+#         {
+#             "function": {"name": "auth_account", "schema": "public"},
+#             "configuration": {"custom_root_fields": {}, "session_argument": "hasura_session"},
+#             "permissions": [{"role": "module_auth"}],
+#         },
+#         {
+#             "function": {"name": "auth_validate_password", "schema": "public"},
+#             "configuration": {"custom_root_fields": {}, "session_argument": "hasura_session"},
+#             "permissions": [{"role": "module_auth"}],
+#         },
+#         # {
+#         #     "function": {"name": "auth_update_user", "schema": "public"},
+#         #     "configuration": {
+#         #         "custom_root_fields": {},
+#         #         "session_argument": "hasura_session",
+#         #         "exposed_as": "mutation",
+#         #     },
+#         #     "permissions": [{"role": "module_auth_2"}],
+#         # },
+#     ]
+# )
+#
+# HasuraConfig.register_multiple_views(
+#     [
+#         {
+#             "table": {"name": "vw_hasura_auth_organization_policy", "schema": "public"},
+#             "select_permissions": [
+#                 {
+#                     "role": "module_auth",
+#                     "permission": {
+#                         "columns": ["auth_method_id", "config", "id", "method_id", "visible"],
+#                         "filter": {},
+#                     },
+#                     "comment": "",
+#                 },
+#                 {
+#                     "role": "auth",
+#                     "permission": {
+#                         "columns": ["auth_method_id", "config", "id", "method_id", "visible"],
+#                         "filter": {},
+#                     },
+#                     "comment": "",
+#                 },
+#             ],
+#         },
+#         {
+#             "table": {"name": "vw_hasura_auth_user", "schema": "public"},
+#             "select_permissions": [
+#                 {
+#                     "role": "module_auth",
+#                     "permission": {
+#                         "columns": ["id", "email_verified", "email", "organization_id", "is_active"],
+#                         "filter": {},
+#                     },
+#                     "comment": "",
+#                 },
+#                 {
+#                     "role": "module_auth_2",
+#                     "permission": {
+#                         "columns": ["id", "email_verified", "email", "organization_id", "is_active"],
+#                         "filter": {},
+#                     },
+#                     "comment": "",
+#                 },
+#             ],
+#         },
+#         {
+#             "table": {"name": "vw_hasura_auth_account", "schema": "public"},
+#             "select_permissions": [
+#                 {
+#                     "role": "module_auth",
+#                     "permission": {
+#                         "columns": ["id", "method_id", "provider_account_id", "organization_id"],
+#                         "filter": {},
+#                     },
+#                     "comment": "",
+#                 }
+#             ],
+#         },
+#     ]
+# )
 
 
 class HasuraPermissions(object):

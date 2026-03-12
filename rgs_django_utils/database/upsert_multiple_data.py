@@ -250,7 +250,7 @@ def upsert_from_existing_data(
             cursor.execute(update_part, values)
             updated = cursor.fetchone()[0]
         if insert_part:
-            print(insert_part.as_string(cursor.connection))
+            # print(insert_part.as_string(cursor.connection))
             cursor.execute(insert_part, {**insert_values, **where_values})
             inserted = cursor.fetchone()[0]
         # --SET LOCAL tapp.skip_recalc_flagging = false;

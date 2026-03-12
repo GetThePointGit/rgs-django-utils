@@ -11,7 +11,7 @@ class EnumAccessThrough(BaseEnum):
     AUTHENTICATED = "authenticated"
     ORGANISATION = "organisation"
     PROJECT = "project"
-    USER_GROUP = "user_group"
+    TEAM_MEMBER = "team_member"
     USER = "user"
 
     class Meta:
@@ -31,7 +31,7 @@ class EnumAccessThrough(BaseEnum):
                 (cls.AUTHENTICATED, "Toegang voor iedere ingelogde gebruiker"),
                 (cls.ORGANISATION, "Toegang voor gebruikers binnen een organisatie"),
                 (cls.PROJECT, "Toegang voor gebruikers binnen een project"),
-                (cls.USER_GROUP, "Toegang voor gebruikers binnen een gebruikersgroep"),
+                (cls.TEAM_MEMBER, "Toegang voor gebruikers binnen een team"),
                 (cls.USER, "Toegang voor een specifieke gebruiker"),
             ],
         }
