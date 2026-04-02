@@ -4,20 +4,19 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('rgs_django_utils', '0001_initial'),
+        ("rgs_django_utils", "0001_initial"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='enummoduleextended',
-            name='id',
+            model_name="enummoduleextended",
+            name="id",
         ),
         migrations.DeleteModel(
-            name='EnumModule',
+            name="EnumModule",
         ),
         migrations.DeleteModel(
-            name='EnumModuleExtended',
+            name="EnumModuleExtended",
         ),
     ]

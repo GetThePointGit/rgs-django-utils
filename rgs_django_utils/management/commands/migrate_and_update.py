@@ -43,9 +43,9 @@ class Command(BaseCommand):
             install_db_defaults_and_relation_cascading,
         )
         from rgs_django_utils.database.install_db_functions_and_triggers import (
+            install_db_authorization_functions,
             install_db_before_functions,
             install_db_functions,
-            install_db_authorization_functions,
             install_db_last_functions,
         )
 

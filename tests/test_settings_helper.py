@@ -1,10 +1,10 @@
 import json
 
 from django.test import TestCase
+
 from rgs_django_utils.database import dj_extended_models
 from rgs_django_utils.database.dj_settings_helper import TableDescriptionGetter
 from rgs_django_utils.database.permission_helper import PermissionHelper, get_permission_helper
-
 from tests.testapp.models import (
     ChildModel,
     EnumExtendedTestModel,
@@ -47,7 +47,9 @@ class TestDoubleIdentifier(TestCase):
         self.assertEqual(td.one_to_one_relationships[0].related_model, MiddleExtendedModel)
 
         self.assertEqual(len(td.one_to_many_relationships), 2)
-        self.assertListEqual([rel.related_model for rel in td.one_to_many_relationships], [ChildModel, ManyToManyModel])
+        self.assertListEqual(
+            [rel.related_model for rel in td.one_to_many_relationships], [ChildModel, ManyToManyModel]
+        )
 
     def test_permission_helper(self):
         ph = get_permission_helper()

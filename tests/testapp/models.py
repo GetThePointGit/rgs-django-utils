@@ -16,10 +16,7 @@ class ParentModel(models.Model):
         config=models.Config(
             section=section_one,
             trigger_calc=[40, 50],
-            hasura_set=models.HasuraSet(
-                "x-hasura-userId",
-                "now()"
-            ),
+            hasura_set=models.HasuraSet("x-hasura-userId", "now()"),
             permissions=models.FPerm(
                 project="-s-",
             ),

@@ -89,7 +89,7 @@ class PasswordlessLoginEmail(EmailTemplate):
         email = claims.email
         name = claims.fullname
         auth_url = settings.AUTH_URL
-        if not auth_url.startswith('http://') and not auth_url.startswith('https://'):
+        if not auth_url.startswith("http://") and not auth_url.startswith("https://"):
             auth_url = f"https://{auth_url}"
         url = f"{auth_url}/callback/{context.get('providerId')}?token={token}&email={urllib.parse.quote_plus(email)}"
         return {
