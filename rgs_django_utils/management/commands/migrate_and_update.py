@@ -13,7 +13,7 @@ from thissite import settings
 
 from rgs_django_utils.commands.export_datamodel_to_excel import export_datamodel_to_excel
 from rgs_django_utils.database.install_db_default_records import add_default_records
-
+from rgs_django_utils.commands.export_datamodel_to_json_schema import export_datamodel_to_json_schema
 
 class Command(BaseCommand):
     help = "Migrate database and update triggers, default records and db description"
@@ -89,6 +89,7 @@ class Command(BaseCommand):
 
         sync_db_meta_tables()
         export_datamodel_to_excel()
+        export_datamodel_to_json_schema()
 
         self.stdout.write(self.style.WARNING("Don't forget to update the hasura metadata"))
         self.stdout.write(self.style.SUCCESS("Successfully ran migrate_and_update"))
