@@ -20,7 +20,7 @@ class Command(BaseCommand):
         parser.add_argument(
             "--path",
             type=str,
-            default=os.path.join(settings.VAR_DIR, "datamodel.schema.json"),
+            default=os.path.join(settings.VAR_DIR, "schema", "datamodel.schema.json"),
             help="Path to export JSON schema to. ",
         )
 
