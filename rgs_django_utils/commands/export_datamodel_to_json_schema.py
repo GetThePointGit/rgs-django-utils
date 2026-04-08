@@ -243,12 +243,12 @@ class SchemaGenerator:
             # ── reverse relations (rule 44: parent includes array, child skips back-FK)
             if isinstance(field, (ManyToOneRel, ManyToManyRel)):
                 rn = getattr(field, "related_name", None)
-                if not rn or rn.endswith("+"):
-                    continue
+                # if not rn or rn.endswith("+"):
+                #     continue
                 # field.related_model == the model that declares the FK to us
                 sub_model = field.related_model
-                if self._is_skipped_fk_target(model_class=sub_model):
-                    continue
+                # if self._is_skipped_fk_target(model_class=sub_model):
+                #     continue
                 ref = self._ensure_def(model_class=sub_model, parent_model=model_class)
                 sub_meta = sub_model._meta
                 prop: dict = {
@@ -264,11 +264,11 @@ class SchemaGenerator:
 
             if isinstance(field, OneToOneRel):
                 rn = getattr(field, "related_name", None)
-                if not rn or rn.endswith("+"):
-                    continue
+                # if not rn or rn.endswith("+"):
+                #     continue
                 sub_model = field.related_model
-                if self._is_skipped_fk_target(model_class=sub_model):
-                    continue
+                # if self._is_skipped_fk_target(model_class=sub_model):
+                #     continue
                 ref = self._ensure_def(model_class=sub_model, parent_model=model_class)
                 props[rn] = {"$ref": ref}
                 continue
@@ -278,9 +278,9 @@ class SchemaGenerator:
                 continue
 
             # ── rule 44: skip the FK that points back to the parent model
-            if parent_model and isinstance(field, (ForeignKey, OneToOneField)):
-                if field.related_model is parent_model:
-                    continue
+            # if parent_model and isinstance(field, (ForeignKey, OneToOneField)):
+            #     if field.related_model is parent_model:
+            #         continue
 
             if field.name in mixin_field_names:
                 prop["readOnly"] = True  # rule 45: mixin fields are readOnly in root model
