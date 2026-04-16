@@ -735,7 +735,7 @@
           "type": "array",
           "title": "Periodic tasks",
           "items": {
-            "$ref": "#/$defs/PeriodicTask"
+            "$ref": "#/$defs/django_celery_beat_periodictask"
           }
         },
         "id": {
@@ -767,7 +767,7 @@
           "type": "array",
           "title": "Periodic tasks",
           "items": {
-            "$ref": "#/$defs/PeriodicTask"
+            "$ref": "#/$defs/django_celery_beat_periodictask"
           }
         },
         "id": {
@@ -795,7 +795,7 @@
           "type": "array",
           "title": "Periodic tasks",
           "items": {
-            "$ref": "#/$defs/PeriodicTask"
+            "$ref": "#/$defs/django_celery_beat_periodictask"
           }
         },
         "id": {
@@ -819,7 +819,7 @@
           "type": "array",
           "title": "Periodic tasks",
           "items": {
-            "$ref": "#/$defs/PeriodicTask"
+            "$ref": "#/$defs/django_celery_beat_periodictask"
           }
         },
         "id": {
@@ -1007,7 +1007,7 @@
           "type": "array",
           "title": "Gebruikersrollen",
           "items": {
-            "$ref": "#/$defs/EnumRoleExtended"
+            "$ref": "#/$defs/enum_role_ext"
           },
           "description": "De gebruikersrollen voor staf, organisaties en projecten"
         },
@@ -1060,14 +1060,14 @@
           "type": "array",
           "title": "Authenticatie methoden",
           "items": {
-            "$ref": "#/$defs/EnumAuthMethodExtended"
+            "$ref": "#/$defs/enum_auth_method_ext"
           }
         },
         "null": {
           "type": "array",
           "title": "Organisatie authenticatie methodes",
           "items": {
-            "$ref": "#/$defs/OrganizationAuthMethod"
+            "$ref": "#/$defs/org_auth_method"
           },
           "description": "authenticatie methodes van de organisatie"
         },
@@ -1119,7 +1119,7 @@
           "type": "array",
           "title": "Tabelbeschrijvingen",
           "items": {
-            "$ref": "#/$defs/DescriptionTable"
+            "$ref": "#/$defs/descr_table"
           },
           "description": "Beschrijving van de databasetabellen"
         },
@@ -1172,7 +1172,7 @@
           "type": "array",
           "title": "Berekeningen",
           "items": {
-            "$ref": "#/$defs/DescriptionCalculation"
+            "$ref": "#/$defs/descr_calculation"
           },
           "description": "Beschrijving van de database berekeningen in de applicatie"
         },
@@ -1180,7 +1180,7 @@
           "type": "array",
           "title": "Veldsecties",
           "items": {
-            "$ref": "#/$defs/DescriptionFieldSection"
+            "$ref": "#/$defs/descr_field_section"
           },
           "description": "Secties om de databasevelden in een tabel te groeperen en sorteren"
         },
@@ -1188,7 +1188,7 @@
           "type": "array",
           "title": "Velden",
           "items": {
-            "$ref": "#/$defs/DescriptionField"
+            "$ref": "#/$defs/descr_field"
           },
           "description": "Beschrijving van de databasevelden"
         },
@@ -1196,7 +1196,7 @@
           "type": "array",
           "title": "Velden",
           "items": {
-            "$ref": "#/$defs/DescriptionField"
+            "$ref": "#/$defs/descr_field"
           },
           "description": "Beschrijving van de databasevelden"
         },
@@ -1250,7 +1250,7 @@
           "type": "array",
           "title": "Velden",
           "items": {
-            "$ref": "#/$defs/DescriptionField"
+            "$ref": "#/$defs/descr_field"
           },
           "description": "Beschrijving van de databasevelden"
         },
@@ -1258,7 +1258,7 @@
           "type": "array",
           "title": "Veld input voor berekeningen",
           "items": {
-            "$ref": "#/$defs/DescriptionFieldInputForCalc"
+            "$ref": "#/$defs/descr_field_input_for_calc"
           },
           "description": "Beschrijving van de velden die als input dienen voor berekeningen"
         },
@@ -1283,7 +1283,7 @@
           "type": "array",
           "title": "Velden",
           "items": {
-            "$ref": "#/$defs/DescriptionField"
+            "$ref": "#/$defs/descr_field"
           },
           "description": "Beschrijving van de databasevelden"
         },
@@ -1325,7 +1325,7 @@
           "type": "array",
           "title": "Veld input voor berekeningen",
           "items": {
-            "$ref": "#/$defs/DescriptionFieldInputForCalc"
+            "$ref": "#/$defs/descr_field_input_for_calc"
           },
           "description": "Beschrijving van de velden die als input dienen voor berekeningen"
         },
@@ -1458,7 +1458,7 @@
           "type": "array",
           "title": "Kaart",
           "items": {
-            "$ref": "#/$defs/SpatialMap"
+            "$ref": "#/$defs/spatial_map"
           }
         },
         "id": {
@@ -1480,14 +1480,14 @@
           "type": "array",
           "title": "Map authentication types",
           "items": {
-            "$ref": "#/$defs/EnumMapAuthTypeExtended"
+            "$ref": "#/$defs/enum_map_auth_type_ext"
           }
         },
         "null": {
           "type": "array",
           "title": "Kaartbronnen",
           "items": {
-            "$ref": "#/$defs/SpatialSource"
+            "$ref": "#/$defs/spatial_source"
           }
         },
         "id": {
@@ -1527,14 +1527,14 @@
           "type": "array",
           "title": "Map source types",
           "items": {
-            "$ref": "#/$defs/EnumMapSourceTypeExtended"
+            "$ref": "#/$defs/enum_map_source_type_ext"
           }
         },
         "null": {
           "type": "array",
           "title": "Kaartbronnen",
           "items": {
-            "$ref": "#/$defs/SpatialSource"
+            "$ref": "#/$defs/spatial_source"
           }
         },
         "id": {
@@ -1574,14 +1574,14 @@
           "type": "array",
           "title": "Kaartlaag stijlen",
           "items": {
-            "$ref": "#/$defs/SpatialLayerStyle"
+            "$ref": "#/$defs/spatial_layer_style"
           }
         },
         "null": {
           "type": "array",
           "title": "Kaart-kaartlagen",
           "items": {
-            "$ref": "#/$defs/SpatialMapLayer"
+            "$ref": "#/$defs/spatial_map_layer"
           }
         },
         "id": {
@@ -1681,7 +1681,7 @@
           "type": "array",
           "title": "Kaartlagen",
           "items": {
-            "$ref": "#/$defs/SpatialLayer"
+            "$ref": "#/$defs/spatial_layer"
           }
         },
         "id": {
@@ -1733,7 +1733,7 @@
           "type": "array",
           "title": "Kaartlaag stijlen",
           "items": {
-            "$ref": "#/$defs/SpatialLayerStyle"
+            "$ref": "#/$defs/spatial_layer_style"
           }
         },
         "id": {
@@ -1800,7 +1800,7 @@
           "type": "array",
           "title": "Kaart-kaartlagen",
           "items": {
-            "$ref": "#/$defs/SpatialMapLayer"
+            "$ref": "#/$defs/spatial_map_layer"
           }
         },
         "id": {
@@ -1896,7 +1896,7 @@
           "type": "array",
           "title": "Toetsen",
           "items": {
-            "$ref": "#/$defs/EnumAssessmentTypeExtended"
+            "$ref": "#/$defs/enum_assessment_type_ext"
           },
           "description": "Beschrijving van de toetsen in WIT"
         },
@@ -1946,7 +1946,7 @@
           "type": "array",
           "title": "Berekeningsmeldingen",
           "items": {
-            "$ref": "#/$defs/EnumCalcMessageExtended"
+            "$ref": "#/$defs/enum_calc_message_ext"
           }
         },
         "id": {
@@ -1984,7 +1984,7 @@
           "type": "array",
           "title": "Berekeningsstappen",
           "items": {
-            "$ref": "#/$defs/EnumCalcStepExtended"
+            "$ref": "#/$defs/enum_calc_step_ext"
           }
         },
         "id": {
@@ -2016,7 +2016,7 @@
           "type": "array",
           "title": "Aangepaste termen",
           "items": {
-            "$ref": "#/$defs/EnumCustomTermExtended"
+            "$ref": "#/$defs/enum_custom_term_ext"
           },
           "description": "Termen die kan worden aangepast in de applicatie"
         },
@@ -2053,7 +2053,7 @@
           "type": "array",
           "title": "Modules",
           "items": {
-            "$ref": "#/$defs/EnumModuleExtended"
+            "$ref": "#/$defs/enum_module_ext"
           },
           "description": "De modules binnen WIT"
         },
@@ -2093,7 +2093,7 @@
           "type": "array",
           "title": "Bagger uitvoeringsstatussen",
           "items": {
-            "$ref": "#/$defs/EnumDredgingStatusExtended"
+            "$ref": "#/$defs/enum_dredging_status_ext"
           }
         },
         "id": {
@@ -2144,7 +2144,7 @@
           "type": "array",
           "title": "Vormen legger",
           "items": {
-            "$ref": "#/$defs/EnumLeggerShapeExtended"
+            "$ref": "#/$defs/enum_legger_shape_ext"
           },
           "description": "Vormen van legger"
         },
@@ -2188,7 +2188,7 @@
           "type": "array",
           "title": "Meetstatussen",
           "items": {
-            "$ref": "#/$defs/EnumMeasurementStatusExtended"
+            "$ref": "#/$defs/enum_meas_status_ext"
           }
         },
         "id": {
@@ -2224,7 +2224,7 @@
           "type": "array",
           "title": "Organisatie rollen",
           "items": {
-            "$ref": "#/$defs/EnumOrganizationRoleExtended"
+            "$ref": "#/$defs/enum_organization_role_ext"
           }
         },
         "id": {
@@ -2270,7 +2270,7 @@
           "type": "array",
           "title": "Organisatie project rollen",
           "items": {
-            "$ref": "#/$defs/EnumOrganizationProjectRoleExtended"
+            "$ref": "#/$defs/enum_organization_project_role_ext"
           }
         },
         "id": {
@@ -2316,7 +2316,7 @@
           "type": "array",
           "title": "Punttypes",
           "items": {
-            "$ref": "#/$defs/EnumPointTypeExtended"
+            "$ref": "#/$defs/enum_point_type_ext"
           }
         },
         "id": {
@@ -2352,7 +2352,7 @@
           "type": "array",
           "title": "Profielmeting types",
           "items": {
-            "$ref": "#/$defs/EnumProfileMeasurementTypeExtended"
+            "$ref": "#/$defs/enum_pm_type_ext"
           }
         },
         "id": {
@@ -2388,7 +2388,7 @@
           "type": "array",
           "title": "Projectfasen",
           "items": {
-            "$ref": "#/$defs/EnumProjectPhaseExtended"
+            "$ref": "#/$defs/enum_project_phase_ext"
           },
           "description": "Projectfase, basis voor welke functionaliteiten primair zichtbaar zijn"
         },
@@ -2438,7 +2438,7 @@
           "type": "array",
           "title": "Project statussen",
           "items": {
-            "$ref": "#/$defs/EnumProjectStatusExtended"
+            "$ref": "#/$defs/enum_project_status_ext"
           }
         },
         "id": {
@@ -2474,7 +2474,7 @@
           "type": "array",
           "title": "Kwaliteitsklassen",
           "items": {
-            "$ref": "#/$defs/EnumQualityClassificationExtended"
+            "$ref": "#/$defs/enum_quality_classification_ext"
           },
           "description": "Kwaliteitsklasse monstervak"
         },
@@ -2515,7 +2515,7 @@
           "type": "array",
           "title": "Kwaliteitsklasse waarden",
           "items": {
-            "$ref": "#/$defs/EnumQualityClassificationValueExtended"
+            "$ref": "#/$defs/enum_quality_classification_value_ext"
           }
         },
         "id": {
@@ -2572,7 +2572,7 @@
           "type": "array",
           "title": "Stafrollen",
           "items": {
-            "$ref": "#/$defs/EnumStaffRoleExtended"
+            "$ref": "#/$defs/enum_staff_role_ext"
           }
         },
         "id": {
@@ -2615,7 +2615,7 @@
           "type": "array",
           "title": "Eenheden",
           "items": {
-            "$ref": "#/$defs/EnumUnitExtended"
+            "$ref": "#/$defs/enum_unit_ext"
           }
         },
         "id": {
@@ -2651,7 +2651,7 @@
           "type": "array",
           "title": "Gebruiker kwalificaties",
           "items": {
-            "$ref": "#/$defs/EnumUserQualificationExtended"
+            "$ref": "#/$defs/enum_user_qualification_ext"
           },
           "description": "Kwalificaties van gebruikers"
         },
@@ -2691,7 +2691,7 @@
           "type": "array",
           "title": "Projectrollen",
           "items": {
-            "$ref": "#/$defs/EnumProjectRoleExtended"
+            "$ref": "#/$defs/enum_project_role_ext"
           }
         },
         "id": {
@@ -2738,7 +2738,7 @@
           "type": "array",
           "title": "Organisatie configuraties",
           "items": {
-            "$ref": "#/$defs/OrganizationConfig"
+            "$ref": "#/$defs/org_config"
           },
           "description": "configuratie van de organisatie, te raadplegen door gebruikers van de organisatie"
         },
@@ -2746,7 +2746,7 @@
           "type": "array",
           "title": "Organisatie authenticatie methodes",
           "items": {
-            "$ref": "#/$defs/OrganizationAuthMethod"
+            "$ref": "#/$defs/org_auth_method"
           },
           "description": "authenticatie methodes van de organisatie"
         },
@@ -2754,7 +2754,7 @@
           "type": "array",
           "title": "Organisatie modules",
           "items": {
-            "$ref": "#/$defs/OrganizationModule"
+            "$ref": "#/$defs/org_module"
           },
           "description": "modules van de organisatie"
         },
@@ -2762,7 +2762,7 @@
           "type": "array",
           "title": "Vestigingen",
           "items": {
-            "$ref": "#/$defs/OrganizationEstablishment"
+            "$ref": "#/$defs/org_establishment"
           },
           "description": "vestigingen van de organisatie - voor lab rapportages"
         },
@@ -2770,7 +2770,7 @@
           "type": "array",
           "title": "Klanten",
           "items": {
-            "$ref": "#/$defs/OrganizationClient"
+            "$ref": "#/$defs/org_client"
           },
           "description": "klanten van de organisatie - voor project definities en exporten"
         },
@@ -2778,7 +2778,7 @@
           "type": "array",
           "title": "Aangepaste termen",
           "items": {
-            "$ref": "#/$defs/OrganizationCustomTerm"
+            "$ref": "#/$defs/org_custom_term"
           },
           "description": "aangepaste termen binnen WIT voor een organisatie. Wordt gebruikt voor alle projecten binnen de organisatie."
         },
@@ -2786,7 +2786,7 @@
           "type": "array",
           "title": "Toetsinstellingen",
           "items": {
-            "$ref": "#/$defs/OrganizationAssessmentConfig"
+            "$ref": "#/$defs/org_assessment_config"
           },
           "description": "toetsen, inclusief instellingen op organisatie niveau. Deze kunnen op projectniveau worden geselecteerd."
         },
@@ -2794,7 +2794,7 @@
           "type": "array",
           "title": "Watergang betrokkenen",
           "items": {
-            "$ref": "#/$defs/OrganizationWaterwayStakeholder"
+            "$ref": "#/$defs/org_ww_stakeholder"
           },
           "description": "watergang eigenaren, inclusief instellingen op organisatie niveau. Deze kunnen op projectniveau worden geselecteerd."
         },
@@ -2802,7 +2802,7 @@
           "type": "array",
           "title": "Gebruikers",
           "items": {
-            "$ref": "#/$defs/User"
+            "$ref": "#/$defs/auth_user"
           },
           "description": "Geregistreerde gebruikers"
         },
@@ -2810,7 +2810,7 @@
           "type": "array",
           "title": "Teams",
           "items": {
-            "$ref": "#/$defs/Team"
+            "$ref": "#/$defs/auth_team"
           },
           "description": "Teams van gebruikers binnen een organisatie"
         },
@@ -2818,7 +2818,7 @@
           "type": "array",
           "title": "Organisatie leden",
           "items": {
-            "$ref": "#/$defs/OrganizationMember"
+            "$ref": "#/$defs/auth_org_member"
           },
           "description": "Lidmaatschappen van gebruikers binnen een organisatie via Better Auth"
         },
@@ -2826,7 +2826,7 @@
           "type": "array",
           "title": "Projecten",
           "items": {
-            "$ref": "#/$defs/Project"
+            "$ref": "#/$defs/project"
           },
           "description": "project hoofdtabel"
         },
@@ -2834,7 +2834,7 @@
           "type": "array",
           "title": "Indicatieve hoeveelheden sets",
           "items": {
-            "$ref": "#/$defs/QuantityIndicationSet"
+            "$ref": "#/$defs/planning_quantity_indication_set"
           },
           "description": "Indicatieve hoeveelheden configuratie"
         },
@@ -3158,7 +3158,7 @@
           "type": "array",
           "title": "Project toetsconfiguraties",
           "items": {
-            "$ref": "#/$defs/ProjectAssessmentConfig"
+            "$ref": "#/$defs/project_assessment_config"
           }
         },
         "id": {
@@ -3249,7 +3249,7 @@
           "type": "array",
           "title": "Organisaties",
           "items": {
-            "$ref": "#/$defs/Organization"
+            "$ref": "#/$defs/org"
           },
           "description": "basis organisatietabel, te raadplegen door alle ingelogde gebruikers"
         },
@@ -3257,7 +3257,7 @@
           "type": "array",
           "title": "Organisaties",
           "items": {
-            "$ref": "#/$defs/Organization"
+            "$ref": "#/$defs/org"
           },
           "description": "basis organisatietabel, te raadplegen door alle ingelogde gebruikers"
         },
@@ -3265,7 +3265,7 @@
           "type": "array",
           "title": "Organisatie configuraties",
           "items": {
-            "$ref": "#/$defs/OrganizationConfig"
+            "$ref": "#/$defs/org_config"
           },
           "description": "configuratie van de organisatie, te raadplegen door gebruikers van de organisatie"
         },
@@ -3273,7 +3273,7 @@
           "type": "array",
           "title": "Organisatie configuraties",
           "items": {
-            "$ref": "#/$defs/OrganizationConfig"
+            "$ref": "#/$defs/org_config"
           },
           "description": "configuratie van de organisatie, te raadplegen door gebruikers van de organisatie"
         },
@@ -3281,7 +3281,7 @@
           "type": "array",
           "title": "Organisatie authenticatie methodes",
           "items": {
-            "$ref": "#/$defs/OrganizationAuthMethod"
+            "$ref": "#/$defs/org_auth_method"
           },
           "description": "authenticatie methodes van de organisatie"
         },
@@ -3289,7 +3289,7 @@
           "type": "array",
           "title": "Organisatie authenticatie methodes",
           "items": {
-            "$ref": "#/$defs/OrganizationAuthMethod"
+            "$ref": "#/$defs/org_auth_method"
           },
           "description": "authenticatie methodes van de organisatie"
         },
@@ -3297,7 +3297,7 @@
           "type": "array",
           "title": "Organisatie modules",
           "items": {
-            "$ref": "#/$defs/OrganizationModule"
+            "$ref": "#/$defs/org_module"
           },
           "description": "modules van de organisatie"
         },
@@ -3305,7 +3305,7 @@
           "type": "array",
           "title": "Organisatie modules",
           "items": {
-            "$ref": "#/$defs/OrganizationModule"
+            "$ref": "#/$defs/org_module"
           },
           "description": "modules van de organisatie"
         },
@@ -3313,7 +3313,7 @@
           "type": "array",
           "title": "Toetsinstellingen",
           "items": {
-            "$ref": "#/$defs/OrganizationAssessmentConfig"
+            "$ref": "#/$defs/org_assessment_config"
           },
           "description": "toetsen, inclusief instellingen op organisatie niveau. Deze kunnen op projectniveau worden geselecteerd."
         },
@@ -3321,7 +3321,7 @@
           "type": "array",
           "title": "Toetsinstellingen",
           "items": {
-            "$ref": "#/$defs/OrganizationAssessmentConfig"
+            "$ref": "#/$defs/org_assessment_config"
           },
           "description": "toetsen, inclusief instellingen op organisatie niveau. Deze kunnen op projectniveau worden geselecteerd."
         },
@@ -3329,7 +3329,7 @@
           "type": "array",
           "title": "Teamleden",
           "items": {
-            "$ref": "#/$defs/TeamMember"
+            "$ref": "#/$defs/auth_team_member"
           },
           "description": "Leden van een team binnen een organisatie voor het toekennen van rechten"
         },
@@ -3337,7 +3337,7 @@
           "type": "array",
           "title": "Gebruikers projecten",
           "items": {
-            "$ref": "#/$defs/UserProject"
+            "$ref": "#/$defs/auth_user_project"
           },
           "description": "Projecten waar een gebruikersgroep rechten op heeft"
         },
@@ -3345,7 +3345,7 @@
           "type": "array",
           "title": "Organisatie leden",
           "items": {
-            "$ref": "#/$defs/OrganizationMember"
+            "$ref": "#/$defs/auth_org_member"
           },
           "description": "Lidmaatschappen van gebruikers binnen een organisatie via Better Auth"
         },
@@ -3353,7 +3353,7 @@
           "type": "array",
           "title": "Project bestanden",
           "items": {
-            "$ref": "#/$defs/ProjectFile"
+            "$ref": "#/$defs/project_file"
           },
           "description": "Bestand behorende bij een project"
         },
@@ -3361,7 +3361,7 @@
           "type": "array",
           "title": "Project bestanden",
           "items": {
-            "$ref": "#/$defs/ProjectFile"
+            "$ref": "#/$defs/project_file"
           },
           "description": "Bestand behorende bij een project"
         },
@@ -3369,7 +3369,7 @@
           "type": "array",
           "title": "Workflows",
           "items": {
-            "$ref": "#/$defs/Workflow"
+            "$ref": "#/$defs/workflow"
           },
           "description": "Uitvoering van een workflow_template: de run van een import, export of verwerking"
         },
@@ -3377,7 +3377,7 @@
           "type": "array",
           "title": "Workflows",
           "items": {
-            "$ref": "#/$defs/Workflow"
+            "$ref": "#/$defs/workflow"
           },
           "description": "Uitvoering van een workflow_template: de run van een import, export of verwerking"
         },
@@ -3385,7 +3385,7 @@
           "type": "array",
           "title": "Taak",
           "items": {
-            "$ref": "#/$defs/Task"
+            "$ref": "#/$defs/task"
           },
           "description": "Uitvoering van een taak"
         },
@@ -3393,7 +3393,7 @@
           "type": "array",
           "title": "Taak",
           "items": {
-            "$ref": "#/$defs/Task"
+            "$ref": "#/$defs/task"
           },
           "description": "Uitvoering van een taak"
         },
@@ -3401,7 +3401,7 @@
           "type": "array",
           "title": "Projecten",
           "items": {
-            "$ref": "#/$defs/Project"
+            "$ref": "#/$defs/project"
           },
           "description": "project hoofdtabel"
         },
@@ -3409,7 +3409,7 @@
           "type": "array",
           "title": "Projecten",
           "items": {
-            "$ref": "#/$defs/Project"
+            "$ref": "#/$defs/project"
           },
           "description": "project hoofdtabel"
         },
@@ -3417,7 +3417,7 @@
           "type": "array",
           "title": "Projecten",
           "items": {
-            "$ref": "#/$defs/Project"
+            "$ref": "#/$defs/project"
           },
           "description": "project hoofdtabel"
         },
@@ -3425,7 +3425,7 @@
           "type": "array",
           "title": "Project instellingen",
           "items": {
-            "$ref": "#/$defs/ProjectConfig"
+            "$ref": "#/$defs/project_config"
           },
           "description": "instellingen van het project"
         },
@@ -3433,7 +3433,7 @@
           "type": "array",
           "title": "Project instellingen",
           "items": {
-            "$ref": "#/$defs/ProjectConfig"
+            "$ref": "#/$defs/project_config"
           },
           "description": "instellingen van het project"
         },
@@ -3441,7 +3441,7 @@
           "type": "array",
           "title": "Legger types",
           "items": {
-            "$ref": "#/$defs/LeggerType"
+            "$ref": "#/$defs/legger_type"
           },
           "description": "de leggers die gebruikt worden in het project."
         },
@@ -3449,7 +3449,7 @@
           "type": "array",
           "title": "Legger types",
           "items": {
-            "$ref": "#/$defs/LeggerType"
+            "$ref": "#/$defs/legger_type"
           },
           "description": "de leggers die gebruikt worden in het project."
         },
@@ -3457,28 +3457,28 @@
           "type": "array",
           "title": "Project toetsconfiguraties",
           "items": {
-            "$ref": "#/$defs/ProjectAssessmentConfig"
+            "$ref": "#/$defs/project_assessment_config"
           }
         },
         "created_projectassessmentconfig": {
           "type": "array",
           "title": "Project toetsconfiguraties",
           "items": {
-            "$ref": "#/$defs/ProjectAssessmentConfig"
+            "$ref": "#/$defs/project_assessment_config"
           }
         },
         "null": {
           "type": "array",
           "title": "User project mappings",
           "items": {
-            "$ref": "#/$defs/UserProjectMapping"
+            "$ref": "#/$defs/auth_upm"
           }
         },
         "last_modified_planningvariant": {
           "type": "array",
           "title": "Planningsvarianten",
           "items": {
-            "$ref": "#/$defs/PlanningVariant"
+            "$ref": "#/$defs/planning_variant"
           },
           "description": "de planningen in dit WIT project"
         },
@@ -3486,7 +3486,7 @@
           "type": "array",
           "title": "Planningsvarianten",
           "items": {
-            "$ref": "#/$defs/PlanningVariant"
+            "$ref": "#/$defs/planning_variant"
           },
           "description": "de planningen in dit WIT project"
         },
@@ -3494,7 +3494,7 @@
           "type": "array",
           "title": "Verwerkingsmethoden",
           "items": {
-            "$ref": "#/$defs/PlanningProcessingMethod"
+            "$ref": "#/$defs/planning_processing_method"
           },
           "description": "verwerkingsmethoden basis, kosten per kwaliteitsklasse staan in de verwerkingskosten per kwaliteit"
         },
@@ -3502,7 +3502,7 @@
           "type": "array",
           "title": "Verwerkingsmethoden",
           "items": {
-            "$ref": "#/$defs/PlanningProcessingMethod"
+            "$ref": "#/$defs/planning_processing_method"
           },
           "description": "verwerkingsmethoden basis, kosten per kwaliteitsklasse staan in de verwerkingskosten per kwaliteit"
         },
@@ -3510,7 +3510,7 @@
           "type": "array",
           "title": "Verwerkingskosten per kwaliteit",
           "items": {
-            "$ref": "#/$defs/PlanningProcessingQualityCosts"
+            "$ref": "#/$defs/planning_processing_quality_costs"
           },
           "description": "kosten per kwaliteitsklasse voor een verwerkingsmethode, leidende klasse staat in verwerkingsmethode."
         },
@@ -3518,7 +3518,7 @@
           "type": "array",
           "title": "Verwerkingskosten per kwaliteit",
           "items": {
-            "$ref": "#/$defs/PlanningProcessingQualityCosts"
+            "$ref": "#/$defs/planning_processing_quality_costs"
           },
           "description": "kosten per kwaliteitsklasse voor een verwerkingsmethode, leidende klasse staat in verwerkingsmethode."
         },
@@ -3526,7 +3526,7 @@
           "type": "array",
           "title": "Baggerclusters",
           "items": {
-            "$ref": "#/$defs/DredgingCluster"
+            "$ref": "#/$defs/dc"
           },
           "description": "Verzameling watergangen die gezamenlijk worden gebaggerd."
         },
@@ -3534,7 +3534,7 @@
           "type": "array",
           "title": "Baggerclusters",
           "items": {
-            "$ref": "#/$defs/DredgingCluster"
+            "$ref": "#/$defs/dc"
           },
           "description": "Verzameling watergangen die gezamenlijk worden gebaggerd."
         },
@@ -3542,7 +3542,7 @@
           "type": "array",
           "title": "Monstervakken",
           "items": {
-            "$ref": "#/$defs/SampleSection"
+            "$ref": "#/$defs/ss"
           },
           "description": "Monstervakken. bevatten monsters (voor metingen) en eindoordelen (voor planning en prjecten)"
         },
@@ -3550,7 +3550,7 @@
           "type": "array",
           "title": "Monstervakken",
           "items": {
-            "$ref": "#/$defs/SampleSection"
+            "$ref": "#/$defs/ss"
           },
           "description": "Monstervakken. bevatten monsters (voor metingen) en eindoordelen (voor planning en prjecten)"
         },
@@ -3558,7 +3558,7 @@
           "type": "array",
           "title": "Monstervak classificaties",
           "items": {
-            "$ref": "#/$defs/SampleSectionClassification"
+            "$ref": "#/$defs/ss_classification"
           },
           "description": "Classificaties (eindoordelen) van monstervakken"
         },
@@ -3566,7 +3566,7 @@
           "type": "array",
           "title": "Monstervak classificaties",
           "items": {
-            "$ref": "#/$defs/SampleSectionClassification"
+            "$ref": "#/$defs/ss_classification"
           },
           "description": "Classificaties (eindoordelen) van monstervakken"
         },
@@ -3574,7 +3574,7 @@
           "type": "array",
           "title": "Watergangen",
           "items": {
-            "$ref": "#/$defs/Waterway"
+            "$ref": "#/$defs/ww"
           },
           "description": "hoofdtabel voor watergangen."
         },
@@ -3582,7 +3582,7 @@
           "type": "array",
           "title": "Watergangen",
           "items": {
-            "$ref": "#/$defs/Waterway"
+            "$ref": "#/$defs/ww"
           },
           "description": "hoofdtabel voor watergangen."
         },
@@ -3590,7 +3590,7 @@
           "type": "array",
           "title": "Watergang data",
           "items": {
-            "$ref": "#/$defs/WaterwayData"
+            "$ref": "#/$defs/ww_data"
           },
           "description": "data (input) van de watergang"
         },
@@ -3598,7 +3598,7 @@
           "type": "array",
           "title": "Watergang data",
           "items": {
-            "$ref": "#/$defs/WaterwayData"
+            "$ref": "#/$defs/ww_data"
           },
           "description": "data (input) van de watergang"
         },
@@ -3606,7 +3606,7 @@
           "type": "array",
           "title": "Watergang leggers",
           "items": {
-            "$ref": "#/$defs/WaterwayLegger"
+            "$ref": "#/$defs/ww_legger"
           },
           "description": "legger van de watergang"
         },
@@ -3614,7 +3614,7 @@
           "type": "array",
           "title": "Watergang leggers",
           "items": {
-            "$ref": "#/$defs/WaterwayLegger"
+            "$ref": "#/$defs/ww_legger"
           },
           "description": "legger van de watergang"
         },
@@ -3622,7 +3622,7 @@
           "type": "array",
           "title": "Watergang planningen",
           "items": {
-            "$ref": "#/$defs/WaterwayPlanning"
+            "$ref": "#/$defs/ww_planning"
           },
           "description": "planning input voor de watergang per variant"
         },
@@ -3630,7 +3630,7 @@
           "type": "array",
           "title": "Watergang planningen",
           "items": {
-            "$ref": "#/$defs/WaterwayPlanning"
+            "$ref": "#/$defs/ww_planning"
           },
           "description": "planning input voor de watergang per variant"
         },
@@ -3638,7 +3638,7 @@
           "type": "array",
           "title": "Watergang planning berekeningen",
           "items": {
-            "$ref": "#/$defs/WaterwayPlanningCalc"
+            "$ref": "#/$defs/ww_planning_calc"
           },
           "description": "berekende waarden voor watergang. waarden per variant en per frequentie"
         },
@@ -3646,7 +3646,7 @@
           "type": "array",
           "title": "Watergang planning berekeningen",
           "items": {
-            "$ref": "#/$defs/WaterwayPlanningCalc"
+            "$ref": "#/$defs/ww_planning_calc"
           },
           "description": "berekende waarden voor watergang. waarden per variant en per frequentie"
         },
@@ -3654,7 +3654,7 @@
           "type": "array",
           "title": "Profiellocaties",
           "items": {
-            "$ref": "#/$defs/ProfileLocation"
+            "$ref": "#/$defs/pl"
           },
           "description": "Profiellocatie"
         },
@@ -3662,7 +3662,7 @@
           "type": "array",
           "title": "Profiellocaties",
           "items": {
-            "$ref": "#/$defs/ProfileLocation"
+            "$ref": "#/$defs/pl"
           },
           "description": "Profiellocatie"
         },
@@ -3670,7 +3670,7 @@
           "type": "array",
           "title": "Profielleggers",
           "items": {
-            "$ref": "#/$defs/ProfileLegger"
+            "$ref": "#/$defs/pl_legger"
           },
           "description": "Legger van een profiellocatie. Basis voor de profiel legger is de legger van de watergang."
         },
@@ -3678,7 +3678,7 @@
           "type": "array",
           "title": "Profielleggers",
           "items": {
-            "$ref": "#/$defs/ProfileLegger"
+            "$ref": "#/$defs/pl_legger"
           },
           "description": "Legger van een profiellocatie. Basis voor de profiel legger is de legger van de watergang."
         },
@@ -3686,7 +3686,7 @@
           "type": "array",
           "title": "Profiellocatie data",
           "items": {
-            "$ref": "#/$defs/ProfileLocationData"
+            "$ref": "#/$defs/pl_data"
           },
           "description": "Data voor een profiellocatie."
         },
@@ -3694,7 +3694,7 @@
           "type": "array",
           "title": "Profiellocatie data",
           "items": {
-            "$ref": "#/$defs/ProfileLocationData"
+            "$ref": "#/$defs/pl_data"
           },
           "description": "Data voor een profiellocatie."
         },
@@ -3702,7 +3702,7 @@
           "type": "array",
           "title": "Profielmetingen",
           "items": {
-            "$ref": "#/$defs/ProfileMeasurement"
+            "$ref": "#/$defs/pm"
           },
           "description": "Profielmetingen van een profiellocatie"
         },
@@ -3710,7 +3710,7 @@
           "type": "array",
           "title": "Profielmetingen",
           "items": {
-            "$ref": "#/$defs/ProfileMeasurement"
+            "$ref": "#/$defs/pm"
           },
           "description": "Profielmetingen van een profiellocatie"
         },
@@ -3718,7 +3718,7 @@
           "type": "array",
           "title": "Data profielmetingen",
           "items": {
-            "$ref": "#/$defs/ProfileMeasurementData"
+            "$ref": "#/$defs/pm_data"
           },
           "description": "Data van profielmetingen"
         },
@@ -3726,7 +3726,7 @@
           "type": "array",
           "title": "Data profielmetingen",
           "items": {
-            "$ref": "#/$defs/ProfileMeasurementData"
+            "$ref": "#/$defs/pm_data"
           },
           "description": "Data van profielmetingen"
         },
@@ -3734,7 +3734,7 @@
           "type": "array",
           "title": "Profielpunten",
           "items": {
-            "$ref": "#/$defs/ProfilePoint"
+            "$ref": "#/$defs/pp"
           },
           "description": "Individuele meetpunten van een profielmeting"
         },
@@ -3742,7 +3742,7 @@
           "type": "array",
           "title": "Profielpunten",
           "items": {
-            "$ref": "#/$defs/ProfilePoint"
+            "$ref": "#/$defs/pp"
           },
           "description": "Individuele meetpunten van een profielmeting"
         },
@@ -3750,7 +3750,7 @@
           "type": "array",
           "title": "Selecties",
           "items": {
-            "$ref": "#/$defs/Selection"
+            "$ref": "#/$defs/selection"
           },
           "description": "Een selectie van objecten binnen een project."
         },
@@ -3758,7 +3758,7 @@
           "type": "array",
           "title": "Selecties",
           "items": {
-            "$ref": "#/$defs/Selection"
+            "$ref": "#/$defs/selection"
           },
           "description": "Een selectie van objecten binnen een project."
         },
@@ -3897,7 +3897,7 @@
           "type": "array",
           "title": "Teamleden",
           "items": {
-            "$ref": "#/$defs/TeamMember"
+            "$ref": "#/$defs/auth_team_member"
           },
           "description": "Leden van een team binnen een organisatie voor het toekennen van rechten"
         },
@@ -3905,7 +3905,7 @@
           "type": "array",
           "title": "Team projecten",
           "items": {
-            "$ref": "#/$defs/TeamProject"
+            "$ref": "#/$defs/auth_team_project"
           },
           "description": "Projecten waar een gebruikersgroep rechten op heeft"
         },
@@ -4024,7 +4024,7 @@
           "type": "array",
           "title": "Datatypes",
           "items": {
-            "$ref": "#/$defs/EnumDataTypeExtended"
+            "$ref": "#/$defs/enum_data_type_ext"
           },
           "description": "De verschillende datatypes voor exports en imports en configuratie, zoals de id voor in de poid"
         },
@@ -4095,7 +4095,7 @@
           "type": "array",
           "title": "Meldingscodes",
           "items": {
-            "$ref": "#/$defs/EnumMessageCodeExtended"
+            "$ref": "#/$defs/enum_message_code_ext"
           },
           "description": "De verschillende meldingscodes"
         },
@@ -4142,7 +4142,7 @@
           "type": "array",
           "title": "Brontypes",
           "items": {
-            "$ref": "#/$defs/EnumSourceTypeExtended"
+            "$ref": "#/$defs/enum_source_type_ext"
           },
           "description": "De verschillende bron types"
         },
@@ -4187,7 +4187,7 @@
           "type": "array",
           "title": "Taakstatussen",
           "items": {
-            "$ref": "#/$defs/EnumTaskStatusExtended"
+            "$ref": "#/$defs/enum_task_status_ext"
           },
           "description": "De statussen die een taak (import, export, processing) kan hebben"
         },
@@ -4224,7 +4224,7 @@
           "type": "array",
           "title": "Workflow stappen",
           "items": {
-            "$ref": "#/$defs/EnumWorkflowStepExtended"
+            "$ref": "#/$defs/enum_workflow_step_ext"
           },
           "description": "De stappen van het import/export/verwerking proces"
         },
@@ -4292,7 +4292,7 @@
           "type": "array",
           "title": "Validatiemeldingen",
           "items": {
-            "$ref": "#/$defs/EnumValidationMessageExtended"
+            "$ref": "#/$defs/enum_validation_msg_ext"
           }
         },
         "id": {
@@ -4437,7 +4437,7 @@
           "type": "array",
           "title": "Taak",
           "items": {
-            "$ref": "#/$defs/Task"
+            "$ref": "#/$defs/task"
           },
           "description": "Uitvoering van een taak"
         },
@@ -4445,7 +4445,7 @@
           "type": "array",
           "title": "Workflow data logs",
           "items": {
-            "$ref": "#/$defs/WorkflowDataLog"
+            "$ref": "#/$defs/workflow_data_log"
           },
           "description": "Log van de workflow"
         },
@@ -4529,7 +4529,7 @@
           "type": "array",
           "title": "Taak logs",
           "items": {
-            "$ref": "#/$defs/TaskLog"
+            "$ref": "#/$defs/task_log"
           },
           "description": "Log van de taak"
         },
@@ -4537,7 +4537,7 @@
           "type": "array",
           "title": "Taak voortgangen",
           "items": {
-            "$ref": "#/$defs/TaskProgress"
+            "$ref": "#/$defs/task_progress"
           },
           "description": "Voortgang van de taak"
         },
@@ -4732,7 +4732,7 @@
           "type": "array",
           "title": "Team projecten",
           "items": {
-            "$ref": "#/$defs/TeamProject"
+            "$ref": "#/$defs/auth_team_project"
           },
           "description": "Projecten waar een gebruikersgroep rechten op heeft"
         },
@@ -4740,7 +4740,7 @@
           "type": "array",
           "title": "Gebruikers projecten",
           "items": {
-            "$ref": "#/$defs/UserProject"
+            "$ref": "#/$defs/auth_user_project"
           },
           "description": "Projecten waar een gebruikersgroep rechten op heeft"
         },
@@ -4748,7 +4748,7 @@
           "type": "array",
           "title": "Projecten",
           "items": {
-            "$ref": "#/$defs/Project"
+            "$ref": "#/$defs/project"
           },
           "description": "project hoofdtabel"
         },
@@ -4756,7 +4756,7 @@
           "type": "array",
           "title": "Projecten",
           "items": {
-            "$ref": "#/$defs/Project"
+            "$ref": "#/$defs/project"
           },
           "description": "project hoofdtabel"
         },
@@ -4764,7 +4764,7 @@
           "type": "array",
           "title": "Project instellingen",
           "items": {
-            "$ref": "#/$defs/ProjectConfig"
+            "$ref": "#/$defs/project_config"
           },
           "description": "instellingen van het project"
         },
@@ -4772,7 +4772,7 @@
           "type": "array",
           "title": "Legger types",
           "items": {
-            "$ref": "#/$defs/LeggerType"
+            "$ref": "#/$defs/legger_type"
           },
           "description": "de leggers die gebruikt worden in het project."
         },
@@ -4780,14 +4780,14 @@
           "type": "array",
           "title": "Project toetsconfiguraties",
           "items": {
-            "$ref": "#/$defs/ProjectAssessmentConfig"
+            "$ref": "#/$defs/project_assessment_config"
           }
         },
         "calc_status": {
           "type": "array",
           "title": "Project berekening statussen",
           "items": {
-            "$ref": "#/$defs/ProjectCalcStatus"
+            "$ref": "#/$defs/project_calc_status"
           },
           "description": "status van de berekening van het project"
         },
@@ -4795,7 +4795,7 @@
           "type": "array",
           "title": "Project berekende waarden",
           "items": {
-            "$ref": "#/$defs/ProjectCalc"
+            "$ref": "#/$defs/project_calc"
           },
           "description": "berekende waarden van het project."
         },
@@ -4803,21 +4803,21 @@
           "type": "array",
           "title": "User project mappings",
           "items": {
-            "$ref": "#/$defs/UserProjectMapping"
+            "$ref": "#/$defs/auth_upm"
           }
         },
         "recalc_triggers": {
           "type": "array",
           "title": "Recalc triggers",
           "items": {
-            "$ref": "#/$defs/RecalcTrigger"
+            "$ref": "#/$defs/core_recalctrigger"
           }
         },
         "planning_variants": {
           "type": "array",
           "title": "Planningsvarianten",
           "items": {
-            "$ref": "#/$defs/PlanningVariant"
+            "$ref": "#/$defs/planning_variant"
           },
           "description": "de planningen in dit WIT project"
         },
@@ -4825,7 +4825,7 @@
           "type": "array",
           "title": "Baggermethoden",
           "items": {
-            "$ref": "#/$defs/PlanningDredgingMethod"
+            "$ref": "#/$defs/planning_dredging_method"
           },
           "description": "baggermethoden voor een meerjarenplanning"
         },
@@ -4833,7 +4833,7 @@
           "type": "array",
           "title": "Verwerkingsmethoden",
           "items": {
-            "$ref": "#/$defs/PlanningProcessingMethod"
+            "$ref": "#/$defs/planning_processing_method"
           },
           "description": "verwerkingsmethoden basis, kosten per kwaliteitsklasse staan in de verwerkingskosten per kwaliteit"
         },
@@ -4841,7 +4841,7 @@
           "type": "array",
           "title": "Indicatieve hoeveelheden sets",
           "items": {
-            "$ref": "#/$defs/QuantityIndicationSet"
+            "$ref": "#/$defs/planning_quantity_indication_set"
           },
           "description": "Indicatieve hoeveelheden configuratie"
         },
@@ -4849,7 +4849,7 @@
           "type": "array",
           "title": "Baggerclusters",
           "items": {
-            "$ref": "#/$defs/DredgingCluster"
+            "$ref": "#/$defs/dc"
           },
           "description": "Verzameling watergangen die gezamenlijk worden gebaggerd."
         },
@@ -4857,7 +4857,7 @@
           "type": "array",
           "title": "Monstervakken",
           "items": {
-            "$ref": "#/$defs/SampleSection"
+            "$ref": "#/$defs/ss"
           },
           "description": "Monstervakken. bevatten monsters (voor metingen) en eindoordelen (voor planning en prjecten)"
         },
@@ -4865,7 +4865,7 @@
           "type": "array",
           "title": "Watergangen",
           "items": {
-            "$ref": "#/$defs/Waterway"
+            "$ref": "#/$defs/ww"
           },
           "description": "hoofdtabel voor watergangen."
         },
@@ -4873,7 +4873,7 @@
           "type": "array",
           "title": "Profiellocaties",
           "items": {
-            "$ref": "#/$defs/ProfileLocation"
+            "$ref": "#/$defs/pl"
           },
           "description": "Profiellocatie"
         },
@@ -4881,7 +4881,7 @@
           "type": "array",
           "title": "Profielmetingen",
           "items": {
-            "$ref": "#/$defs/ProfileMeasurement"
+            "$ref": "#/$defs/pm"
           },
           "description": "Profielmetingen van een profiellocatie"
         },
@@ -4889,7 +4889,7 @@
           "type": "array",
           "title": "Profielpunten",
           "items": {
-            "$ref": "#/$defs/ProfilePoint"
+            "$ref": "#/$defs/pp"
           },
           "description": "Individuele meetpunten van een profielmeting"
         },
@@ -4897,7 +4897,7 @@
           "type": "array",
           "title": "Bronnen",
           "items": {
-            "$ref": "#/$defs/Source"
+            "$ref": "#/$defs/source"
           }
         },
         "db_last_modified": {
@@ -5045,7 +5045,7 @@
           "type": "array",
           "title": "Project instellingen",
           "items": {
-            "$ref": "#/$defs/ProjectConfig"
+            "$ref": "#/$defs/project_config"
           },
           "description": "instellingen van het project"
         },
@@ -5053,7 +5053,7 @@
           "type": "array",
           "title": "Watergang leggers",
           "items": {
-            "$ref": "#/$defs/WaterwayLegger"
+            "$ref": "#/$defs/ww_legger"
           },
           "description": "legger van de watergang"
         },
@@ -5061,7 +5061,7 @@
           "type": "array",
           "title": "Profielleggers",
           "items": {
-            "$ref": "#/$defs/ProfileLegger"
+            "$ref": "#/$defs/pl_legger"
           },
           "description": "Legger van een profiellocatie. Basis voor de profiel legger is de legger van de watergang."
         },
@@ -5069,7 +5069,7 @@
           "type": "array",
           "title": "Statussen berekening legger profielmeting",
           "items": {
-            "$ref": "#/$defs/ProfileMeasurementLeggerCalcStatus"
+            "$ref": "#/$defs/pm_legger_calc_status"
           },
           "description": "Statussen van de berekening van legger profielmetingen"
         },
@@ -5077,7 +5077,7 @@
           "type": "array",
           "title": "Berekeningen legger profielmeting",
           "items": {
-            "$ref": "#/$defs/ProfileMeasurementLeggerCalc"
+            "$ref": "#/$defs/pm_legger_calc"
           },
           "description": "Berekeningen van legger profielmetingen"
         },
@@ -5440,7 +5440,7 @@
           "type": "array",
           "title": "Baggerclusters",
           "items": {
-            "$ref": "#/$defs/DredgingCluster"
+            "$ref": "#/$defs/dc"
           },
           "description": "Verzameling watergangen die gezamenlijk worden gebaggerd."
         },
@@ -5448,7 +5448,7 @@
           "type": "array",
           "title": "Watergang planningen",
           "items": {
-            "$ref": "#/$defs/WaterwayPlanning"
+            "$ref": "#/$defs/ww_planning"
           },
           "description": "planning input voor de watergang per variant"
         },
@@ -5456,7 +5456,7 @@
           "type": "array",
           "title": "Watergang planning berekening statussen",
           "items": {
-            "$ref": "#/$defs/WaterwayPlanningCalcStatus"
+            "$ref": "#/$defs/ww_planning_calc_status"
           },
           "description": "status van de berekening van de watergang planning"
         },
@@ -5464,7 +5464,7 @@
           "type": "array",
           "title": "Watergang planning berekeningen",
           "items": {
-            "$ref": "#/$defs/WaterwayPlanningCalc"
+            "$ref": "#/$defs/ww_planning_calc"
           },
           "description": "berekende waarden voor watergang. waarden per variant en per frequentie"
         },
@@ -5529,7 +5529,7 @@
           "type": "array",
           "title": "Watergang planningen",
           "items": {
-            "$ref": "#/$defs/WaterwayPlanning"
+            "$ref": "#/$defs/ww_planning"
           },
           "description": "planning input voor de watergang per variant"
         },
@@ -5576,7 +5576,7 @@
           "type": "array",
           "title": "Verwerkingskosten per kwaliteit",
           "items": {
-            "$ref": "#/$defs/PlanningProcessingQualityCosts"
+            "$ref": "#/$defs/planning_processing_quality_costs"
           },
           "description": "kosten per kwaliteitsklasse voor een verwerkingsmethode, leidende klasse staat in verwerkingsmethode."
         },
@@ -5584,7 +5584,7 @@
           "type": "array",
           "title": "Watergang planningen",
           "items": {
-            "$ref": "#/$defs/WaterwayPlanning"
+            "$ref": "#/$defs/ww_planning"
           },
           "description": "planning input voor de watergang per variant"
         },
@@ -5648,7 +5648,7 @@
           "type": "array",
           "title": "Indicatieve hoeveelheden",
           "items": {
-            "$ref": "#/$defs/PlanningQuantityIndication"
+            "$ref": "#/$defs/planning_quantity_indication"
           },
           "description": "indicatieve hoeveelheid slib in een watergang"
         },
@@ -5742,7 +5742,7 @@
           "type": "array",
           "title": "Cluster berekening statussen",
           "items": {
-            "$ref": "#/$defs/DredgingClusterCalcStatus"
+            "$ref": "#/$defs/dc_calc_status"
           },
           "description": "status van de berekening van het baggercluster"
         },
@@ -5750,7 +5750,7 @@
           "type": "array",
           "title": "Cluster variant berekeningen",
           "items": {
-            "$ref": "#/$defs/DredgingClusterCalc"
+            "$ref": "#/$defs/dc_variant_calc"
           },
           "description": "berekening voor baggercluster voor een planningsvariant"
         },
@@ -5758,7 +5758,7 @@
           "type": "array",
           "title": "Cluster variant berekeningen voor frequentie",
           "items": {
-            "$ref": "#/$defs/DredgingClusterFrequencyCalc"
+            "$ref": "#/$defs/dc_frequency_calc"
           },
           "description": "berekening voor baggercluster voor een planningsvariant voor een specifieke baggerfrequentie"
         },
@@ -5766,7 +5766,7 @@
           "type": "array",
           "title": "Watergang data",
           "items": {
-            "$ref": "#/$defs/WaterwayData"
+            "$ref": "#/$defs/ww_data"
           },
           "description": "data (input) van de watergang"
         },
@@ -5774,7 +5774,7 @@
           "type": "array",
           "title": "Watergang planningen",
           "items": {
-            "$ref": "#/$defs/WaterwayPlanning"
+            "$ref": "#/$defs/ww_planning"
           },
           "description": "planning input voor de watergang per variant"
         },
@@ -6019,7 +6019,7 @@
           "type": "array",
           "title": "Monstervak classificaties",
           "items": {
-            "$ref": "#/$defs/SampleSectionClassification"
+            "$ref": "#/$defs/ss_classification"
           },
           "description": "Classificaties (eindoordelen) van monstervakken"
         },
@@ -6027,7 +6027,7 @@
           "type": "array",
           "title": "Profiellocaties",
           "items": {
-            "$ref": "#/$defs/ProfileLocation"
+            "$ref": "#/$defs/pl"
           },
           "description": "Profiellocatie"
         },
@@ -6157,7 +6157,7 @@
           "type": "array",
           "title": "Watergang data",
           "items": {
-            "$ref": "#/$defs/WaterwayData"
+            "$ref": "#/$defs/ww_data"
           },
           "description": "data (input) van de watergang"
         },
@@ -6165,7 +6165,7 @@
           "type": "array",
           "title": "Watergang leggers",
           "items": {
-            "$ref": "#/$defs/WaterwayLegger"
+            "$ref": "#/$defs/ww_legger"
           },
           "description": "legger van de watergang"
         },
@@ -6173,7 +6173,7 @@
           "type": "array",
           "title": "Watergang planningen",
           "items": {
-            "$ref": "#/$defs/WaterwayPlanning"
+            "$ref": "#/$defs/ww_planning"
           },
           "description": "planning input voor de watergang per variant"
         },
@@ -6181,7 +6181,7 @@
           "type": "array",
           "title": "Watergang planning berekening statussen",
           "items": {
-            "$ref": "#/$defs/WaterwayPlanningCalcStatus"
+            "$ref": "#/$defs/ww_planning_calc_status"
           },
           "description": "status van de berekening van de watergang planning"
         },
@@ -6189,7 +6189,7 @@
           "type": "array",
           "title": "Watergang planning berekeningen",
           "items": {
-            "$ref": "#/$defs/WaterwayPlanningCalc"
+            "$ref": "#/$defs/ww_planning_calc"
           },
           "description": "berekende waarden voor watergang. waarden per variant en per frequentie"
         },
@@ -6197,7 +6197,7 @@
           "type": "array",
           "title": "Watergang toets statussen",
           "items": {
-            "$ref": "#/$defs/WaterwayAssessmentCalcStatus"
+            "$ref": "#/$defs/ww_assessment_calc_status"
           },
           "description": "status van de berekening van de watergang toets"
         },
@@ -6205,7 +6205,7 @@
           "type": "array",
           "title": "Watergang toetsen",
           "items": {
-            "$ref": "#/$defs/WaterwayAssessmentCalc"
+            "$ref": "#/$defs/ww_assessment_calc"
           },
           "description": "toetsresultaten van de watergang"
         },
@@ -6213,7 +6213,7 @@
           "type": "array",
           "title": "Profiellocaties",
           "items": {
-            "$ref": "#/$defs/ProfileLocation"
+            "$ref": "#/$defs/pl"
           },
           "description": "Profiellocatie"
         },
@@ -6822,7 +6822,7 @@
           "type": "array",
           "title": "Profielleggers",
           "items": {
-            "$ref": "#/$defs/ProfileLegger"
+            "$ref": "#/$defs/pl_legger"
           },
           "description": "Legger van een profiellocatie. Basis voor de profiel legger is de legger van de watergang."
         },
@@ -6830,7 +6830,7 @@
           "type": "array",
           "title": "Profiellocatie data",
           "items": {
-            "$ref": "#/$defs/ProfileLocationData"
+            "$ref": "#/$defs/pl_data"
           },
           "description": "Data voor een profiellocatie."
         },
@@ -6838,7 +6838,7 @@
           "type": "array",
           "title": "Profiellocatie berekeningsstatussen",
           "items": {
-            "$ref": "#/$defs/ProfileLocationCalcStatus"
+            "$ref": "#/$defs/pl_calc_status"
           },
           "description": "Status van de berekeningen voor een profiellocatie."
         },
@@ -6846,7 +6846,7 @@
           "type": "array",
           "title": "Profiellocatie berekeningen",
           "items": {
-            "$ref": "#/$defs/ProfileLocationCalc"
+            "$ref": "#/$defs/pl_calc"
           },
           "description": "Berekeningen voor een profiellocatie"
         },
@@ -6854,7 +6854,7 @@
           "type": "array",
           "title": "Profiellocatie toetsberekeningsstatussen",
           "items": {
-            "$ref": "#/$defs/ProfileAssessmentCalcStatus"
+            "$ref": "#/$defs/pl_calc_assess_status"
           },
           "description": "Status van de berekeningen voor een toets op een profiellocatie"
         },
@@ -6862,7 +6862,7 @@
           "type": "array",
           "title": "Profiellocatie toetsberekeningen",
           "items": {
-            "$ref": "#/$defs/ProfileAssessmentCalc"
+            "$ref": "#/$defs/pl_calc_assess"
           },
           "description": "toetsresultaten voor profiellocatie"
         },
@@ -6870,7 +6870,7 @@
           "type": "array",
           "title": "Profielmetingen",
           "items": {
-            "$ref": "#/$defs/ProfileMeasurement"
+            "$ref": "#/$defs/pm"
           },
           "description": "Profielmetingen van een profiellocatie"
         },
@@ -7357,7 +7357,7 @@
           "type": "array",
           "title": "Profiellocatie berekeningen",
           "items": {
-            "$ref": "#/$defs/ProfileLocationCalc"
+            "$ref": "#/$defs/pl_calc"
           },
           "description": "Berekeningen voor een profiellocatie"
         },
@@ -7365,7 +7365,7 @@
           "type": "array",
           "title": "Data profielmetingen",
           "items": {
-            "$ref": "#/$defs/ProfileMeasurementData"
+            "$ref": "#/$defs/pm_data"
           },
           "description": "Data van profielmetingen"
         },
@@ -7373,7 +7373,7 @@
           "type": "array",
           "title": "Statussen berekening profielmeting",
           "items": {
-            "$ref": "#/$defs/ProfileMeasurementCalcStatus"
+            "$ref": "#/$defs/pm_calc_status"
           },
           "description": "Statussen van de berekening van profielmetingen"
         },
@@ -7381,7 +7381,7 @@
           "type": "array",
           "title": "Berekeningen profielmeting",
           "items": {
-            "$ref": "#/$defs/ProfileMeasurementCalc"
+            "$ref": "#/$defs/pm_calc"
           },
           "description": "Berekeningen van profielmetingen"
         },
@@ -7389,7 +7389,7 @@
           "type": "array",
           "title": "Statussen berekening legger profielmeting",
           "items": {
-            "$ref": "#/$defs/ProfileMeasurementLeggerCalcStatus"
+            "$ref": "#/$defs/pm_legger_calc_status"
           },
           "description": "Statussen van de berekening van legger profielmetingen"
         },
@@ -7397,7 +7397,7 @@
           "type": "array",
           "title": "Berekeningen legger profielmeting",
           "items": {
-            "$ref": "#/$defs/ProfileMeasurementLeggerCalc"
+            "$ref": "#/$defs/pm_legger_calc"
           },
           "description": "Berekeningen van legger profielmetingen"
         },
@@ -7405,7 +7405,7 @@
           "type": "array",
           "title": "Profielpunten",
           "items": {
-            "$ref": "#/$defs/ProfilePoint"
+            "$ref": "#/$defs/pp"
           },
           "description": "Individuele meetpunten van een profielmeting"
         },

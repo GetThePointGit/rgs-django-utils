@@ -162,7 +162,7 @@ class SchemaGenerator:
 
     def _ensure_def(self, model_class, *, parent_model=None) -> str:
         """Ensure *model_class* has an entry in $defs and return its $ref."""
-        name = model_class.__name__
+        name = model_class._meta.db_table
         if name in self.defs or name in self._in_progress:
             return f"#/$defs/{name}"
 
@@ -287,7 +287,7 @@ class SchemaGenerator:
 
             # ── skip meta models; they are emitted in simplified form when referenced, but not expanded inline
             is_foreign_key = isinstance(field, ForeignKey)
-            if is_foreign_key and field.related_model._meta.object_name in self.models:
+            if is_foreign_key and field.related_model._meta.db_table in self.models:
                 continue
             if is_foreign_key and self._is_skipped_fk_target(model_class=field.related_model):
                 continue
@@ -402,7 +402,7 @@ class SchemaGenerator:
     
     def _is_skipped_fk_target(self, model_class) -> bool:
         """Return True if *model_class* not in models"""
-        return model_class._meta.object_name not in self.models
+        return model_class._meta.db_table not in self.models
 
 # ── Mixin grouping ────────────────────────────────────────────────────────────
 
