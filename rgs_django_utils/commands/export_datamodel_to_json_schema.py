@@ -109,8 +109,8 @@ def export_datamodel_to_json_schema(export_path=None):
 
     for model in app_models:
         (props, required) = schema_generator.model_properties(model)
-        result["oneOf"].append({"$ref": f"#/$defs/{model.__name__}"})
-        result["$defs"][model.__name__] = {
+        result["oneOf"].append({"$ref": f"#/$defs/{model._meta.db_table}"})
+        result["$defs"][model._meta.db_table] = {
             "type": "object",
             "title": str(model._meta.verbose_name).capitalize(),
             "description": _td_attr(model, "description", ""),
