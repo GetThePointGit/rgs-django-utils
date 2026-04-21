@@ -5,6 +5,20 @@ from rgs_django_utils.database.dj_extended_models import FieldSection
 
 
 class ModificationMetaMixin(models.Model):
+    """Abstract mixin adding "who / when" audit columns to a model.
+
+    Contributes five columns:
+
+    * ``db_last_modified`` — Postgres-level sync timestamp
+      (``auto_now``), excluded from history tracking.
+    * ``last_modified_by`` / ``last_modified_at`` — updated by
+      Hasura/import on every change.
+    * ``created_by`` / ``created_at`` — populated on insert.
+
+    All fields land in the ``metadata`` :class:`FieldSection` so they
+    cluster together in the generated UI / docs.
+    """
+
     section = FieldSection("metadata", "metadata", 90)
     # meta
     db_last_modified = models.DateTimeField(
@@ -64,6 +78,14 @@ class ModificationMetaMixin(models.Model):
 
 
 class ModificationSourceMixin(ModificationMetaMixin):
+    """Audit mixin that adds import-source tracking on top of :class:`ModificationMetaMixin`.
+
+    Extends the five audit columns with ``source`` (FK to a ``Source``
+    table) and ``source_ref`` so rows loaded from bulk imports can point
+    back to their original file/row. Uses the ``metasource`` section so
+    the two groups stay visually separate.
+    """
+
     section = FieldSection("metasource", "bron metadata", 91)
 
     source = models.ForeignKey(
