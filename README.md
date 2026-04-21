@@ -461,11 +461,9 @@ is strongly recommended — no more tokens to rotate. See
 
 ## Status
 
-Alpha (`0.1.0`). Used in production by waterworks and urbanworks via a
-Git submodule, so the core API surface (`Config`, `FPerm`, `TPerm`,
+Alpha (`0.1.0`). Used in waterworks and urbanworks, so the core API surface (`Config`, `FPerm`, `TPerm`,
 `FPresets`, `BaseEnum`, `PermissionHelper`, `install_db_*`,
 `SettingsGetter`, `Claims`, `JwtUserToken`, `JwtModuleToken`) is
 load-bearing. The roles list in `dj_extended_models.roles_list` is
 still evolving — see `tests/testapp/models.py` for gaps that surfaced
-during the tooling alignment pass. Contributions and pull requests
-welcome.
+during the tooling alignment pass.
