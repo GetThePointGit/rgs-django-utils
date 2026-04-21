@@ -59,18 +59,16 @@ pip = "*"
 [pypi-dependencies]
 rgs-django-utils = { path = ".", editable = true }
 
+
+
+# -----------------------------------------------------------------------------
+# Dev feature: testing + linting + build tools
+# -----------------------------------------------------------------------------
 [feature.dev.dependencies]
-jupyterlab = "*"
-ipywidgets = "*"
-jupytext = "*"
 pre-commit = "*"
 twine = "*"
 ruff = "*"
-
-# for memory profiling of tasks
-psutil = "*"
-
-pixi-pycharm = ">=0.0.8,<0.0.9"
+pixi-pycharm = "==0.0.11"
 
 [feature.dev.pypi-dependencies]
 notebook = "*"
@@ -80,6 +78,9 @@ tox = "*"
 pytest-django = "*"
 pytest-cov = "*"
 
+# -----------------------------------------------------------------------------
+# Environments
+# -----------------------------------------------------------------------------
 [environments]
 default = { features = ["dev"], solve-group = "prod" }
 prod = { features = [], solve-group = "prod" }
