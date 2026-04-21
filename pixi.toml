@@ -6,31 +6,41 @@ repository = "https://github.com/GetThePointGit/rgs-django-utils"
 
 
 [feature.dev.tasks]
-# development
-lab = "jupyter lab --notebook-dir=jupyter"  # start notebook
+# --- Testing ---
+tests = "pytest --cov=rgs_django_utils --cov-report=term-missing --cov-report=xml"
+tests-verbose = "pytest --cov=rgs_django_utils -v"
+# Run the full Python × Django matrix (requires tox; integration tests need Postgres)
+tox = "tox"
+# Run the testapp management.py (e.g. createsuperuser on the test settings)
+test-manage = "python tests/manage.py"
 
-pre-commit-install = "pre-commit install --install-hooks -t=pre-push" #-t=pre-commit
-postinstall = { depends-on = ["pre-commit-install"] }
+# --- Styling / linting ---
+# `style` auto-sorts imports and formats. `lint` only checks rgs_django_utils/
+# (tests get their own relaxed rules — see pyproject.toml).
+sort-imports = "ruff check ./rgs_django_utils ./tests --select I --fix --force-exclude"
+format = "ruff format ./rgs_django_utils ./tests --force-exclude"
+style = { depends-on = ["sort-imports", "format"] }
+lint = "ruff check ./rgs_django_utils"
+
+# --- Build / publish ---
+build-clean = "rm -rf dist build *.egg-info rgs_django_utils.egg-info"
+build = { cmd = "python -m build", depends-on = ["build-clean"] }
+build-check = { cmd = "python -m twine check dist/*", depends-on = ["build"] }
+publish-test = { cmd = "python -m twine upload --repository testpypi dist/*", depends-on = ["build-check"] }
+publish = { cmd = "python -m twine upload dist/*", depends-on = ["build-check"] }
+
+# --- Pre-commit hooks ---
+pre-commit-install = "pre-commit install --install-hooks"
 pre-commit-run = "pre-commit run --all-files"
+# Runs automatically after `pixi install` so contributors get the git
+# hook wired without an extra manual step.
+postinstall = { depends-on = ["pre-commit-install"] }
 
-# Styling
-sort-imports = "ruff check  ./**/*.py --select I --fix --force-exclude"
-format = "ruff format ./**/*.py --force-exclude"
-style = { depends-on = ["sort-imports", "format"] } # `pixi run style`
-lint = "ruff check ./rgs_django_utils"  # non-fixing check for CI / review
-
-# build
-build_wheels = "rm -rf dist/ && python -m build" # build wheels
-twine_check = "twine check dist/*"
-build = { depends-on = ["build_wheels", "twine_check"] }
-
-# test
-tests = 'pytest --cov-report term-missing --cov=rgs_django_utils --cov-report=xml'
-test_manage = 'python tests/manage.py'
-tox = "tox"  # run full matrix locally (requires docker/postgres service for integration tests)
+# --- Development extras ---
+lab = "jupyter lab --notebook-dir=jupyter"
 
 [dependencies]
-python = "3.12.*"
+python = ">=3.12,<3.14"
 
 GDAL = "*"
 geopandas = "1.0.*"
