@@ -84,7 +84,7 @@ class Command(BaseCommand):
                     $$
                     BEGIN
                         RETURN {current_version};
-                    END $$; 
+                    END $$;
                 """).format(current_version=current_version)
                 )
 

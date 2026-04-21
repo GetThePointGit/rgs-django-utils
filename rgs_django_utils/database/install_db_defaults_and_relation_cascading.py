@@ -45,7 +45,7 @@ def install_db_defaults_and_relation_cascading(*args, **kwargs):
                 if hasattr(field, "r_config") and getattr(field.r_config, "default_function", None):
                     cursor.execute(
                         sql.SQL("""
-                        ALTER TABLE ONLY {db_table} ALTER COLUMN {column} 
+                        ALTER TABLE ONLY {db_table} ALTER COLUMN {column}
                         SET DEFAULT {function};
                     """).format(
                             db_table=sql.Identifier(db_table),
@@ -57,7 +57,7 @@ def install_db_defaults_and_relation_cascading(*args, **kwargs):
                 elif hasattr(field, "auto_now_add") and field.auto_now_add:
                     cursor.execute(
                         sql.SQL("""
-                        ALTER TABLE ONLY {db_table} ALTER COLUMN {column} 
+                        ALTER TABLE ONLY {db_table} ALTER COLUMN {column}
                         SET DEFAULT NOW();
                     """).format(db_table=sql.Identifier(db_table), column=sql.Identifier(column))
                     )
@@ -65,7 +65,7 @@ def install_db_defaults_and_relation_cascading(*args, **kwargs):
                 elif hasattr(field, "auto_now") and field.auto_now:
                     cursor.execute(
                         sql.SQL("""
-                            ALTER TABLE ONLY {db_table} ALTER COLUMN {column} 
+                            ALTER TABLE ONLY {db_table} ALTER COLUMN {column}
                             SET DEFAULT NOW();
                         """).format(db_table=sql.Identifier(db_table), column=sql.Identifier(column))
                     )
@@ -79,7 +79,7 @@ def install_db_defaults_and_relation_cascading(*args, **kwargs):
                     if field.default is list:
                         cursor.execute(
                             sql.SQL("""
-                            ALTER TABLE ONLY {db_table} ALTER COLUMN {column} 
+                            ALTER TABLE ONLY {db_table} ALTER COLUMN {column}
                             SET DEFAULT array[]::integer[];
                         """).format(db_table=sql.Identifier(db_table), column=sql.Identifier(column))
                         )
@@ -93,7 +93,7 @@ def install_db_defaults_and_relation_cascading(*args, **kwargs):
                         value = field.default
                         cursor.execute(
                             sql.SQL("""
-                            ALTER TABLE ONLY {db_table} ALTER COLUMN {column} 
+                            ALTER TABLE ONLY {db_table} ALTER COLUMN {column}
                             SET DEFAULT %(value)s;
                             """).format(db_table=sql.Identifier(db_table), column=sql.Identifier(column)),
                             {"value": value},
@@ -118,13 +118,13 @@ def install_db_defaults_and_relation_cascading(*args, **kwargs):
                               ,string_agg(f.attname, ', ') AS referenced_columns
                               ,c.conname AS fk_name
                               ,pg_get_constraintdef(c.oid) AS fk_definition
-                            FROM pg_attribute  a 
+                            FROM pg_attribute  a
                             JOIN pg_constraint c ON (c.conrelid, c.conkey[1]) = (a.attrelid, a.attnum)
                             JOIN pg_attribute  f ON f.attrelid = c.confrelid
                                               AND f.attnum = ANY (confkey)
                             WHERE c.contype  = 'f'
                             AND a.attrelid = %(table)s::regclass
-                            AND a.attname  = %(column)s 
+                            AND a.attname  = %(column)s
                             GROUP  BY c.confrelid, c.conname, c.oid;
                         """,
                             {"table": f"public.{db_table}", "column": field.column},
@@ -144,8 +144,8 @@ def install_db_defaults_and_relation_cascading(*args, **kwargs):
                         cursor.execute(query)
 
                         query = sql.SQL("""
-                            ALTER TABLE {db_table} ADD CONSTRAINT {constraint} FOREIGN KEY ({column}) 
-                            REFERENCES {ref_table} ({ref_column}) 
+                            ALTER TABLE {db_table} ADD CONSTRAINT {constraint} FOREIGN KEY ({column})
+                            REFERENCES {ref_table} ({ref_column})
                             MATCH SIMPLE ON DELETE {action} DEFERRABLE INITIALLY IMMEDIATE;
                         """).format(
                             db_table=sql.Identifier(db_table),

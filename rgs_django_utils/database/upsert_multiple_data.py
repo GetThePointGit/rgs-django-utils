@@ -196,7 +196,7 @@ def upsert_from_existing_data(
                 WITH upd as (UPDATE {target_table} target_table
                 SET {set_cols}
                 FROM {source_table}
-                WHERE {where_cols} 
+                WHERE {where_cols}
                 RETURNING *)
                 SELECT count(*) as updated FROM upd;
             """).format(
@@ -214,7 +214,7 @@ def upsert_from_existing_data(
                 SELECT {insert_source_cols}
                 FROM {source_table}
                 LEFT OUTER JOIN {target_table} target_table ON ({where_cols})
-                WHERE target_table.{pk_field_target_table} IS NULL 
+                WHERE target_table.{pk_field_target_table} IS NULL
                 RETURNING *)
                 SELECT count(*) as inserted FROM ins;
             """).format(
@@ -393,7 +393,7 @@ def upsert_multiple_data(
 
                 CREATE TEMPORARY TABLE newvals({cols_with_definition});
 
-                INSERT INTO newvals({cols}) VALUES {sql_data};      
+                INSERT INTO newvals({cols}) VALUES {sql_data};
                 {index_cols};
 
                 -- table will be unlocked after commit
