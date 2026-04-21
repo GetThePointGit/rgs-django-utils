@@ -37,25 +37,34 @@ The package is organised around a small number of building blocks:
 
 ## Installation
 
-The package is not on PyPI yet. For production apps it is consumed via
-a local path (pixi / editable install) or a Git submodule, and will be
-published once the public API stabilises.
+The package is not on PyPI yet. Consumer apps wire it in through two
+pixi features — editable local checkout for development, pinned git-tag
+for CI / production builds:
 
-```bash
-# From a pixi project, side-by-side checkout (recommended for dev):
-#   ~/Documents/GitHub/rgs-django-utils/
-#   ~/Documents/GitHub/<your-app>/
-# In <your-app>/pixi.toml:
-[pypi-dependencies]
+```toml
+# <your-app>/pixi.toml
+
+# Dev: edits in ~/Documents/GitHub/rgs-django-utils/ show up immediately.
+[feature.dev.pypi-dependencies]
 rgs-django-utils = { path = "../rgs-django-utils", editable = true }
+
+# Prod / CI: reproducible pinned build from GitHub.
+[feature.prod.pypi-dependencies]
+rgs-django-utils = { git = "https://github.com/GetThePointGit/rgs-django-utils.git", tag = "v0.1.0" }
+
+[environments]
+default = { features = ["dev"] }
+prod    = { features = ["prod"] }
 ```
 
-Or as a Git submodule (current waterworks / urbanworks layout):
+- `pixi install` → default (dev) environment, editable path.
+- `pixi install -e prod` → pinned git-tag checkout, what Docker build runs.
 
-```bash
-git submodule add https://github.com/GetThePointGit/rgs-django-utils backend/rgs-django-utils
-git submodule update --init
-```
+For private consumer repos `path =` still points at the sibling
+checkout; the git URL in `prod` stays `https://` and pixi picks up your
+SSH / credential-helper / URL-rewrite setup from git. See
+[`documentation/tooling-alignment-plan.md`](../../documentation/tooling-alignment-plan.md)
+for the detailed auth-per-environment matrix.
 
 ## Quick start — declare a model with rgs metadata
 
