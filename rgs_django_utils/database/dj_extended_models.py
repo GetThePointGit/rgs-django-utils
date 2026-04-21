@@ -28,7 +28,6 @@ __all__ = base_all + [
     "FieldSection",
     "Calculation",
     "Config",
-    "Permission",
     "Validation",
 ]
 

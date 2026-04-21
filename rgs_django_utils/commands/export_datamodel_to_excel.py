@@ -286,12 +286,12 @@ def export_datamodel_to_excel(export_path=None):
 
                 for i, record in enumerate(real_table.default_records()["data"]):
                     style = table_field_style(styles, i, len(real_table.default_records()["data"]), use_even_odd=True)
-                    if type(record) == dict:
+                    if isinstance(record, dict):
                         for ii, col in enumerate(real_table.default_records()["fields"]):
                             worksheet.write(row, ii, record[col], style)
                     else:
                         for ii, value in enumerate(record):
-                            if type(value) == list:
+                            if isinstance(value, list):
                                 value = str(value)
                             worksheet.write(row, ii, value, style)
                     row += 1

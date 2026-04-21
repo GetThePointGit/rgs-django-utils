@@ -55,7 +55,7 @@ class SettingsGetter:
 
         if environment_param in os.environ:
             value = os.environ.get(environment_param)
-            if type(default_value) == bool:
+            if isinstance(default_value, bool):
                 return value.lower() in ("true", "1", 1)
             if split_by:
                 return value.split(split_by)

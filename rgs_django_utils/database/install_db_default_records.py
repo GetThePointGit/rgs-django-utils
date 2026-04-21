@@ -38,7 +38,7 @@ def reset_autofield_sequence(model):
 def get_value_helper(value):
     if value is None:
         return "null"
-    if type(value) == str:
+    if isinstance(value, str):
         return "'{}'".format(value.replace("'", ""))
     return str(value)
 

@@ -51,7 +51,7 @@ class PermissionHelper:
             permissions = {k: 0}
             # for key, find all nested permissions
             recursive_list(k, permissions, permission_tree, permission_tree[k], 1)
-            out[k] = [l[0] for l in sorted(permissions.items(), key=lambda i: i[1])]
+            out[k] = [item[0] for item in sorted(permissions.items(), key=lambda i: i[1])]
 
         return out
 

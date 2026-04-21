@@ -107,7 +107,7 @@ class SubTimer:
         )
 
 
-def get_run() -> typing.Union["LogRun", None]:
+def get_run() -> typing.Union["LogRun", None]:  # noqa: F821 — LogRun is provided by the consumer app (e.g. spoc_hhnk.models), not defined here
     """get_run
     get log run if exists (instance of LogRun - django model).
     """

@@ -58,11 +58,11 @@ def get_form_config_and_schema_json_list(request):
     """Get list of available form models."""
     # TODO: Deny certain models if organisation of user has no access to a module.
     try:
-        l = os.listdir(path.join(settings.SCHEMA_ROOT, "form"))
+        filenames = os.listdir(path.join(settings.SCHEMA_ROOT, "form"))
     except Exception:
         return 500, {"error": "Couldn't read schema json"}
     else:
-        return 200, l
+        return 200, filenames
 
 
 @form_api.post(

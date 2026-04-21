@@ -76,7 +76,7 @@ def install_db_defaults_and_relation_cascading(*args, **kwargs):
                         )
                     )
                 elif (field.default != NOT_PROVIDED) and (field.default is not None):
-                    if field.default == list:
+                    if field.default is list:
                         cursor.execute(
                             sql.SQL("""
                             ALTER TABLE ONLY {db_table} ALTER COLUMN {column} 

@@ -65,6 +65,10 @@ convention = "google"
 # Re-export pattern: __init__.py legitimately uses `from .submodule import *`
 # and unused-looking imports to expose the public API of the package.
 "__init__.py" = ["F401", "F403", "F405", "I001"]
+# Command-style modules run `setup_django()` inside `if __name__ == "__main__":`
+# and must do follow-up imports only after Django is initialised.
+"rgs_django_utils/commands/*.py" = ["E402"]
+"rgs_django_utils/management/commands/*.py" = ["E402"]
 
 [tool.pylint]
 disable = ["W1203"]
