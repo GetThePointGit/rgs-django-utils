@@ -82,9 +82,6 @@ tox = "*"
 pytest-django = "*"
 pytest-cov = "*"
 
-[feature.prod.tasks]
-echo_info = "echo $PATH"
-
 [environments]
 default = { features = ["dev"], solve-group = "prod" }
 prod = { features = [], solve-group = "prod" }
