@@ -9,77 +9,57 @@ log = logging.getLogger(__name__)
 
 
 class PostgresHandler(logging.Handler):
-    """Custom logging handler to log to a PostgreSQL database
-    With additional support of LogRun, task context and extra info.
+    """Logging handler that writes records into a Postgres ``log`` table.
 
-    Example configuration:
-    ```
-    import logging
-    from spoc_hhnk.utils.logging.db_handler import PostgresHandler
+    Requires a Django database alias ``"logging"`` pointing at the target
+    database and an existing schema with ``log_run`` + ``log`` tables.
+    Must be paired with :class:`~rgs_django_utils.logging.logging.LogContextFilter`
+    so every record carries the run/task/extra-info attributes.
 
-    # load config from dictionary
-    logging.dictConfig({
-        'version': 1,
-        'filters': {
-            'context': {
-                '()': 'spoc_hhnk.utils.logging.LogContextFilter'
-        'handlers': {
-            'postgres': {
-                'level': 'DEBUG',
-                'class': 'spoc_hhnk.utils.logging.PostgresHandler',
-                'filters': ['context'],
+    Notes
+    -----
+    * Records under a logger whose name starts with ``"data."`` are
+      marked ``is_data_log = True`` — :func:`finish_task` uses this to
+      separate program-level from data-level severity.
+    * A run is flagged ``success = False`` as soon as any ``ERROR``-level
+      or higher record is written against it.
+    * Errors during the emit path are printed rather than raised so the
+      logging layer cannot crash the caller.
+
+    Examples
+    --------
+    Minimal ``logging.dictConfig`` wiring (see project's settings.py for
+    a real example)::
+
+        LOGGING = {
+            "version": 1,
+            "filters": {
+                "context": {
+                    "()": "rgs_django_utils.logging.logging.LogContextFilter",
+                },
             },
-        },
-        'loggers': {
-            '': {
-                'handlers': ['postgres'],
-                'level': 'DEBUG',
+            "handlers": {
+                "postgres": {
+                    "level": "DEBUG",
+                    "class": "rgs_django_utils.logging.logging.PostgresHandler",
+                    "filters": ["context"],
+                },
             },
-        },
-    })
+            "loggers": {
+                "": {"handlers": ["postgres"], "level": "DEBUG"},
+            },
+        }
 
-    ```
+    Runtime pattern::
 
-    Example usage:
-    ```
-    import logging
-    log = logging.getLogger('spoc_hhnk.test')
-
-    # on start of run, set a run so all logging will be grouped by this run
-    set_run('example_run')
-
-    # set task info for logging
-    set_task('example task step 1')
-
-    log.info('test_info')
-    run_task_step_1()
-
-    # second task
-    set_task('example task step 2')
-    # set extra info for logging
-    set_extra_info({'run_for': 'test'})
-    log.error('test_error', extra={'code':12})
-    run_task_step_2()
-    finish_task()
-
-    # finish run
-    finish_run()
-    ```
-    for this example there will be a log_run like:
-
-    | id | name        | start_time          | end_time            | success |
-    |----|-------------|---------------------|---------------------|---------|
-    | 1  | example_run | 2021-08-17 12:00:00 | 2021-08-17 12:03:00 | True    |
-
-    and logs like:
-
-    | id | run_id | task_name           | level | name             | code | dt                  | message                                                            | filename       | line_nr | extra              |
-    |----|--------|---------------------|-------|------------------|------|---------------------|--------------------------------------------------------------------|----------------|---------|--------------------|
-    | 1  | 1      | example task step 1 | 20    | spoc_hhnk.test   |      | 2021-08-17 12:00:00 | test_info                                                          | example.py     | 10      | {}                 |
-    | 2  | 1      | example task step 1 | 20    | task.performance |      | 2021-08-17 12:01:00 | example task step 1: duration: 60.00, process_duration: 2.00       | log_context.py | 109     | {}                 |
-    | 3  | 1      | example task step 2 | 40    | spoc_hhnk.test   | 12   | 2021-08-17 12:01:01 | test_error                                                         | exmaple.py     | 20      | {"run_for": "test} |
-    | 4  | 1      | example task step 2 | 20    | task.performance |      | 2021-08-17 12:02:00 | Task example task step 2: duration: 59.00, process_duration: 3.00  | log_context.py | 109     | {"run_for": "test} |
-
+        set_run("example_run")
+        with TaskContext("step-1"):
+            log.info("starting")
+            do_work()
+        with TaskContext("step-2"):
+            set_extra_info({"run_for": "test"})
+            log.error("something broke", extra={"code": 12})
+        finish_run()
     """
 
     def __init__(self):
@@ -90,6 +70,7 @@ class PostgresHandler(logging.Handler):
         self.last_log_message = None
 
     def emit(self, record: logging.LogRecord):
+        """Insert *record* into the ``log`` table; flip the run to unsuccessful on ``ERROR``+."""
         run = getattr(record, "run", None)
 
         try:
@@ -129,6 +110,7 @@ class PostgresHandler(logging.Handler):
             self.handleError(record)
 
     def close(self):
+        """Finalise the active run and flush the ``logging`` DB connection."""
         run = get_run()
 
         if run is not None:

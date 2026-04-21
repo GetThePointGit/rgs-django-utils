@@ -34,6 +34,37 @@ def recursive_validate(elements: List[Field | Section]) -> dict[str : list[Valid
 
 
 class Form:
+    """Tree of :class:`Section` and :class:`Field` elements with round-trip data I/O.
+
+    A form is essentially a labelled collection of sections, each of which
+    in turn contains fields (or nested sections). ``data`` is a flat
+    ``{field_name: value}`` dict — the tree walks recursively to scatter
+    values into fields and gather them back out, so the caller never has
+    to know the hierarchy shape.
+
+    Parameters
+    ----------
+    name : str
+        Machine-readable form code used by the UI and the persistence layer.
+    elements : list of Field or Section
+        Top-level tree of the form.
+    title : str, optional
+        Human-readable title.
+    data : dict, optional
+        Initial flat payload to scatter into the fields.
+
+    Examples
+    --------
+    >>> form = Form("inspection", [                                 # doctest: +SKIP
+    ...     Section("meta", [StringField("code"), StringField("title")]),
+    ...     Section("body", [TextField("notes")]),
+    ... ], data={"code": "A-1", "title": "Q1", "notes": "clean"})
+    >>> form.is_valid                                                # doctest: +SKIP
+    True
+    >>> form.data["title"]                                           # doctest: +SKIP
+    'Q1'
+    """
+
     def __init__(self, name: str, elements: List[Field | Section], title: str = None, data: Dict[str, Any] = None):
         self.code = name
         self.title = title
@@ -47,24 +78,29 @@ class Form:
 
     @property
     def data(self):
+        """Flat ``{field_name: value}`` view, recomputed from the tree on access."""
         return recursive_get_value(self.elements)
 
     @data.setter
     def data(self, data: Dict[str, Any]):
+        """Scatter *data* into the tree and reset cached validation errors."""
         if data is not None:
             recursive_set_data(self.elements, data)
         self._original_data = data
         self._errors = None
 
     def _validate(self):
+        """Populate ``self._errors`` by walking the tree once."""
         self._errors = recursive_validate(self.elements)
 
     @property
-    def is_valid(self):
+    def is_valid(self) -> bool:
+        """Return ``True`` when :meth:`errors` is empty."""
         return len(self.errors) == 0
 
     @property
     def errors(self) -> dict[str : list[ValidationErrorMessage]] | None:
+        """Lazy ``{field_name: [ValidationErrorMessage, ...]}`` for invalid fields."""
         if self._errors is None:
             self._validate()
         return self._errors

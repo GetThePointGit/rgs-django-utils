@@ -2,6 +2,17 @@ from rgs_django_utils.forms.fields.Field import Field
 
 
 class FloatField(Field):
+    """Floating-point form field with configurable display precision.
+
+    Parameters
+    ----------
+    value : float, optional
+        Initial value.
+    precision : int, optional
+        Number of decimals used by the UI renderer / serialiser. Default
+        is ``3``. Does **not** round the stored value.
+    """
+
     def __init__(self, value: float = None, precision: int = 3, **kwargs):
         super().__init__(value=value, **kwargs)
         self.field_type = "FloatInput"

@@ -5,7 +5,12 @@ from .enum_sections import section_enum_auth
 
 
 class EnumAuthMethod(BaseEnumExtended):
-    """Enum for authentication methods."""
+    """Catalogue of supported login methods (password, magic link, OIDC providers).
+
+    Extended-enum table so each method can carry extra configuration
+    fields — ``available`` to hide methods globally, ``order`` to sort
+    the picker, and provider-specific credentials in consumer apps.
+    """
 
     # USERNAME_PASSWORD = 'UP'
     EMAIL_PASSWORD = "email_password"

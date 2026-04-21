@@ -4,11 +4,32 @@ from rgs_django_utils.forms.fields.Field import Field
 
 
 class ValueType(Enum):
+    """Scalar type carried by a :class:`SelectField` value."""
+
     STRING = "string"
     INTEGER = "integer"
 
 
 class SelectOptionsConfig:
+    """Lazy-options configuration for :class:`SelectField`.
+
+    Use this when the options are fetched from the backend on demand (for
+    large or user-dependent option sets) instead of shipped up-front.
+
+    Parameters
+    ----------
+    label_field : str, optional
+        Attribute name on each option that holds the human label. Default
+        is ``"label"``.
+    value_field : str, optional
+        Attribute name on each option that holds the machine value.
+        Default is ``"value"``.
+    url : str, optional
+        Endpoint the widget calls to fetch options.
+    params : dict, optional
+        Extra query parameters sent with the fetch request.
+    """
+
     def __init__(self, label_field: str = "label", value_field: str = "value", url: str = None, params: dict = None):
         self.label_field = label_field
         self.value_field = value_field
@@ -25,6 +46,25 @@ class SelectOptionsConfig:
 
 
 class SelectField(Field):
+    """Single-select form field with either inline or lazy option sourcing.
+
+    Parameters
+    ----------
+    value : Any, optional
+        Initial selected value (must match *value_type*).
+    value_type : ValueType, optional
+        Whether the selected value is a ``str`` or an ``int``. Default is
+        ``ValueType.STRING``.
+    options : list, optional
+        Inline list of ``{label, value}`` dicts. Mutually exclusive with
+        *options_config*.
+    options_config : SelectOptionsConfig, optional
+        Lazy-options descriptor. Used when the options list is too large
+        or too user-dependent to inline.
+    **kwargs
+        Forwarded to :class:`~rgs_django_utils.forms.fields.Field.Field`.
+    """
+
     def __init__(
         self,
         value=None,

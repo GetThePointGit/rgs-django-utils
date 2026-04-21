@@ -7,6 +7,22 @@ from .enum_sections import section_enum_auth
 
 
 class EnumRole(BaseEnumExtended):
+    """Role catalogue used by Hasura permissions across every rgs app.
+
+    Values are kept short (≤ 8 characters) because Hasura serialises them
+    into the JWT ``x-hasura-allowed-roles`` claim on every request.
+    Groups:
+
+    * Developer / system admin — ``dev_man``, ``dev``, ``sys_adm``.
+    * Organisation roles — ``org_adm``, ``org_uman``, ``org_mem``.
+    * Project roles — ``proj_man``, ``proj_coll``, ``proj_fw``,
+      ``proj_read``, ``proj_cli``, ``proj_con``, ``proj_ext``.
+    * Special roles — ``user_self``, ``auth``, ``public``.
+
+    Application-specific roles should live in the consuming app rather
+    than being added to this enum.
+    """
+
     # roles use in hasura permission
     # general staff roles
     DEVELOPER_MANAGER = "dev_man"

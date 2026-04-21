@@ -4,7 +4,12 @@ from .enum_sections import section_enum_base
 
 
 class EnumAccessThrough(BaseEnum):
-    """Enum for way authorization is linked."""
+    """Authorisation scope — how a user inherits access to a record.
+
+    Values line up with the ``upm`` (user-project mapping) table that
+    carries per-user/project filters. ``public`` rows grant access to
+    everyone; ``user`` rows bind access to a specific user id.
+    """
 
     PUBLIC = "public"
     AUTHENTICATED = "authenticated"

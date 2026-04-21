@@ -2,6 +2,8 @@ from rgs_django_utils.forms.fields.Field import Field
 
 
 class IntegerField(Field):
+    """Integer form field. Rejects values that are not strictly ``int``."""
+
     def __init__(self, value: int = None, **kwargs):
         super().__init__(value=value, **kwargs)
         self.field_type = "IntegerInput"

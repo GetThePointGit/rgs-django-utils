@@ -7,6 +7,50 @@ class ValidationErrorMessage(TypedDict):
 
 
 class Field:
+    """Base class for every form field in this package.
+
+    Stores the value plus the documentation metadata and runs validation
+    on demand. Subclasses (``StringField``, ``IntegerField``, …) set
+    ``field_type`` / ``instance_type`` and override :meth:`validation_extra`
+    with type-specific checks. Validation is layered:
+
+    1. :meth:`sanitize` enforces required-ness and the Python-type
+       match against ``instance_type``.
+    2. :meth:`validation_extra` adds type-specific rules (range, length).
+    3. Each callable in ``validators`` is called with the field itself
+       and can append further errors.
+
+    Parameters
+    ----------
+    name : str
+        Machine-readable field name (matches the column/key).
+    label : str
+        Human-readable label shown in the UI.
+    value : Any, optional
+        Initial value. Empty string is coerced to ``None``.
+    default_value : Any, optional
+        Value used when the field is absent from the payload.
+    required : bool, optional
+        Default ``True``. ``None`` is invalid when required.
+    unit : str, optional
+        Unit suffix shown next to the input.
+    doc_short : str, optional
+        Short help text / tooltip.
+    doc_full : str, optional
+        Long-form help text.
+    doc_development : str, optional
+        Developer-facing notes (not rendered to end users).
+    validators : list of callable, optional
+        Extra validators ``(field) -> bool`` — return ``False`` to halt
+        the chain, append ``ValidationErrorMessage`` entries via
+        ``field._errors``.
+
+    Raises
+    ------
+    ValueError
+        If *name* or *label* is ``None``.
+    """
+
     def __init__(
         self,
         name: str,  # column_name
@@ -66,7 +110,14 @@ class Field:
         return len(self.errors) == 0
 
     def sanitize(self) -> bool:
-        """Sanitize the field value. For extra sanitization, override sanitize_extra or add sanitizers."""
+        """Check required-ness and Python type; record errors if they fail.
+
+        Returns
+        -------
+        bool
+            ``True`` when sanitisation succeeded and validation should
+            continue; ``False`` on a hard failure.
+        """
         if self.required and self.value is None:
             self.errors.append({"type": "required", "message": "value is required"})
             return False
@@ -85,14 +136,24 @@ class Field:
         return True
 
     def validation_extra(self) -> bool:
-        """Extra validation for the field type, to be implemented in subclasses.
+        """Subclass hook for type-specific validation.
 
-        :return: if the validation is successful or if validation could continue (to catch multiple errors at once)
+        Override to add range checks, length checks, etc. Returning
+        ``False`` halts the chain; returning ``True`` lets the
+        ``validators`` list run next. Errors should be appended to
+        ``self._errors`` directly.
         """
         return True
 
     def validate(self) -> bool:
-        """Validate the field value. For extra validation, override validation_extra or add validators."""
+        """Run the full validation chain and cache the errors.
+
+        Returns
+        -------
+        bool
+            ``True`` when the field is valid. Side effect: populates
+            ``self._errors``.
+        """
         self._errors = []
 
         if not self.sanitize():
