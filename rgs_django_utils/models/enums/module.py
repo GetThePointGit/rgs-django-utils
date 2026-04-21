@@ -7,7 +7,7 @@ log = logging.getLogger(__name__)
 
 
 class EnumModuleBase(BaseEnumExtended):
-    """Enum for modules"""
+    """Enum for modules."""
 
     order = models.IntegerField(
         config=models.Config(

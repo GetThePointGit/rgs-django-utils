@@ -62,11 +62,11 @@ def sync_db_meta_tables():
         log.debug("sync section {}".format(section.name))
         db_section, new = DescriptionTableSection.objects.update_or_create(
             code=section.id,
-            defaults=dict(
-                order=section.order,
-                name=section.name,
-                description=section.description,
-            ),
+            defaults={
+                "order": section.order,
+                "name": section.name,
+                "description": section.description,
+            },
         )
         if new:
             log.info("created section {}".format(section.name))
@@ -107,17 +107,17 @@ def sync_db_meta_tables():
 
         table, new = DescriptionTable.objects.update_or_create(
             id=model._meta.db_table,
-            defaults=dict(
-                section_id=section.id if isinstance(section, TableSection) else section,
-                order=getattr(td, "order", -1),
-                model=model.__name__,
-                name=model._meta.verbose_name,
-                name_plural=model._meta.verbose_name_plural,
-                description=getattr(td, "description", None),
-                table_type_id=getattr(td, "table_type", None),
-                modules=modules,
-                with_history=getattr(td, "with_history", False),
-            ),
+            defaults={
+                "section_id": section.id if isinstance(section, TableSection) else section,
+                "order": getattr(td, "order", -1),
+                "model": model.__name__,
+                "name": model._meta.verbose_name,
+                "name_plural": model._meta.verbose_name_plural,
+                "description": getattr(td, "description", None),
+                "table_type_id": getattr(td, "table_type", None),
+                "modules": modules,
+                "with_history": getattr(td, "with_history", False),
+            },
         )
 
         tables.append(model._meta.db_table)
@@ -134,7 +134,7 @@ def sync_db_meta_tables():
                 config = Config()
 
             # Vul column_name correct voor CompositePrimaryKey
-            if getattr(field, "column", None) == None and hasattr(field, "columns"):
+            if getattr(field, "column", None) is None and hasattr(field, "columns"):
                 column_name = ",".join(field.columns)
             else:
                 column_name = getattr(field, "column", None)
@@ -147,11 +147,11 @@ def sync_db_meta_tables():
                     field_section_instance, new = DescriptionFieldSection.objects.update_or_create(
                         table=table,
                         code=config.section.id,
-                        defaults=dict(
-                            name=config.section.name,
-                            order=config.section.order,
+                        defaults={
+                            "name": config.section.name,
+                            "order": config.section.order,
                             # description=config.section.description
-                        ),
+                        },
                     )
                     i += 1000 * config.section.order
 
@@ -162,29 +162,29 @@ def sync_db_meta_tables():
             field_desc, new = DescriptionField.objects.update_or_create(
                 table=table,
                 column_name=column_name,
-                defaults=dict(
-                    order=i,
-                    field_type=field.get_internal_type(),
-                    max_length=field.max_length,
-                    nullable=field.null,
-                    precision=config.precision,
-                    is_relation=field.is_relation,
+                defaults={
+                    "order": i,
+                    "field_type": field.get_internal_type(),
+                    "max_length": field.max_length,
+                    "nullable": field.null,
+                    "precision": config.precision,
+                    "is_relation": field.is_relation,
                     # relation_model_id=field.related_model if field.is_relation else None,
-                    field_section=field_section_instance,
-                    verbose_name=field.verbose_name,
-                    dbf_name=config.dbf_name,
-                    doc_unit=config.doc_unit,
-                    doc_short=config.doc_short,
-                    doc_full=config.doc_full,
-                    doc_constraint=config.doc_constraint,
-                    doc_development=config.doc_development,
-                    calc_by=config.calculated_by,
-                    default_value=default_value,
-                    with_history=False if config.ignore_for_history else with_history,
-                    modules=get_modules_string(config.modules) if config.modules else modules,
-                    import_mode=config.import_mode,
-                    export=config.export,
-                ),
+                    "field_section": field_section_instance,
+                    "verbose_name": field.verbose_name,
+                    "dbf_name": config.dbf_name,
+                    "doc_unit": config.doc_unit,
+                    "doc_short": config.doc_short,
+                    "doc_full": config.doc_full,
+                    "doc_constraint": config.doc_constraint,
+                    "doc_development": config.doc_development,
+                    "calc_by": config.calculated_by,
+                    "default_value": default_value,
+                    "with_history": False if config.ignore_for_history else with_history,
+                    "modules": get_modules_string(config.modules) if config.modules else modules,
+                    "import_mode": config.import_mode,
+                    "export": config.export,
+                },
             )
             if config.calculation_input_for:
                 for calc_id in config.calculation_input_for:

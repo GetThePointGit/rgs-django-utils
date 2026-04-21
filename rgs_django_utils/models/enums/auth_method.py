@@ -63,9 +63,9 @@ class EnumAuthMethod(BaseEnumExtended):
 
     @classmethod
     def default_records(cls):
-        return dict(
-            fields=["id", "name", "order", "available", "extra_costs", "am_note"],
-            data=[
+        return {
+            "fields": ["id", "name", "order", "available", "extra_costs", "am_note"],
+            "data": [
                 # (cls.USERNAME_PASSWORD, 'Gebruikersnaam en wachtwoord', 1, True, False, False, None),
                 (cls.EMAIL_PASSWORD, "e-mail en wachtwoord", 2, True, False, "1-factor, In ontwikkeling"),
                 (
@@ -89,7 +89,7 @@ class EnumAuthMethod(BaseEnumExtended):
                 (cls.MICROSOFT, "Microsoft-entra-id", 5, True, True, "Organisatie"),
                 (cls.APPLE, "Apple", 6, False, True, "Organisatie, In ontwikkeling"),
             ],
-        )
+        }
 
     @classmethod
     def get_permissions(cls):

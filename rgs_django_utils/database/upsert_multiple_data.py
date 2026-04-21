@@ -77,7 +77,7 @@ def upsert_from_existing_data(
     # remove identification_field_names from update_field_names
     update_field_names = [field for field in update_field_names if field not in identification_field_names]
 
-    combined_field_names = identification_field_names + update_field_names
+    identification_field_names + update_field_names
 
     with connection.cursor() as cursor:
         target_table = sql.Identifier(model._meta.db_table)
@@ -313,27 +313,21 @@ def upsert_multiple_data(
                 for col in combined_field_names
             ]
         ).join(", ")
-        cols = sql.SQL(",").join(map(lambda col: sql.Identifier(col), combined_field_names))
+        cols = sql.SQL(",").join((sql.Identifier(col) for col in combined_field_names))
         index_cols = sql.SQL("\n").join(
-            map(
-                lambda col: sql.SQL("""
+            (sql.SQL("""
                     CREATE INDEX {index_name}
                     ON newvals USING btree
                     ({col} ASC NULLS LAST);
-                """).format(col=sql.Identifier(col), index_name=sql.Identifier(f"newvals_id_{col}")),
-                identification_field_names,
-            )
+                """).format(col=sql.Identifier(col), index_name=sql.Identifier(f"newvals_id_{col}")) for col in identification_field_names)
         )
         # todo: combined columns?!?
         set_cols = sql.SQL(",").join(
-            map(lambda col: sql.SQL("{col}=newvals.{col}").format(col=sql.Identifier(col)), update_field_names)
+            (sql.SQL("{col}=newvals.{col}").format(col=sql.Identifier(col)) for col in update_field_names)
         )
-        insert_cols = sql.SQL(",").join(map(lambda col: sql.Identifier(col), combined_field_names))
+        insert_cols = sql.SQL(",").join((sql.Identifier(col) for col in combined_field_names))
         where_cols = sql.SQL(" AND ").join(
-            map(
-                lambda col: sql.SQL("target_table.{col}=newvals.{col}").format(col=sql.Identifier(col)),
-                identification_field_names,
-            )
+            (sql.SQL("target_table.{col}=newvals.{col}").format(col=sql.Identifier(col)) for col in identification_field_names)
         )
 
         if method == ImportMethod.ONLY_NEW or not len(update_field_names):
@@ -364,10 +358,7 @@ def upsert_multiple_data(
                 where_cols=where_cols,
                 pk_field_target_table=sql.Identifier(pk_field),
                 newvals_cols=sql.SQL(",").join(
-                    map(
-                        lambda col: sql.SQL("{}.{}").format(sql.Identifier("newvals"), sql.Identifier(col)),
-                        combined_field_names,
-                    )
+                    (sql.SQL("{}.{}").format(sql.Identifier("newvals"), sql.Identifier(col)) for col in combined_field_names)
                 ),
             )
 

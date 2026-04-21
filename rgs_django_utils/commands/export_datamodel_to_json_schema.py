@@ -408,7 +408,7 @@ class SchemaGenerator:
         return prop
 
     def _is_skipped_fk_target(self, model_class) -> bool:
-        """Return True if *model_class* not in models"""
+        """Return True if *model_class* not in models."""
         return model_class._meta.db_table not in self.models
 
 

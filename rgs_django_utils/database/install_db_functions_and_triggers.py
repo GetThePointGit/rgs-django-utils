@@ -32,7 +32,7 @@ def _get_base_path():
 
 def install_db_before_functions():
     """Installs all provided in directory '01_before'. will be used to install functions used in migrations (like
-    functions for default values)
+    functions for default values).
     """
 
     return install_db_function_in_directory(SUB_DIR_BEFORE)

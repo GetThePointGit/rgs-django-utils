@@ -46,7 +46,7 @@ class SettingsGetter:
         - available in local_setting
         - available in environment with prefix ENVIRONMENT_SETTING_PREFIX
           for example APP_DEBUG ...
-        - default
+        - default.
         """
         if hasattr(self.local_settings, name):
             return getattr(self.local_settings, name)

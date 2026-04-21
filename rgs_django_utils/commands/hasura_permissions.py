@@ -363,7 +363,7 @@ class HasuraPermissions(object):
             from_model = model.get("from_model")
             through_model = model.get("through_model")
             to_model = model.get("to_model")
-            to_field = model.get("to_field")
+            model.get("to_field")
             array_relationships = []
             # for field in [field for field in through_model._meta.fields if field != through_model._meta.pk]:
             #     array_relationships.append(

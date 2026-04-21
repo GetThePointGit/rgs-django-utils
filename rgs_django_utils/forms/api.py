@@ -21,7 +21,6 @@ form_api = Router(tags=["forms"])
 )
 def get_schema_json_of_all_models(request):
     """Get the JSON schema of all models."""
-    claims = request.auth
     try:
         with open(path.join(settings.SCHEMA_ROOT, "datamodel.schema.json")) as f:
             json = f.read()
@@ -37,8 +36,7 @@ def get_schema_json_of_all_models(request):
     auth=JwtModuleToken("auth"),
 )
 def get_form_config_and_schema_json(request, model: str):
-    """Get JSON schema and form configuration of a model"""
-    claims = request.auth
+    """Get JSON schema and form configuration of a model."""
     # TODO: Deny certain models if organisation of user has no access to a module.
     try:
         with open(path.join(settings.SCHEMA_ROOT, "form", f"{model}.schema.json")) as f:
@@ -57,8 +55,7 @@ def get_form_config_and_schema_json(request, model: str):
     auth=JwtModuleToken("admin"),  # super user
 )
 def get_form_config_and_schema_json_list(request):
-    """Get list of available form models"""
-    claims = request.auth
+    """Get list of available form models."""
     # TODO: Deny certain models if organisation of user has no access to a module.
     try:
         l = os.listdir(path.join(settings.SCHEMA_ROOT, "form"))
@@ -75,7 +72,6 @@ def get_form_config_and_schema_json_list(request):
 )
 def update_form_config_and_schema_json(request, model: str, item: dict = Body(...)):
     """Update JSON schema and form configuration of a model. This endpoint is intended to be used by the form builder in the frontend, not for general use."""
-    claims = request.auth
     try:
         json_schema = item.get("model_schema")
         form_conf = item.get("form_conf")

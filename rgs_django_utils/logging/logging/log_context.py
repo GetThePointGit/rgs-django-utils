@@ -23,7 +23,7 @@ sub_task_performance_logger = logging.getLogger("task.performance.sub")
 def set_run(name: str):
     """Set log run for logging. Checks if name has changed, otherwise returns existing logRun
     :param name: name of the run
-    :return: LogRun, bool: LogRun object, True if new LogRun object was created
+    :return: LogRun, bool: LogRun object, True if new LogRun object was created.
     """
     pass
 
@@ -109,14 +109,14 @@ class SubTimer:
 
 def get_run() -> typing.Union["LogRun", None]:
     """get_run
-    get log run if exists (instance of LogRun - django model)
+    get log run if exists (instance of LogRun - django model).
     """
     return ctx_run.get()
 
 
 def finish_run():
     """finish_run
-    finish log run by adding end time and set run context to None
+    finish log run by adding end time and set run context to None.
     """
     run = get_run()
     if run is not None:
@@ -129,7 +129,7 @@ def set_task(name: str, log_timing: bool = True):
     """Set task info for logging. Checks if name has changed, otherwise returns existing task info
     :param name: name of the task
     :param log_timing: log timing of the task to 'task_performance' logger
-    :return: dict, bool: task info dict, True if new task info was created
+    :return: dict, bool: task info dict, True if new task info was created.
     """
 
     task_info = get_task_info()
@@ -157,21 +157,21 @@ def set_task(name: str, log_timing: bool = True):
 
 def get_task_info() -> typing.Union[dict, None]:
     """Get task info
-    :return: dict: task info dict, with task_name, start_time, start_process_time, log_timing
+    :return: dict: task info dict, with task_name, start_time, start_process_time, log_timing.
     """
     return ctx_task_info.get()
 
 
 def get_count_info() -> typing.Union[dict, None]:
     """Get count info
-    :return: dict: with names and counts
+    :return: dict: with names and counts.
     """
     return ctx_counts.get()
 
 
 def finish_task():
     """finish_task
-    finish task and log timing if log_timing is set
+    finish task and log timing if log_timing is set.
     """
     task_info = get_task_info()
     if task_info and task_info.get("log_timing"):
@@ -230,7 +230,7 @@ def finish_task():
 def set_extra_info(info: dict):
     """Set extra info for logging
     :param info: dict: extra info to add to the log
-    :return: dict: extra info dict (merged with existing extra info)
+    :return: dict: extra info dict (merged with existing extra info).
     """
     extra_info = get_extra_info()
     if extra_info is None:
@@ -244,14 +244,14 @@ def set_extra_info(info: dict):
 
 def get_extra_info() -> typing.Union[dict, None]:
     """Get extra info
-    :return: dict: extra info dict
+    :return: dict: extra info dict.
     """
     return ctx_extra_info.get()
 
 
 def clear_extra_info():
     """clear_extra_info
-    clear extra info
+    clear extra info.
     """
     ctx_extra_info.set(None)
 
@@ -259,7 +259,7 @@ def clear_extra_info():
 def log_counter(name: str, number: int = 1):
     """Count a certain event, can be logged in a summary when a task is finished
     :param name: str: name of the event
-    :param number: int: number to add to the counter
+    :param number: int: number to add to the counter.
     """
     counts = ctx_counts.get()
     if counts is None:

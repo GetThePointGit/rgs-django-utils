@@ -77,7 +77,7 @@ class PermissionHelper:
                 if role in table_permissions.config:
                     rol_table_permissions = table_permissions.config[role]
                     if type(rol_table_permissions) is str:
-                        a = 1
+                        pass
 
                     if set(rol_table_permissions.keys()).issubset(permission_keys):
                         out[k].update(rol_table_permissions)
@@ -160,7 +160,7 @@ class PermissionHelper:
                 out[name][k] = out_fr
 
             if "User" == model.__name__:
-                a = 1
+                pass
 
             # table_permissions = model.get_permissions()
             # table_permissions: TPerm
@@ -228,7 +228,7 @@ class PermissionHelper:
             try:
                 action_fields = [k for k, p in role_fields if p["select"]]
             except TypeError:
-                a = 1
+                pass
             if role_table_filter.get("select") is not None and len(action_fields) > 0:
                 select_permissions.append(
                     {
@@ -243,11 +243,11 @@ class PermissionHelper:
                     }
                 )
             action_fields = [k for k, p in role_fields if p["insert"]]
-            set_fields = dict(
-                (k, p["preset_insert"][1])
+            set_fields = {
+                k: p["preset_insert"][1]
                 for k, p in role_fields
                 if p["insert"] and p["preset_insert"] and p["preset_insert"][0]
-            )
+            }
             if role_table_filter.get("insert") is not None and len(action_fields) > 0:
                 insert_permissions.append(
                     {
@@ -263,11 +263,11 @@ class PermissionHelper:
                     }
                 )
             action_fields = [k for k, p in role_fields if p["update"]]
-            set_fields = dict(
-                (k, p["preset_update"][1])
+            set_fields = {
+                k: p["preset_update"][1]
                 for k, p in role_fields
                 if p["update"] and p["preset_update"] and p["preset_update"][0]
-            )
+            }
             if role_table_filter.get("update") is not None and len(action_fields) > 0:
                 update_permissions.append(
                     {

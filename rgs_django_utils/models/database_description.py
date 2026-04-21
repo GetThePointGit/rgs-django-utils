@@ -96,14 +96,14 @@ class DescriptionEnumTableType(BaseEnum):
 
     @classmethod
     def default_records(cls):
-        return dict(
-            fields=["id", "name"],
-            data=[
-                dict(id=cls.ENUM, name="enum"),
-                dict(id=cls.EXTENDED_ENUM, name="extended enum"),
-                dict(id=cls.TABLE, name="tabel"),
+        return {
+            "fields": ["id", "name"],
+            "data": [
+                {"id": cls.ENUM, "name": "enum"},
+                {"id": cls.EXTENDED_ENUM, "name": "extended enum"},
+                {"id": cls.TABLE, "name": "tabel"},
             ],
-        )
+        }
 
     @classmethod
     def get_permissions(cls):

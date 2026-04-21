@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 
 class PostgresHandler(logging.Handler):
     """Custom logging handler to log to a PostgreSQL database
-    With additional support of LogRun, task context and extra info
+    With additional support of LogRun, task context and extra info.
 
     Example configuration:
     ```
