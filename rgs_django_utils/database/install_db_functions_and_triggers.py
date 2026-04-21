@@ -34,31 +34,51 @@ def _get_base_path():
 
 
 def install_db_before_functions():
-    """Installs all provided in directory '01_before'. will be used to install functions used in migrations (like
-    functions for default values).
+    """Run the SQL scripts in the ``01_before`` directory.
+
+    These scripts must be installed *before* migrations run because
+    migrations reference the functions they define (e.g. default-value
+    helpers).
     """
 
     return install_db_function_in_directory(SUB_DIR_BEFORE)
 
 
 def install_db_authorization_functions():
-    """Installs all provided in directory '98_authorization'. Scripts will be runned after aal default values, cascading and
-    triggers are installed.
+    """Run the SQL scripts in the ``98_authorization`` directory.
+
+    Executed after default values, cascading rules and triggers have been
+    installed — typically to set up row-level security / Hasura roles.
     """
 
     return install_db_function_in_directory(SUB_DIR_AUTHORIZATION)
 
 
 def install_db_last_functions():
-    """Installs all provided in directory '99_last'. Scripts will be runned after aal default values, cascading and
-    triggers are installed.
+    """Run the SQL scripts in the ``99_last`` directory.
+
+    Final-pass scripts that rely on every other DDL change being in place
+    (views, grants on Hasura schema, etc.).
     """
 
     return install_db_function_in_directory(SUB_DIR_LAST)
 
 
 def install_db_functions(install_before=False, install_last=False):
-    """Install the Postgres functions defined in the 'POSTGRES_INSTALL_ON_MIGRATION_FOLDER' set in the settings."""
+    """Run every installable Postgres script in the configured folder.
+
+    Walks the directory set by ``settings.POSTGRES_INSTALL_ON_MIGRATION_FOLDER``
+    in sorted order and executes each SQL file. The two edge-case folders
+    (``01_before`` and ``99_last``) are skipped unless explicitly enabled —
+    they have dedicated call sites because of their ordering requirements.
+
+    Parameters
+    ----------
+    install_before : bool, optional
+        Include the ``01_before`` folder. Default is ``False``.
+    install_last : bool, optional
+        Include the ``99_last`` folder. Default is ``False``.
+    """
 
     base_path = _get_base_path()
 
@@ -78,9 +98,15 @@ def install_db_functions(install_before=False, install_last=False):
 
 
 def install_db_function_in_directory(relative_path: str):
-    """Install the Postgres functions defined in the 'POSTGRES_INSTALL_ON_MIGRATION_FOLDER' set in the settings.
+    """Execute every ``*.sql`` file in *relative_path*, in sorted order.
 
-    :param relative_path: path relative to 'POSTGRES_INSTALL_ON_MIGRATION_FOLDER'
+    Silently warns and returns when the directory does not exist so this
+    helper can be called for optional subfolders.
+
+    Parameters
+    ----------
+    relative_path : str
+        Directory name relative to ``settings.POSTGRES_INSTALL_ON_MIGRATION_FOLDER``.
     """
     path = os.path.abspath(os.path.join(_get_base_path(), relative_path))
 

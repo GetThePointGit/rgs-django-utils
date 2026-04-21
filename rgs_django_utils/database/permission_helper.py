@@ -14,6 +14,35 @@ log = logging.getLogger(__name__)
 
 
 def recursive_list(root_element, permissions, permission_tree, child_list, depth):
+    """Populate *permissions* with the transitive closure of *child_list*.
+
+    Walks the directed graph ``permission_tree`` starting at the children of
+    ``root_element`` and records, for every reachable node, the minimum
+    depth at which it was first encountered. Used by
+    :meth:`PermissionHelper.get_permission_inherence_list` to flatten the
+    role-inheritance graph into per-role role lists.
+
+    Parameters
+    ----------
+    root_element : str
+        Role whose inheritance is being expanded — used only to detect
+        self-references.
+    permissions : dict
+        Mutable dict that is updated in place: ``{role: depth}``.
+    permission_tree : dict
+        Full mapping ``{role: list_of_inherited_roles}`` from settings.
+    child_list : list of str
+        Roles directly inherited by the current node.
+    depth : int
+        Current recursion depth (also stored as the value for newly added
+        entries).
+
+    Raises
+    ------
+    ImproperlyConfigured
+        If *child_list* references a role not present in *permission_tree*,
+        or if a role inherits itself transitively.
+    """
     for child in child_list:
         if child not in permission_tree:
             raise ImproperlyConfigured(f"reference '{child}' from PERMISSION_TREE does not exists.")
@@ -36,6 +65,27 @@ permission_keys = {"select", "insert", "update", "delete"}
 
 
 class PermissionHelper:
+    """Resolve per-role table and field permissions for the Hasura generator.
+
+    The helper flattens the role-inheritance tree defined by
+    ``settings.PERMISSION_TREE`` into ordered role lists, then uses those
+    lists to compute effective permissions per model and per field. Results
+    are cached per-model via ``functools.cache``.
+
+    Typically instantiated once per generator run and passed into the
+    metadata emitter.
+
+    Raises
+    ------
+    ImproperlyConfigured
+        If ``settings.PERMISSION_TREE`` is not defined.
+
+    Examples
+    --------
+    >>> helper = PermissionHelper()                    # doctest: +SKIP
+    >>> helper.get_rol_table_permissions(SomeModel)    # doctest: +SKIP
+    """
+
     def __init__(self):
         if not hasattr(settings, "PERMISSION_TREE"):
             raise ImproperlyConfigured("PERMISSION_TREE must be defined")
@@ -44,6 +94,14 @@ class PermissionHelper:
 
     @staticmethod
     def get_permission_inherence_list():
+        """Flatten ``settings.PERMISSION_TREE`` into ordered inheritance lists.
+
+        Returns
+        -------
+        dict of str to list of str
+            Mapping of role to the list of roles it inherits, ordered from
+            most-specific (the role itself, depth 0) to most-generic.
+        """
         permission_tree = settings.PERMISSION_TREE
         out = {}
 
@@ -57,6 +115,24 @@ class PermissionHelper:
 
     @cache
     def get_rol_table_permissions(self, model):
+        """Compute per-role insert/select/update/delete filters for *model*.
+
+        Walks the role-inheritance list for every top-level role. For each
+        role, takes the first matching entry from the model's ``TPerm``
+        (either an explicit ``{select: ..., insert: ..., ...}`` dict or a
+        row-level filter that is applied to every action).
+
+        Parameters
+        ----------
+        model : type[django.db.models.Model]
+            Django model with a classmethod ``get_permissions() -> TPerm``.
+
+        Returns
+        -------
+        dict or None
+            Nested mapping ``{role: {action: filter_or_None}}``. ``None``
+            when the model has no ``get_permissions`` classmethod.
+        """
         # todo: make arrays from subbranches to correctly propagate None
         # get table permissions
         if not hasattr(model, "get_permissions"):
@@ -93,6 +169,25 @@ class PermissionHelper:
 
     @cache
     def get_rol_field_permissions(self, model):
+        """Compute per-role insert/select/update flags and presets for every field.
+
+        For each field on *model* the returned structure records, per role,
+        which Hasura actions are allowed (boolean flags) and any column
+        presets attached via ``Config(presets=...)``. Primary keys without
+        an explicit ``Config`` default to select-only.
+
+        Parameters
+        ----------
+        model : type[django.db.models.Model]
+            Django model whose field-level permissions are being computed.
+
+        Returns
+        -------
+        dict
+            Mapping ``{field_name: {role: {...flags + presets...}}}``.
+            Action flags are booleans (``insert``, ``select``, ``update``);
+            presets are tuples ``(applied: bool, value: str?)``.
+        """
         out = {}
         for field in model._meta.get_fields():
             if field.is_relation:

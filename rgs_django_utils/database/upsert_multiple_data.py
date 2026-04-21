@@ -68,6 +68,35 @@ def upsert_from_existing_data(
     method: str = ImportMethod.OVERWRITE,
     source_schema: str = "public",
 ):
+    """Upsert rows from an existing staging table into *model*'s table.
+
+    Runs a set-based ``INSERT ... ON CONFLICT`` that reads from a staging
+    table already present in the database. Geometry columns are wrapped in
+    ``ST_GeomFromText`` / ``ST_TRANSFORM`` based on the target column type.
+
+    Parameters
+    ----------
+    model : type[django.db.models.Model]
+        Target Django model whose underlying table receives the rows.
+    source_table_name : str
+        Name of the staging table to read from (without schema).
+    cols : list of dict
+        Column definitions. Each entry is a mapping with at least
+        ``name`` (source column) and ``target`` (target column on *model*).
+    update_field_names : list of str
+        Column names that should participate in the ``UPDATE`` branch of
+        the upsert. Identification fields are stripped from this list
+        automatically.
+    identification_field_names : list of str, optional
+        Columns that uniquely identify a row (the ``ON CONFLICT`` key).
+        Defaults to the primary-key column of *model*.
+    method : str, optional
+        Import strategy — one of :class:`~rgs_django_utils.database.db_types.ImportMethod`.
+        Default is ``ImportMethod.OVERWRITE``.
+    source_schema : str, optional
+        PostgreSQL schema the staging table lives in. Default is
+        ``"public"``.
+    """
     cols_dict = collections.OrderedDict((col.get("target"), col) for col in cols)
 
     pk_field = model._meta.pk.column
@@ -268,6 +297,39 @@ def upsert_multiple_data(
     method: str = ImportMethod.OVERWRITE,
     page_size: int = 1000,
 ):
+    """Upsert in-memory rows into *model*'s table in paged batches.
+
+    Normalises *data* (list of dicts, tuples or lists) into a list-of-lists
+    matching *data_fields*, then performs a set-based upsert against the
+    model's table. Rows are uploaded in batches of *page_size* to avoid
+    oversized SQL statements.
+
+    Parameters
+    ----------
+    model : type[django.db.models.Model]
+        Target Django model.
+    data : list of tuple, list or dict
+        In-memory rows to upsert. Dict rows are keyed by *data_fields*.
+    data_fields : list of str
+        Column order for tuple/list rows and the keys looked up on dict
+        rows.
+    update_field_names : list of str
+        Columns updated on conflict. Identification columns are stripped
+        automatically.
+    identification_field_names : list of str, optional
+        ``ON CONFLICT`` key columns. Defaults to the model's primary key.
+    method : str, optional
+        Import strategy (see :class:`~rgs_django_utils.database.db_types.ImportMethod`).
+        Default is ``ImportMethod.OVERWRITE``.
+    page_size : int, optional
+        Number of rows per SQL statement. Default is ``1000``.
+
+    Notes
+    -----
+    * The function currently returns ``None``; per-row insert/update/skip
+      counts are marked as TODO in the source.
+    * ``ImportMethod.REPLACE`` is not yet implemented.
+    """
     # todo: return counts over inserts, updates and skipped
     # todo: Add support for ImportMethod.REPLACE, optionally with set field to false or true
     # todo: add tests for this function

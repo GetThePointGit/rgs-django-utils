@@ -20,7 +20,20 @@ log = logging.getLogger(__name__)
 
 
 def reset_autofield_sequence(model):
-    """Reset PostgreSQL sequence for AutoField/BigAutoField primary keys after inserting records with explicit IDs."""
+    """Reset the Postgres sequence behind a model's ``AutoField`` primary key.
+
+    After bulk-inserting rows with explicit ids (common in fixtures/seed
+    data), the auto-generated sequence still points at 1. Any subsequent
+    ``INSERT`` without an explicit id then collides with existing rows.
+    This helper fast-forwards the sequence to ``MAX(pk)`` so new inserts
+    resume correctly.
+
+    Parameters
+    ----------
+    model : type[django.db.models.Model]
+        Model whose primary-key sequence is reset. Silently returns when
+        the pk is not an ``AutoField``/``BigAutoField``.
+    """
     pk_field = model._meta.pk
     if pk_field is None or not isinstance(pk_field, (models.AutoField, models.BigAutoField)):
         return
@@ -36,6 +49,7 @@ def reset_autofield_sequence(model):
 
 
 def get_value_helper(value):
+    """Format *value* as a SQL literal (``'s'``-quoted string or bare number)."""
     if value is None:
         return "null"
     if isinstance(value, str):
@@ -44,6 +58,19 @@ def get_value_helper(value):
 
 
 def get_install_order_from_model(model, default_order=10):
+    """Return the install order for *model* — enum tables sort first (``0``).
+
+    Non-enum models honour ``model.TableDescription.db_install_order`` when
+    present, otherwise fall back to *default_order*.
+
+    Parameters
+    ----------
+    model : type[django.db.models.Model]
+        Model whose install order is being resolved.
+    default_order : int, optional
+        Fallback when nothing more specific is configured. Default is
+        ``10``.
+    """
     if issubclass(model, BaseEnum) or issubclass(model, BaseEnumExtended):
         return 0
 
@@ -54,80 +81,62 @@ def get_install_order_from_model(model, default_order=10):
 
 
 def add_default_records(model_selection: List[str] = None, *args, **kwargs):
-    """Add or update default values defined in django to the database.
+    """Populate the database with every model's seed / default records.
 
-    :param model_selection: list of model names to process
+    Iterates over all installed Django models and for each one that exposes
+    either ``default_records()`` (data-driven) or ``custom_default_records()``
+    (imperative) it upserts the rows. Models are processed in the order
+    returned by :func:`get_install_order_from_model`, wrapped in a single
+    transaction and followed by :func:`reset_autofield_sequence` to keep
+    auto sequences consistent.
 
-    Create the basic set of options for (enum) tables.
-    To options are available:
-    - default_records: based on a list of tuples with data. The id field is used as id field.
-    - custom_default_records: custom function is called and this function must add or update records.
+    Parameters
+    ----------
+    model_selection : list of str, optional
+        If supplied, only models whose ``db_table`` is in the list are
+        processed. ``None`` (the default) processes every model.
 
-    Could be used after creation or updating of the database (see also management command).
-    Will be applied to models which has the function 'get_default_choices' or 'get_default_choices_with_description'
-    Specify attribute 'database_install_order' on a model to control order of models processed (default value = 0 for
-    'get_default_choices' or 'get_default_choices_with_description' and 1 for 'install_default_records')
+    Notes
+    -----
+    * Only models in the ``public`` schema are touched.
+    * Two model contracts are recognised:
 
-    # option 1
-    class SomethingWithDefaultRecords(models.Model):
-        # example of model with get_default_choices
+      ``default_records`` — classmethod returning a dict with
+      ``fields`` / ``data`` (list of tuples or dicts) and optionally
+      ``id_fields`` and ``method``. The rows are upserted via
+      :func:`~rgs_django_utils.database.upsert_multiple_data.upsert_multiple_data`.
 
-        OPTION_ONE = 'one'
-        OPTION_TWO = 'two'
+      ``custom_default_records`` — imperative classmethod that creates or
+      updates records itself, typically via ``get_or_create``.
 
-        id = TextStringField(primary_key=True, blank=True, serialize=True)
-        name = TextStringField(blank=True, editable=False)
-        order = models.IntegerField(blank=True, editable=False)
+    Examples
+    --------
+    Declarative form — a simple enum table seeded from a tuple list::
 
-        class Meta:
-            db_table = "enum_something"
+        class Severity(models.Model):
+            id = TextStringField(primary_key=True)
+            name = TextStringField()
 
-        class TableDescription:
-            database_install_order = 2
+            class Meta:
+                db_table = "enum_severity"
 
-        @classmethod
-        def default_records(cls):
-            return dict(
-                fields=['id', 'name', 'order'],
-                data=[
-                (cls.OPTION_ONE, 'one is this', 1),
-                (cls.OPTION_TWO, 'two is this', 2),
-                ]
-            )
+            @classmethod
+            def default_records(cls):
+                return {
+                    "fields": ["id", "name"],
+                    "data": [("low", "Low"), ("high", "High")],
+                }
 
-    # options 2
-    class SomethingWithCustomDefaultRecords(models.Model):
-        # example of model with install_default_records
+    Imperative form — when the seed logic is not a pure upsert::
 
-        a = models.IntegerField()
-        b = TextStringField()
+        class Measurement(models.Model):
+            level = models.IntegerField()
+            label = TextStringField()
 
-        class Meta:
-            db_table = "something_with_default_records"
-
-        class TableDescription:
-            database_install_order = 3
-
-        @classmethod
-        def custom_default_records(cls):
-            data = (
-                (1, 'Niveau 1'),
-                (5, 'Niveau 2'),
-            )
-
-            for conf in data:
-                wnm, new = cls.objects.get_or_create(
-                    a=conf[0],
-                    defaults={
-                        'b': conf[1]
-                    }
-                )
-                if not new:
-                    wnm.b = conf[1]
-                    wnm.save()
-
-    restrictions:
-    - models in schema public
+            @classmethod
+            def custom_default_records(cls):
+                for lvl, lbl in [(1, "Niveau 1"), (5, "Niveau 2")]:
+                    cls.objects.update_or_create(level=lvl, defaults={"label": lbl})
     """
     log.info("add default records to database")
     start_time = time.time()

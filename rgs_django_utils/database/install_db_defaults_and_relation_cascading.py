@@ -16,16 +16,33 @@ if __name__ == "__main__":
 
 
 def install_db_defaults_and_relation_cascading(*args, **kwargs):
-    """Add default values defined in django and cascading to the database
-    (so defaults and delete cascading are also available for Hasura).
+    """Push Django field defaults and FK cascade actions into Postgres DDL.
 
-    restrictions:
-    - only static values (functions must be manually added as postgres trigger function)
-    - default for uuid is always a random uuid7
-    - no defaults for datetime fields (must be manually set with a trigger function)
-    - only for schema public
-    - only CASCADE, SET_NULL and SET_DEFAULT supported
+    Django stores these at the ORM level only, which means Hasura (and any
+    other SQL-only client) doesn't see them. This helper rewrites the
+    Postgres DDL so the defaults and ``ON DELETE`` actions match what
+    Django would apply — letting mutations that bypass the ORM (Hasura,
+    raw SQL) behave consistently.
 
+    Supported:
+
+    * Static defaults on scalar fields.
+    * ``auto_now_add`` / ``auto_now`` (set to ``NOW()``).
+    * Empty-list default on array columns (``array[]::integer[]``).
+    * ``on_delete`` values of ``CASCADE``, ``SET_NULL`` and ``SET_DEFAULT``.
+
+    Not supported:
+
+    * Callable defaults other than the ones listed above — they must be
+      installed as Postgres trigger functions separately.
+    * ``DateTimeField`` defaults; add them via triggers.
+    * Schemas other than ``public``.
+
+    Notes
+    -----
+    Enables the ``pgcrypto`` extension on entry (used by UUID defaults).
+    Runs in autocommit-off mode while rewriting FK constraints and commits
+    once per FK change.
     """
     log.info("install field default values to database (for Hasura)")
 
