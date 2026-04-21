@@ -315,11 +315,14 @@ def upsert_multiple_data(
         ).join(", ")
         cols = sql.SQL(",").join((sql.Identifier(col) for col in combined_field_names))
         index_cols = sql.SQL("\n").join(
-            (sql.SQL("""
+            (
+                sql.SQL("""
                     CREATE INDEX {index_name}
                     ON newvals USING btree
                     ({col} ASC NULLS LAST);
-                """).format(col=sql.Identifier(col), index_name=sql.Identifier(f"newvals_id_{col}")) for col in identification_field_names)
+                """).format(col=sql.Identifier(col), index_name=sql.Identifier(f"newvals_id_{col}"))
+                for col in identification_field_names
+            )
         )
         # todo: combined columns?!?
         set_cols = sql.SQL(",").join(
@@ -327,7 +330,10 @@ def upsert_multiple_data(
         )
         insert_cols = sql.SQL(",").join((sql.Identifier(col) for col in combined_field_names))
         where_cols = sql.SQL(" AND ").join(
-            (sql.SQL("target_table.{col}=newvals.{col}").format(col=sql.Identifier(col)) for col in identification_field_names)
+            (
+                sql.SQL("target_table.{col}=newvals.{col}").format(col=sql.Identifier(col))
+                for col in identification_field_names
+            )
         )
 
         if method == ImportMethod.ONLY_NEW or not len(update_field_names):
@@ -358,7 +364,10 @@ def upsert_multiple_data(
                 where_cols=where_cols,
                 pk_field_target_table=sql.Identifier(pk_field),
                 newvals_cols=sql.SQL(",").join(
-                    (sql.SQL("{}.{}").format(sql.Identifier("newvals"), sql.Identifier(col)) for col in combined_field_names)
+                    (
+                        sql.SQL("{}.{}").format(sql.Identifier("newvals"), sql.Identifier(col))
+                        for col in combined_field_names
+                    )
                 ),
             )
 
