@@ -101,6 +101,21 @@ log = logging.getLogger(__name__)
 
 
 def export_datamodel_to_json_schema(export_path=None):
+    """Dump the full datamodel as a JSON Schema 2020-12 document.
+
+    Walks every installed Django model, converts it to a JSON Schema
+    definition via :class:`SchemaGenerator` and writes the combined
+    ``oneOf`` / ``$defs`` document. The output is used as input for the
+    form builder, for client-side validation and as source for parts of
+    the Hasura metadata.
+
+    Parameters
+    ----------
+    export_path : str, optional
+        Target ``.json`` path. Defaults to
+        ``<BASE_DIR>/../var/template.schema.json``. Parent directories are
+        created on demand.
+    """
     if export_path is None:
         export_path = os.path.join(settings.BASE_DIR, os.pardir, "var", "template.schema.json")
         os.makedirs(os.path.dirname(export_path), exist_ok=True)
@@ -137,7 +152,19 @@ def export_datamodel_to_json_schema(export_path=None):
 
 
 class SchemaGenerator:
-    """Converts a Django model graph to a JSON Schema 2020-12 document."""
+    """Converts a Django model graph into a JSON Schema 2020-12 document.
+
+    Maintains a ``$defs`` cache so shared models are emitted once and
+    referenced by ``$ref``. Circular references are broken by the
+    ``_in_progress`` guard set.
+
+    Parameters
+    ----------
+    models : list of type[django.db.models.Model]
+        Models that should be considered in scope. Fields referencing a
+        model outside this list are either dropped (``_SKIP_FK_CLASSES``)
+        or left as a typed placeholder.
+    """
 
     def __init__(self, models: list):
         self.models = models

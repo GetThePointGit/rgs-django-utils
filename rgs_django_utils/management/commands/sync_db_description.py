@@ -7,6 +7,14 @@ if __name__ == "__main__":
 
 
 class Command(BaseCommand):
+    """Mirror model metadata into the ``description_*`` tables.
+
+    Thin wrapper around
+    :func:`~rgs_django_utils.commands.sync_db_description.sync_db_meta_tables`
+    so the metadata refresh can be triggered from the Django manage.py
+    entry point or a scheduler.
+    """
+
     help = "Sync django extended model description to description tables."
 
     def add_arguments(self, parser):

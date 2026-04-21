@@ -12,6 +12,14 @@ from rgs_django_utils.commands.export_datamodel_to_json_schema import export_dat
 
 
 class Command(BaseCommand):
+    """Export the datamodel as a JSON Schema document.
+
+    Thin wrapper around
+    :func:`~rgs_django_utils.commands.export_datamodel_to_json_schema.export_datamodel_to_json_schema`.
+    The output is consumed by the form builder and by client-side
+    validation, and also serves as input for parts of the Hasura metadata.
+    """
+
     help = "generate json schema with hasura config"
 
     def add_arguments(self, parser):

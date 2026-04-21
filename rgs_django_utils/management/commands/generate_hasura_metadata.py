@@ -12,6 +12,19 @@ if __name__ == "__main__":
 
 
 class Command(BaseCommand):
+    """Generate and optionally apply Hasura metadata.
+
+    Without flags: writes ``hasura_metadata_exported.json`` using
+    :class:`~rgs_django_utils.commands.hasura_permissions.HasuraPermissions`.
+
+    With ``--apply``: also POSTs the freshly generated metadata to the
+    Hasura admin API.
+
+    With ``--apply-only``: skips generation and POSTs an existing JSON
+    file (useful in CI when metadata is generated in one step and applied
+    in another).
+    """
+
     help = "generate json with hasura config"
 
     def add_arguments(self, parser):

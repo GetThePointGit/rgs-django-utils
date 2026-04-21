@@ -28,10 +28,29 @@ _all_modules_str = "".join([m["id"] for m in _available_modules])
 
 
 def get_modules_string(modules: str | typing.Iterable[typing.AnyStr | "EnumModuleBase"]) -> str:
-    """Get the modules from the EnumModule class.
+    """Render a bitmask-like module string for storage in the description tables.
 
-    :param modules: The modules to get.
-    :return: The modules.
+    Each module configured in ``settings.AVAILABLE_MODULES`` is represented
+    by its one-character id; the returned string keeps the positional
+    layout intact and replaces inactive modules with ``"."``. Passing
+    ``"*"`` turns every slot on.
+
+    Parameters
+    ----------
+    modules : str or iterable of (str or EnumModuleBase)
+        ``"*"``, a single module id, or an iterable of module ids.
+
+    Returns
+    -------
+    str
+        Fixed-length string where each character is either a module id
+        (active) or ``"."`` (inactive).
+
+    Raises
+    ------
+    ValueError
+        If any requested module is not listed in
+        ``settings.AVAILABLE_MODULES``.
     """
 
     if modules == "*":
@@ -46,9 +65,16 @@ def get_modules_string(modules: str | typing.Iterable[typing.AnyStr | "EnumModul
 
 
 def sync_db_meta_tables():
-    """Sync django extended model description to description tables.
+    """Mirror every model's rgs metadata into the ``description_*`` tables.
 
-    :return:
+    Iterates over every installed Django model and upserts rows into the
+    ``DescriptionTableSection`` / ``DescriptionTable`` /
+    ``DescriptionFieldSection`` / ``DescriptionField`` tables so that the
+    Excel / JSON-Schema / Hasura metadata exporters have a single SQL
+    source to read from.
+
+    Intended to be invoked by the ``sync_db_description`` management
+    command after migrations run.
     """
     # first delete all tables. todo: find better way to remove unused stuff (so id's stay the same)
     DescriptionTable.objects.all().delete()

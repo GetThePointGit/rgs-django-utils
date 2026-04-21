@@ -12,6 +12,14 @@ from rgs_django_utils.commands.export_datamodel_to_excel import export_datamodel
 
 
 class Command(BaseCommand):
+    """Export the datamodel documentation as an XLSX file.
+
+    Thin wrapper around
+    :func:`~rgs_django_utils.commands.export_datamodel_to_excel.export_datamodel_to_excel`.
+    Requires the ``description_*`` tables to be up to date — run
+    ``sync_db_description`` first if in doubt.
+    """
+
     help = "generate xlsx with hasura config"
 
     def add_arguments(self, parser):
