@@ -29,6 +29,20 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
 ]
+dependencies = [
+  "Django>=5.0",
+  "django-ninja~=1.4.0",
+  "pyJWT[crypto]>=2.8.0",
+  "SQLAlchemy~=2.0.0",
+  "GeoAlchemy2~=0.15.0",
+  "xlsxwriter>=3.0,<4",
+  "python-dotenv>=1.1,<2",
+  "psycopg>=3.2,<4",
+  "numpy>=1.26,<3",
+  "pandas>=2.2,<3",
+  "geopandas>=1.0,<2",
+  "shapely>=2.0,<3",
+]
 dynamic = ["version"]
 
 [project.urls]

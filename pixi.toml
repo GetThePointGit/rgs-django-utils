@@ -1,10 +1,14 @@
 [project]
-channels = ["conda-forge"]
 name = "rgs-django-utils"
-platforms = ["win-64", "linux-64", "osx-arm64"]
+channels = ["conda-forge"]
+platforms = ["linux-64", "linux-aarch64", "osx-arm64", "osx-64"]
 repository = "https://github.com/GetThePointGit/rgs-django-utils"
 
-
+# -----------------------------------------------------------------------------
+# Tasks (pixi run <name>)
+# -----------------------------------------------------------------------------
+# Scoped under the `dev` feature so they are only available in environments
+# that include the dev dependencies (ruff, tox, build, twine, pre-commit).
 [feature.dev.tasks]
 # --- Testing ---
 tests = "pytest --cov=rgs_django_utils --cov-report=term-missing --cov-report=xml"
@@ -36,39 +40,23 @@ pre-commit-run = "pre-commit run --all-files"
 # hook wired without an extra manual step.
 postinstall = { depends-on = ["pre-commit-install"] }
 
-# --- Development extras ---
-lab = "jupyter lab --notebook-dir=jupyter"
-
+# Runtime dependencies live in `pyproject.toml [project] dependencies` so
+# that `pip install rgs-django-utils` works outside pixi. The conda
+# versions below are kept because conda-forge ships pre-built binaries
+# (GDAL, geopandas, numpy, pandas) that are much faster to install than
+# source-built wheels — pixi prefers the conda package when it is
+# declared here.
 [dependencies]
 python = ">=3.12,<3.14"
-
 GDAL = "*"
 geopandas = "1.0.*"
 numpy = "1.26.*"
 pandas = "2.2.*"
 shapely = "2.0.*"
-
-python-dotenv = ">=1.1.0,<2"
 psycopg = "3.2.*"
-
 pip = "*"
 
 [pypi-dependencies]
-django = ">=5.0"
-
-django-ninja = "==1.4.*"
-
-# used for generation of RSA keys (for JWT) and for pyJWT
-cryptography = ">=42.0.0"
-pyJWT = ">=2.8.0"
-
-# used for geopandas
-SqlAlchemy = "==2.0.*"
-GeoAlchemy2 = "==0.15.*"
-
-# xlsxwriter (over openpyxl) because it is faster and has better support for styling
-xlsxwriter = "==3.*"  # used for exporting excel files
-
 rgs-django-utils = { path = ".", editable = true }
 
 [feature.dev.dependencies]
