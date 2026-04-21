@@ -1,4 +1,4 @@
-from copy import copy, deepcopy
+from copy import copy
 from enum import Enum
 
 from django.db.models.base import ModelBase

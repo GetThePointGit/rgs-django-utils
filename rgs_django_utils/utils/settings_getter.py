@@ -42,8 +42,7 @@ class SettingsGetter:
         self.default_warn_if_not_set = default_warn_if_not_set
 
     def get(self, name: str, default_value=None, split_by: str = None, warn_if_not_set: bool = None):
-        """
-        returns setting in the order of:
+        """Returns setting in the order of:
         - available in local_setting
         - available in environment with prefix ENVIRONMENT_SETTING_PREFIX
           for example APP_DEBUG ...

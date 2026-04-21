@@ -1,4 +1,4 @@
-from typing import Any, Dict, Generator, List
+from typing import Any, Dict, List
 
 from rgs_django_utils.forms.fields.Field import Field, ValidationErrorMessage
 from rgs_django_utils.forms.Section import Section

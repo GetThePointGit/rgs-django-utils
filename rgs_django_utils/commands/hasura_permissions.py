@@ -13,7 +13,6 @@ from django.apps import apps
 from django.conf import settings
 from django.db import models as dj_models
 
-from rgs_django_utils.database.dj_extended_models import TableType, TPerm
 from rgs_django_utils.database.dj_settings_helper import TableDescriptionGetter
 from rgs_django_utils.database.permission_helper import PermissionHelper
 

@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
 
 def install_db_defaults_and_relation_cascading(*args, **kwargs):
-    """add default values defined in django and cascading to the database
+    """Add default values defined in django and cascading to the database
     (so defaults and delete cascading are also available for Hasura).
 
     restrictions:

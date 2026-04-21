@@ -14,8 +14,9 @@ _postgres_functions_base_path_cache = None
 
 
 def _get_base_path():
-    """returns the base path for the Postgres functions defined in the 'POSTGRES_INSTALL_ON_MIGRATION_FOLDER'
-    set in the django settings."""
+    """Returns the base path for the Postgres functions defined in the 'POSTGRES_INSTALL_ON_MIGRATION_FOLDER'
+    set in the django settings.
+    """
     global _postgres_functions_base_path_cache
     if _postgres_functions_base_path_cache is not None:
         return _postgres_functions_base_path_cache
@@ -30,28 +31,31 @@ def _get_base_path():
 
 
 def install_db_before_functions():
-    """installs all provided in directory '01_before'. will be used to install functions used in migrations (like
-    functions for default values)"""
+    """Installs all provided in directory '01_before'. will be used to install functions used in migrations (like
+    functions for default values)
+    """
 
     return install_db_function_in_directory(SUB_DIR_BEFORE)
 
 
 def install_db_authorization_functions():
-    """installs all provided in directory '98_authorization'. Scripts will be runned after aal default values, cascading and
-    triggers are installed."""
+    """Installs all provided in directory '98_authorization'. Scripts will be runned after aal default values, cascading and
+    triggers are installed.
+    """
 
     return install_db_function_in_directory(SUB_DIR_AUTHORIZATION)
 
 
 def install_db_last_functions():
-    """installs all provided in directory '99_last'. Scripts will be runned after aal default values, cascading and
-    triggers are installed."""
+    """Installs all provided in directory '99_last'. Scripts will be runned after aal default values, cascading and
+    triggers are installed.
+    """
 
     return install_db_function_in_directory(SUB_DIR_LAST)
 
 
 def install_db_functions(install_before=False, install_last=False):
-    """install the Postgres functions defined in the 'POSTGRES_INSTALL_ON_MIGRATION_FOLDER' set in the settings."""
+    """Install the Postgres functions defined in the 'POSTGRES_INSTALL_ON_MIGRATION_FOLDER' set in the settings."""
 
     base_path = _get_base_path()
 
@@ -71,7 +75,7 @@ def install_db_functions(install_before=False, install_last=False):
 
 
 def install_db_function_in_directory(relative_path: str):
-    """install the Postgres functions defined in the 'POSTGRES_INSTALL_ON_MIGRATION_FOLDER' set in the settings.
+    """Install the Postgres functions defined in the 'POSTGRES_INSTALL_ON_MIGRATION_FOLDER' set in the settings.
 
     :param relative_path: path relative to 'POSTGRES_INSTALL_ON_MIGRATION_FOLDER'
     """

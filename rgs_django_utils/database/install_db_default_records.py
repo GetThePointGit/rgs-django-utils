@@ -29,7 +29,7 @@ def reset_autofield_sequence(model):
     column = pk_field.column
     with connection.cursor() as cursor:
         cursor.execute(
-            f"SELECT setval(pg_get_serial_sequence(%s, %s), GREATEST(COALESCE(MAX(\"{column}\"), 1), 1)) FROM \"{table}\"",
+            f'SELECT setval(pg_get_serial_sequence(%s, %s), GREATEST(COALESCE(MAX("{column}"), 1), 1)) FROM "{table}"',
             [table, column],
         )
     log.info("Reset sequence for %s.%s", table, column)
@@ -186,7 +186,6 @@ def add_default_records(model_selection: List[str] = None, *args, **kwargs):
                     method=default_records.get("method", ImportMethod.OVERWRITE),
                     # records worden default aangevuld om ongewenste mutaties te voorkomen. Todo: more advanced?
                 )
-
 
         if hasattr(model, "custom_default_records"):
             log.info("add custom records for %s.", str(model))

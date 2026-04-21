@@ -21,8 +21,7 @@ sub_task_performance_logger = logging.getLogger("task.performance.sub")
 
 
 def set_run(name: str):
-    """
-    set log run for logging. Checks if name has changed, otherwise returns existing logRun
+    """Set log run for logging. Checks if name has changed, otherwise returns existing logRun
     :param name: name of the run
     :return: LogRun, bool: LogRun object, True if new LogRun object was created
     """
@@ -127,8 +126,7 @@ def finish_run():
 
 
 def set_task(name: str, log_timing: bool = True):
-    """
-    set task info for logging. Checks if name has changed, otherwise returns existing task info
+    """Set task info for logging. Checks if name has changed, otherwise returns existing task info
     :param name: name of the task
     :param log_timing: log timing of the task to 'task_performance' logger
     :return: dict, bool: task info dict, True if new task info was created
@@ -158,16 +156,14 @@ def set_task(name: str, log_timing: bool = True):
 
 
 def get_task_info() -> typing.Union[dict, None]:
-    """
-    get task info
+    """Get task info
     :return: dict: task info dict, with task_name, start_time, start_process_time, log_timing
     """
     return ctx_task_info.get()
 
 
 def get_count_info() -> typing.Union[dict, None]:
-    """
-    get count info
+    """Get count info
     :return: dict: with names and counts
     """
     return ctx_counts.get()
@@ -232,8 +228,7 @@ def finish_task():
 
 
 def set_extra_info(info: dict):
-    """
-    set extra info for logging
+    """Set extra info for logging
     :param info: dict: extra info to add to the log
     :return: dict: extra info dict (merged with existing extra info)
     """
@@ -248,8 +243,7 @@ def set_extra_info(info: dict):
 
 
 def get_extra_info() -> typing.Union[dict, None]:
-    """
-    get extra info
+    """Get extra info
     :return: dict: extra info dict
     """
     return ctx_extra_info.get()
@@ -263,8 +257,7 @@ def clear_extra_info():
 
 
 def log_counter(name: str, number: int = 1):
-    """
-    count a certain event, can be logged in a summary when a task is finished
+    """Count a certain event, can be logged in a summary when a task is finished
     :param name: str: name of the event
     :param number: int: number to add to the counter
     """

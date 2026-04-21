@@ -1,4 +1,3 @@
-from rgs_django_utils.database import dj_extended_models as models
 from rgs_django_utils.database.base_models.enums import BaseEnum
 
 from .enum_sections import section_enum_base
