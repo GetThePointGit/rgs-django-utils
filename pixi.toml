@@ -14,9 +14,9 @@ postinstall = { depends-on = ["pre-commit-install"] }
 pre-commit-run = "pre-commit run --all-files"
 
 # Styling
-sort_imports = "ruff check  ./**/*.py --select I --fix --force-exclude"
-fmt = "ruff format ./**/*.py --force-exclude"
-style = { depends-on = ["sort_imports", "fmt"] } # `pixi run style`
+sort-imports = "ruff check  ./**/*.py --select I --fix --force-exclude"
+format = "ruff format ./**/*.py --force-exclude"
+style = { depends-on = ["sort-imports", "format"] } # `pixi run style`
 lint = "ruff check ./rgs_django_utils"  # non-fixing check for CI / review
 
 # build
