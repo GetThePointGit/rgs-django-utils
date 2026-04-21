@@ -21,10 +21,10 @@ test-manage = "python tests/manage.py"
 # --- Styling / linting ---
 # `style` auto-sorts imports and formats. `lint` only checks rgs_django_utils/
 # (tests get their own relaxed rules — see pyproject.toml).
-sort-imports = "ruff check ./rgs_django_utils ./tests --select I --fix --force-exclude"
-format = "ruff format ./rgs_django_utils ./tests --force-exclude"
+sort-imports = "ruff check --select I --fix --force-exclude"
+format = "ruff format --force-exclude"
 style = { depends-on = ["sort-imports", "format"] }
-lint = "ruff check ./rgs_django_utils"
+lint = "ruff check"
 
 # --- Build / publish ---
 build-clean = "rm -rf dist build *.egg-info rgs_django_utils.egg-info"
@@ -58,8 +58,6 @@ pip = "*"
 
 [pypi-dependencies]
 rgs-django-utils = { path = ".", editable = true }
-
-
 
 # -----------------------------------------------------------------------------
 # Dev feature: testing + linting + build tools

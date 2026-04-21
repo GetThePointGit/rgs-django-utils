@@ -272,7 +272,7 @@ class EnumExtendedTestModel(BaseEnumExtended):
 
     @classmethod
     def get_permissions(cls):
-        filt = {"parent_model": {"ids": {"_eq": "test"}}}
+        # filt = {"parent_model": {"ids": {"_eq": "test"}}}
         return models.TPerm({})
 
     @classmethod
