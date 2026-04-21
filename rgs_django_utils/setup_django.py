@@ -8,14 +8,19 @@ import dotenv
 
 
 def check_env_file_has_param(env_file: Path, parameter: str) -> bool:
-    """Check if the .env file has the parameter set.
+    """Return ``True`` when *env_file* contains a line starting with *parameter*.
 
-    Params:
-        env_file: path to the .env file
-        parameter: parameter to check
+    Parameters
+    ----------
+    env_file : Path
+        Path to the ``.env`` file to inspect.
+    parameter : str
+        Environment-variable name to look for (matched as a line prefix).
 
-    Returns:
-        True if the parameter is set, False otherwise.
+    Returns
+    -------
+    bool
+        ``True`` when the file exists and contains the parameter.
     """
     if not env_file.exists():
         return False
@@ -28,14 +33,23 @@ def check_env_file_has_param(env_file: Path, parameter: str) -> bool:
 
 
 def find_env_file_with_param(start_dir: Path, parameter: str, including_dev: bool = True) -> Path | None:
-    """Recursively look in parent directories for a .env file (or .env.dev file if including_dev=True)
-        with the parameter DJANGO_SETTINGS_MODULE set.
-    Params:
-        start_dir: directory to start searching from
-        parameter: parameter to check in the .env file
-        including_dev: if True, also check for .env.dev file
-    Returns:
-        Path to the .env file if found, None otherwise.
+    """Walk parent directories looking for a ``.env`` that sets *parameter*.
+
+    Parameters
+    ----------
+    start_dir : Path
+        Directory to start searching from. The search moves up to the
+        filesystem root.
+    parameter : str
+        Environment-variable name that must be set inside the ``.env`` file.
+    including_dev : bool, optional
+        Also consider ``.env.dev`` in each directory. Default is ``True``.
+
+    Returns
+    -------
+    Path or None
+        Path to the first matching ``.env`` file, or ``None`` when none is
+        found up to the root.
     """
     cur_dir = start_dir
     while True:
@@ -57,10 +71,23 @@ def find_env_file_with_param(start_dir: Path, parameter: str, including_dev: boo
 
 
 def find_settings_module_from_files(start_dir: Path) -> str | None:
-    """Find the DJANGO_SETTINGS_MODULE from the directory structure (managed.py file and then subdirectorie with settings.py).
+    """Locate ``DJANGO_SETTINGS_MODULE`` by walking up to ``manage.py``.
 
-    Returns:
-        str: the DJANGO_SETTINGS_MODULE path, e.g. 'thissite.settings'
+    Starts at *start_dir* and walks up. When it finds a directory
+    containing ``manage.py``, it scans that directory's subdirectories for
+    the first one that contains ``settings.py`` and returns
+    ``<subdir>.settings``.
+
+    Parameters
+    ----------
+    start_dir : Path
+        Directory from which to start the upward search.
+
+    Returns
+    -------
+    str or None
+        Dotted settings-module path (e.g. ``'thissite.settings'``) or
+        ``None`` when no matching layout is found.
     """
     cur_dir = start_dir
     while True:
@@ -78,24 +105,37 @@ def find_settings_module_from_files(start_dir: Path) -> str | None:
 
 
 def setup_django(from_env=False, log: logging.Logger = None):
-    """Setup django environment.
+    """Initialise Django for script-style modules.
 
-    Example usage:
+    Ensures ``DJANGO_SETTINGS_MODULE`` is set (by reading a ``.env`` file
+    when *from_env* is true, or by scanning for ``manage.py`` otherwise)
+    and then calls ``django.setup()``. Intended to be invoked inside an
+    ``if __name__ == "__main__":`` guard so command-style modules can be
+    run directly without needing a Django management command wrapper.
 
-        if __name__ == '__main__':
-            from rgs_django_utils.database.django_setup import setup_django
-            setup_django()
+    Parameters
+    ----------
+    from_env : bool, optional
+        If ``True``, resolve ``DJANGO_SETTINGS_MODULE`` from the nearest
+        ``.env`` / ``.env.dev`` file. If ``False`` (default), fall back to
+        walking up to ``manage.py``.
+    log : logging.Logger, optional
+        If provided, a ``StreamHandler`` is attached so log output appears
+        on stdout while the script runs.
 
-        def example_function():
-            pass
+    Raises
+    ------
+    Exception
+        When ``DJANGO_SETTINGS_MODULE`` cannot be located through either
+        mechanism.
 
-        if __name__ == '__main__':
-            example_function()
-
-
-    Params:
-        root_dir: root_directory or sub directory.
-        log: logging Handler, which will be added to the stream handler (for debugging)
+    Examples
+    --------
+    >>> # module-level skeleton for a standalone script
+    >>> if __name__ == "__main__":          # doctest: +SKIP
+    ...     from rgs_django_utils.setup_django import setup_django
+    ...     setup_django()
+    ...     main()
     """
 
     if not os.environ.get("DJANGO_SETTINGS_MODULE"):

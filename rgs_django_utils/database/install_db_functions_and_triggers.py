@@ -14,8 +14,11 @@ _postgres_functions_base_path_cache = None
 
 
 def _get_base_path():
-    """Returns the base path for the Postgres functions defined in the 'POSTGRES_INSTALL_ON_MIGRATION_FOLDER'
-    set in the django settings.
+    """Return the cached base path of the Postgres functions directory.
+
+    Reads ``POSTGRES_INSTALL_ON_MIGRATION_FOLDER`` from Django settings, or
+    falls back to ``<ROOT_DIR>/postgres/install`` with a warning. The
+    resolved path is cached on the module so subsequent calls are free.
     """
     global _postgres_functions_base_path_cache
     if _postgres_functions_base_path_cache is not None:

@@ -8,15 +8,33 @@ from rgs_django_utils.permissions.claims import Claims
 
 
 class EmailTemplate:
-    """Base class for email templates.
+    """Base class for transactional email templates.
 
-    All email templates should inherit from this class and implement the following class attributes:
-    - _name: a unique name for the template
-    - _template_text: the text template for the email
-    - _template_html: the HTML template for the email
-    - _template_subject: the subject template for the email
-    - allowed(claims: Claims) -> bool: a method that returns True if the user has sufficient permissions to send/receive the email
-    - enrich_context(context: dict, **kwargs) -> dict: a method that enriches the context with additional data
+    Subclasses declare the name, subject and body templates as class-level
+    attributes, and override :meth:`allowed` / :meth:`enrich_context` to plug
+    in authorisation and template-variable resolution. Instances are never
+    created directly — :meth:`construct` is the public entry point.
+
+    Attributes
+    ----------
+    _name : str
+        Unique template id used by :meth:`getByName` for lookup.
+    _template_text : str
+        ``str.format``-style plaintext body template.
+    _template_html : str
+        ``str.format``-style HTML body template (attached as alternative).
+    _template_subject : str
+        ``str.format``-style subject template.
+
+    Examples
+    --------
+    >>> class Welcome(EmailTemplate):
+    ...     _name = "welcome"
+    ...     _template_subject = "Welcome {name}"
+    ...     _template_text = "Hi {name}"
+    ...     _template_html = "<p>Hi {name}</p>"
+    >>> EmailTemplate.getByName("welcome") is Welcome
+    True
     """
 
     _name = ""
@@ -26,30 +44,71 @@ class EmailTemplate:
 
     @classmethod
     def getByName(cls, name: str):
-        """Get the subclass by template name.
+        """Return the concrete subclass whose ``_name`` matches *name*.
 
-        Args:
-            name (str): Name of the template
+        Parameters
+        ----------
+        name : str
+            Template identifier.
 
-        Returns:
-            Class: Subclass of EmailTemplate
+        Returns
+        -------
+        type[EmailTemplate]
+            The matching subclass.
+
+        Raises
+        ------
+        StopIteration
+            If no subclass has ``_name == name``.
         """
         return next(sub for sub in cls.__subclasses__() if sub._name == name)
 
     @staticmethod
     def allowed(claims: Claims) -> bool:
+        """Return ``True`` if *claims* permit sending this template.
+
+        Override in subclasses — the base implementation denies everything
+        so a misconfigured subclass can never accidentally send email.
+        """
         return False
 
     @staticmethod
     def enrich_context(context: dict, **kwargs) -> dict:
+        """Augment the caller-supplied *context* with template-specific data.
+
+        Override in subclasses to inject URLs, tokens, recipient info, etc.
+        The base implementation is an identity pass-through.
+        """
         return context
 
     @staticmethod
     def from_email():
+        """Return the ``From:`` address used for this template."""
         return settings.DEFAULT_FROM_EMAIL
 
     @classmethod
     def construct(cls, context: dict, **kwargs) -> None | EmailMultiAlternatives:
+        """Build the ``EmailMultiAlternatives`` message, or ``None`` when denied.
+
+        Parameters
+        ----------
+        context : dict
+            Base template context. Must contain ``to`` after enrichment.
+        **kwargs
+            Forwarded to :meth:`allowed` and :meth:`enrich_context`. The
+            ``claims`` kwarg is the primary authorisation input.
+
+        Returns
+        -------
+        EmailMultiAlternatives or None
+            Ready-to-send Django email with both text and HTML bodies, or
+            ``None`` when :meth:`allowed` rejects the send.
+
+        Raises
+        ------
+        ValueError
+            If the enriched context is missing a ``to`` address.
+        """
         if not cls.allowed(kwargs.get("claims", Claims(""))):
             return None
 

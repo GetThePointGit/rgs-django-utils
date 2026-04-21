@@ -13,6 +13,26 @@ hasura_namespace = "https://hasura.io/jwt/claims"
 
 
 class Claims(collections.abc.Mapping):
+    """Read-only view over the Hasura-namespaced claims in a JWT.
+
+    ``Claims`` wraps :func:`decode_jwt` and exposes the commonly-needed
+    fields (authenticated flag, user object, email, full name, passwordless
+    token) through both attribute access and mapping protocol, so a claims
+    instance can be splatted as ``{**claims}`` into a template context.
+
+    Parameters
+    ----------
+    token : str
+        Raw encoded JWT string. If the token is invalid or missing the
+        Hasura namespace, every accessor falls back to ``None`` / ``False``.
+
+    Examples
+    --------
+    >>> claims = Claims("")                        # doctest: +SKIP
+    >>> claims.is_authenticated()                  # doctest: +SKIP
+    False
+    """
+
     # all attributes that are mappable ({**claims})
     _keys = ["is_authenticated", "user", "email", "passwordless_token", "fullname"]
 
@@ -25,45 +45,53 @@ class Claims(collections.abc.Mapping):
             self._user = None
 
     def is_authenticated(self) -> bool:
-        """Check if the user is authenticated.
+        """Return ``True`` when the token carries a user with the ``user_self`` role.
 
-        Returns:
-            bool: True if the user is authenticated, False otherwise
+        Returns
+        -------
+        bool
+            ``True`` if a valid user was resolved *and* ``user_self`` is in
+            the token's allowed roles; ``False`` otherwise.
         """
         return self.user and self.has_allowed_role("user_self")
 
     @property
     def user(self) -> get_user_model() | None:
-        """Get the user object from the claims.
+        """Return the resolved Django user, or ``None`` when unknown.
 
-        **Note**: It does not check if the user is authenticated. Use `is_authenticated` for that.
-
-        Returns:
-            Union[models.User,None]: user object
+        Notes
+        -----
+        Presence of a user object does **not** imply authentication — a
+        valid JWT might still lack the ``user_self`` role. Use
+        :meth:`is_authenticated` when an auth check is required.
         """
         return self._user
 
     @property
     def user_id(self) -> int | None:
-        """Get the user ID from the claims.
-
-        Returns:
-            Union[int,None]: user ID
-        """
+        """Return the ``x-hasura-user-id`` claim as ``int``, or ``None`` when absent."""
         if not self.jwt or hasura_namespace not in self.jwt:
             return None
         token = self.jwt[hasura_namespace]
         return int(token["x-hasura-user-id"]) if "x-hasura-user-id" in token else None
 
     def has_allowed_role(self, role: str) -> bool:
-        """Check if in the token the claim with allowed roles has the specified role.
-        This method does not check if the user is authenticated.
+        """Return ``True`` when *role* appears in the token's allowed roles.
 
-        Args:
-            role (str): Role to check
+        Parameters
+        ----------
+        role : str
+            Role name to probe (e.g. ``"user_self"``, ``"module_auth"``).
 
-        Returns:
-            bool: True if the role is in the allowed roles, False otherwise
+        Returns
+        -------
+        bool
+            ``True`` if the role is listed under ``x-hasura-allowed-roles``.
+
+        Notes
+        -----
+        This is a membership check on the token only. It does not verify
+        the user is authenticated.
         """
         if not self.jwt or hasura_namespace not in self.jwt:
             return False
@@ -72,13 +100,12 @@ class Claims(collections.abc.Mapping):
 
     @property
     def email(self) -> str | None:
-        """Get the email from the claims or the user object.
-        This method first checks the claims, then the user object.
+        """Return the email from the claims, falling back to the user object.
 
-        **Note**: It can return an email address even if the user is not authenticated.
-
-        Returns:
-            Union[str,None]: email
+        Notes
+        -----
+        An email may be returned even when the user is not authenticated,
+        since the JWT may carry it without the ``user_self`` role.
         """
         if not self.jwt or hasura_namespace not in self.jwt:
             return None
@@ -92,11 +119,7 @@ class Claims(collections.abc.Mapping):
 
     @property
     def passwordless_token(self) -> str | None:
-        """Get the passwordless token from the claims.
-
-        Returns:
-            Union[str,None]: passwordless token
-        """
+        """Return the ``x-passwordless-token`` claim, or ``None`` when absent."""
         if not self.jwt or hasura_namespace not in self.jwt:
             return None
         token = self.jwt[hasura_namespace]
@@ -104,7 +127,7 @@ class Claims(collections.abc.Mapping):
 
     @property
     def fullname(self) -> str:
-        """Get the fullname of the user."""
+        """Return the full name of the resolved user, or ``""`` when missing."""
         return self.user.fullname if self.user else ""
 
     def __getitem__(self, key):
