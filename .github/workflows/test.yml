@@ -1,0 +1,93 @@
+name: tests
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches:
+      - '**'
+
+
+jobs:
+  run_unittest_tests:
+    name: Unittest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04]
+        python-version:
+            - "3.12"
+            - "3.13"
+        django-version:
+            - "5.0"
+            - "5.1"
+        include:
+            - os: ubuntu-24.04
+              python-version: "3.12"
+              django-version: "main"
+            - os: ubuntu-24.04
+              python-version: "3.13"
+              django-version: "main"
+
+    services:
+      postgres:
+        image: postgis/postgis:18-3.6-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test
+        ports:
+          - 5431:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gdal-bin libgdal-dev
+
+      - name: Install Python dependencies
+        run: |
+          pip install --upgrade setuptools
+          pip install tox
+
+      - name: Run unittest Python ${{ matrix.python-version }} -- Django ${{ matrix.django-version }}
+        env:
+          TOXENV: py${{ matrix.python-version }}-django${{ matrix.django-version }}
+        run: tox
+
+  run_quality_tests:
+    name: Quality tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-24.04]
+        python-version: ["3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Dependencies
+        run: |
+          pip install tox
+
+      - name: Quality tests
+        env:
+          TOXENV: ruff
+        run: |
+          tox

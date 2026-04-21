@@ -1,9 +1,14 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = [
+  "setuptools>=77.0.0",
+]
+
 [project]
 name = "rgs-django-utils"
-version = "0.1.0"
 description = "Functions related to Django, shared between projects"
 readme = "README.md"
-requires-python = "~=3.12"
+requires-python = ">=3.12"
 license-files = ["LICENSE"]
 authors = [
     { name = "Bastiaan Roos", email = "bastiaan.roos@roosgeo.nl" }
@@ -12,6 +17,33 @@ maintainers = [
     { name = "Bastiaan Roos" }
 ]
 keywords = []
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Framework :: Django",
+  "Framework :: Django :: 5.0",
+  "Framework :: Django :: 5.1",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+dependencies = [
+  "Django>=5.0,<6.0",
+  "django-ninja~=1.6.0",
+  "pyJWT[crypto]>=2.12.0",
+  "SQLAlchemy~=2.0.0",
+  "GeoAlchemy2~=0.15.0",
+  "xlsxwriter>=3.2.4,<4",
+  "python-dotenv>=1.1,<2",
+  "psycopg>=3.2,<4",
+  "numpy>=1.26,<3",
+  "pandas>=2.2,<3",
+  "geopandas>=1.0,<2",
+  "shapely>=2.0,<3",
+]
+dynamic = ["version"]
 
 [project.urls]
 repository = "https://github.com/GetThePointGit/rgs-django-utils"
@@ -20,10 +52,8 @@ repository = "https://github.com/GetThePointGit/rgs-django-utils"
 packages = { find = { include = ["rgs_django_utils*"] } }
 include-package-data = true
 
-
-[tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = "testapp.settings_test"
-django_find_project = false
+[tool.setuptools.dynamic]
+version = { attr = "rgs_django_utils.__version__" }
 
 # FORMATTING
 [tool.ruff]
@@ -39,15 +69,20 @@ quote-style = "double"
 
 [tool.ruff.lint]
 select = ["D", "E", "F", "NPY", "PD", "C4", "I"]
-ignore = ["D1", "D202", "D205", "D400", "D404", "E501", "PD002", "PD901"]
-fixable = ["I"]
+ignore = ["D1", "D202", "D205", "D400", "D404", "E501", "PD002"]
+# `fixable` left unset — default allows all safe fixes.
 
 [tool.ruff.lint.pydocstyle]
-convention = "google"
+convention = "numpy"
 
 [tool.ruff.lint.per-file-ignores]
-# Ignore unused imports in init
-"__init__.py" = ["F401",  "I001"]
+# Re-export pattern: __init__.py legitimately uses `from .submodule import *`
+# and unused-looking imports to expose the public API of the package.
+"__init__.py" = ["F401", "F403", "F405", "I001"]
+# Command-style modules run `setup_django()` inside `if __name__ == "__main__":`
+# and must do follow-up imports only after Django is initialised.
+"rgs_django_utils/commands/*.py" = ["E402"]
+"rgs_django_utils/management/commands/*.py" = ["E402"]
 
 [tool.pylint]
 disable = ["W1203"]

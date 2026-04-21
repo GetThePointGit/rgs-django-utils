@@ -1,4 +1,3 @@
-
 import logging
 
 from django.apps import apps
@@ -84,14 +83,39 @@ _META_MODEL_BY_ROOT = {
 # base classes are excluded from schema expansion.
 # Key: base class name (for documentation / lookup); Value: (module_path, class_name).
 _SKIP_FK_CLASSES: dict[str, tuple[str, str]] = {
-    "Waterway": ["ProjectConfig", "ProfileMeasurement", "Project", "Organization", "User", "Task", "Job", "WaterwayData"],
+    "Waterway": [
+        "ProjectConfig",
+        "ProfileMeasurement",
+        "Project",
+        "Organization",
+        "User",
+        "Task",
+        "Job",
+        "WaterwayData",
+    ],
 }
 
 log = logging.getLogger(__name__)
 
 # ── Management command ────────────────────────────────────────────────────────
 
+
 def export_datamodel_to_json_schema(export_path=None):
+    """Dump the full datamodel as a JSON Schema 2020-12 document.
+
+    Walks every installed Django model, converts it to a JSON Schema
+    definition via :class:`SchemaGenerator` and writes the combined
+    ``oneOf`` / ``$defs`` document. The output is used as input for the
+    form builder, for client-side validation and as source for parts of
+    the Hasura metadata.
+
+    Parameters
+    ----------
+    export_path : str, optional
+        Target ``.json`` path. Defaults to
+        ``<BASE_DIR>/../var/template.schema.json``. Parent directories are
+        created on demand.
+    """
     if export_path is None:
         export_path = os.path.join(settings.BASE_DIR, os.pardir, "var", "template.schema.json")
         os.makedirs(os.path.dirname(export_path), exist_ok=True)
@@ -104,7 +128,7 @@ def export_datamodel_to_json_schema(export_path=None):
         "type": "object",
         "description": "JSON Schema representation of the datamodel. Deze schema's worden gebruikt als basis voor de Hasura metadata, en kunnen ook worden gebruikt voor documentatie en client-side validatie.",
         "oneOf": [],
-        "$defs": {}
+        "$defs": {},
     }
 
     for model in app_models:
@@ -123,10 +147,24 @@ def export_datamodel_to_json_schema(export_path=None):
         json.dump(result, f, indent=2, ensure_ascii=False)
         log.info(f"Exported datamodel JSON Schema to {export_path}")
 
+
 # ── Schema generator ──────────────────────────────────────────────────────────
 
+
 class SchemaGenerator:
-    """Converts a Django model graph to a JSON Schema 2020-12 document."""
+    """Converts a Django model graph into a JSON Schema 2020-12 document.
+
+    Maintains a ``$defs`` cache so shared models are emitted once and
+    referenced by ``$ref``. Circular references are broken by the
+    ``_in_progress`` guard set.
+
+    Parameters
+    ----------
+    models : list of type[django.db.models.Model]
+        Models that should be considered in scope. Fields referencing a
+        model outside this list are either dropped (``_SKIP_FK_CLASSES``)
+        or left as a typed placeholder.
+    """
 
     def __init__(self, models: list):
         self.models = models
@@ -221,11 +259,9 @@ class SchemaGenerator:
 
     # ── property collection ───────────────────────────────────────────────────
 
-    def model_properties(
-        self, model_class, *, parent_model=None
-    ) -> tuple[dict, list]:
+    def model_properties(self, model_class, *, parent_model=None) -> tuple[dict, list]:
         """Return (properties dict, required list) for *model_class*."""
-        from django.db.models.fields.related import ForeignKey, OneToOneField
+        from django.db.models.fields.related import ForeignKey
         from django.db.models.fields.reverse_related import ManyToManyRel, ManyToOneRel, OneToOneRel
 
         props: dict = {}
@@ -233,9 +269,7 @@ class SchemaGenerator:
 
         # Mixin fields are grouped into sub-objects instead of being emitted flat.
         mixin_groups = _get_mixin_groups(model_class)
-        mixin_field_names: frozenset[str] = frozenset(
-            name for _, _, names in mixin_groups for name in names
-        )
+        mixin_field_names: frozenset[str] = frozenset(name for _, _, names in mixin_groups for name in names)
 
         for field in model_class._meta.get_fields():
             prop = {}
@@ -399,10 +433,11 @@ class SchemaGenerator:
             prop["minimum"] = 0
 
         return prop
-    
+
     def _is_skipped_fk_target(self, model_class) -> bool:
-        """Return True if *model_class* not in models"""
+        """Return True if *model_class* not in models."""
         return model_class._meta.db_table not in self.models
+
 
 # ── Mixin grouping ────────────────────────────────────────────────────────────
 
@@ -451,8 +486,8 @@ def _get_mixin_groups(model_class) -> list[tuple[str, str, frozenset[str]]]:
     return groups
 
 
-
 # ── Helpers ───────────────────────────────────────────────────────────────────
+
 
 def _is_base_enum(model_class) -> bool:
     """Return True if *model_class* is a concrete subclass of BaseEnum."""
@@ -513,6 +548,8 @@ def _is_required(field) -> bool:
         return False
     return True
 
+
 if __name__ == "__main__":
     import os
+
     export_datamodel_to_json_schema(os.path.join(os.path.dirname(__file__), "datamodel2.schema.json"))

@@ -2,6 +2,17 @@ from rgs_django_utils.forms.fields.Field import Field
 
 
 class StringField(Field):
+    """Single-line string form field with optional max-length validation.
+
+    Parameters
+    ----------
+    value : str, optional
+        Initial value.
+    max_length : int, optional
+        Maximum allowed length. Violations are reported with error type
+        ``"max-length"``.
+    """
+
     def __init__(self, value: str = None, max_length=None, **kwargs):
         super().__init__(value=value, **kwargs)
         self.field_type = "StringInput"

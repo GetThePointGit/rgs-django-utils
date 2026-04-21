@@ -21,10 +21,26 @@ sub_task_performance_logger = logging.getLogger("task.performance.sub")
 
 
 def set_run(name: str):
-    """
-    set log run for logging. Checks if name has changed, otherwise returns existing logRun
-    :param name: name of the run
-    :return: LogRun, bool: LogRun object, True if new LogRun object was created
+    """Start (or continue) a ``LogRun`` context in the current async-safe scope.
+
+    Parameters
+    ----------
+    name : str
+        Name of the run. If a run with the same name is already active
+        the existing one is reused; a different name first finalises the
+        previous run.
+
+    Returns
+    -------
+    LogRun, bool
+        ``(run, created)`` — the active ``LogRun`` instance and a boolean
+        indicating whether a new row was created in this call.
+
+    Notes
+    -----
+    The concrete implementation depends on the consumer app's
+    ``LogRun`` model and is currently stubbed out — see the commented
+    block below for the intended behaviour.
     """
     pass
 
@@ -47,11 +63,25 @@ def set_run(name: str):
 
 
 class TaskContext:
-    """Open a new task within a run.
+    """Context manager that opens a task within the currently active run.
 
-    example use:
-    with TaskContext("clean_duplicate_history"):
-        call a command...
+    On ``__enter__`` calls :func:`set_task`; on ``__exit__`` calls
+    :func:`finish_task`, which emits the timing/summary log entry for the
+    task if ``log_timing`` is on.
+
+    Parameters
+    ----------
+    name : str
+        Task name — used as the log-field value and for matching against
+        an existing task context.
+    log_timing : bool, optional
+        Emit a timing summary to ``task.performance`` on exit. Default
+        is ``True``.
+
+    Examples
+    --------
+    >>> with TaskContext("clean_duplicate_history"):   # doctest: +SKIP
+    ...     do_the_work()
     """
 
     def __init__(self, name: str, log_timing: bool = True):
@@ -70,6 +100,20 @@ class TaskContext:
 
 
 class RunContext:
+    """Context manager that brackets code with :func:`set_run` / :func:`finish_run`.
+
+    Parameters
+    ----------
+    name : str
+        Run name passed straight to :func:`set_run`.
+
+    Examples
+    --------
+    >>> with RunContext("nightly-import"):        # doctest: +SKIP
+    ...     with TaskContext("load-measurements"):
+    ...         import_measurements()
+    """
+
     def __init__(self, name: str):
         self.name = name
 
@@ -85,10 +129,22 @@ class RunContext:
 
 
 class SubTimer:
+    """Wall-clock + CPU-time timer for an inner work unit.
+
+    Unlike :class:`TaskContext`, a sub-timer does not interact with the
+    run/task context stack — it just logs duration/process_duration to
+    ``task.performance.sub`` when it finishes. Typically used inside a
+    :class:`TaskContext` to measure a nested block.
+
+    Parameters
+    ----------
+    name : str
+        Sub-timer label emitted with the timing log line. Falsy values
+        suppress the "started" log line but still emit the "finished"
+        summary.
+    """
+
     def __init__(self, name):
-        """Start a timer
-        use .finish() to stop the timer.
-        """
         self.name = name
         self.start = time.time()
         self.process_duration = time.process_time()
@@ -108,17 +164,13 @@ class SubTimer:
         )
 
 
-def get_run() -> typing.Union["LogRun", None]:
-    """get_run
-    get log run if exists (instance of LogRun - django model)
-    """
+def get_run() -> typing.Union["LogRun", None]:  # noqa: F821 — LogRun is provided by the consumer app (e.g. spoc_hhnk.models), not defined here
+    """Return the currently active ``LogRun`` instance, or ``None`` when none is active."""
     return ctx_run.get()
 
 
 def finish_run():
-    """finish_run
-    finish log run by adding end time and set run context to None
-    """
+    """Close the active ``LogRun`` by calling ``run.finish()`` and clearing the context."""
     run = get_run()
     if run is not None:
         task_console_info(f"Run {run.name} finished")
@@ -127,11 +179,22 @@ def finish_run():
 
 
 def set_task(name: str, log_timing: bool = True):
-    """
-    set task info for logging. Checks if name has changed, otherwise returns existing task info
-    :param name: name of the task
-    :param log_timing: log timing of the task to 'task_performance' logger
-    :return: dict, bool: task info dict, True if new task info was created
+    """Start (or continue) a task context in the current scope.
+
+    Parameters
+    ----------
+    name : str
+        Task name. If a different task is currently active it is finalised
+        first; re-using the same name is a no-op on the existing context.
+    log_timing : bool, optional
+        Record wall-clock + CPU-time for this task and emit a timing
+        summary on finish. Default is ``True``.
+
+    Returns
+    -------
+    dict, bool
+        ``(task_info, created)`` — the active task info dict and a boolean
+        indicating whether it was created in this call.
     """
 
     task_info = get_task_info()
@@ -158,24 +221,26 @@ def set_task(name: str, log_timing: bool = True):
 
 
 def get_task_info() -> typing.Union[dict, None]:
-    """
-    get task info
-    :return: dict: task info dict, with task_name, start_time, start_process_time, log_timing
+    """Return the active task info dict, or ``None`` when no task is active.
+
+    Dict keys: ``task_name``, ``start_time``, ``start_process_time``,
+    ``log_timing``, ``max_level``.
     """
     return ctx_task_info.get()
 
 
 def get_count_info() -> typing.Union[dict, None]:
-    """
-    get count info
-    :return: dict: with names and counts
-    """
+    """Return the ``{name: count}`` mapping for the active task, or ``None``."""
     return ctx_counts.get()
 
 
 def finish_task():
-    """finish_task
-    finish task and log timing if log_timing is set
+    """Finalise the active task — emit the timing summary when ``log_timing`` is set.
+
+    When a ``LogRun`` is active, the final summary level is lifted to at
+    least ``WARNING`` if any child log entry (program or data) reached
+    that level, so the overview log surfaces failing tasks even when the
+    task itself returned successfully.
     """
     task_info = get_task_info()
     if task_info and task_info.get("log_timing"):
@@ -232,10 +297,20 @@ def finish_task():
 
 
 def set_extra_info(info: dict):
-    """
-    set extra info for logging
-    :param info: dict: extra info to add to the log
-    :return: dict: extra info dict (merged with existing extra info)
+    """Merge *info* into the task's ``extra_info`` context dict.
+
+    Values passed later overwrite earlier values for the same key.
+
+    Parameters
+    ----------
+    info : dict
+        Additional fields to make available to every subsequent log call
+        in the current scope.
+
+    Returns
+    -------
+    dict
+        The merged extra-info dict.
     """
     extra_info = get_extra_info()
     if extra_info is None:
@@ -248,25 +323,28 @@ def set_extra_info(info: dict):
 
 
 def get_extra_info() -> typing.Union[dict, None]:
-    """
-    get extra info
-    :return: dict: extra info dict
-    """
+    """Return the current ``extra_info`` dict, or ``None`` when unset."""
     return ctx_extra_info.get()
 
 
 def clear_extra_info():
-    """clear_extra_info
-    clear extra info
-    """
+    """Drop the ``extra_info`` context dict back to ``None``."""
     ctx_extra_info.set(None)
 
 
 def log_counter(name: str, number: int = 1):
-    """
-    count a certain event, can be logged in a summary when a task is finished
-    :param name: str: name of the event
-    :param number: int: number to add to the counter
+    """Increment the named counter in the active task's counts dict.
+
+    Counters accumulated during a task are emitted as part of
+    :func:`finish_task`'s summary line, which is handy for "imported N
+    rows / skipped M rows" style reports.
+
+    Parameters
+    ----------
+    name : str
+        Counter key.
+    number : int, optional
+        Increment (may be negative). Default is ``1``.
     """
     counts = ctx_counts.get()
     if counts is None:

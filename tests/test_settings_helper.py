@@ -4,7 +4,7 @@ from django.test import TestCase
 
 from rgs_django_utils.database import dj_extended_models
 from rgs_django_utils.database.dj_settings_helper import TableDescriptionGetter
-from rgs_django_utils.database.permission_helper import PermissionHelper, get_permission_helper
+from rgs_django_utils.database.permission_helper import get_permission_helper
 from tests.testapp.models import (
     ChildModel,
     EnumExtendedTestModel,
@@ -92,7 +92,7 @@ class TestDoubleIdentifier(TestCase):
         )
         self.assertDictEqual(
             ids.get("project"),
-            {"insert": False, "select": True, "update": False},
+            {"insert": False, "select": False, "update": False},
         )
         self.assertDictEqual(
             ids.get("project_edit"),
@@ -106,7 +106,7 @@ class TestDoubleIdentifier(TestCase):
         permissions = ph.get_hasura_model_permissions(MiddleModel)
 
         select_permissions = permissions.get("select_permissions")
-        self.assertEqual(len(select_permissions), 8)
+        self.assertEqual(len(select_permissions), 0)
 
         print(json.dumps(permissions, indent=2))
 

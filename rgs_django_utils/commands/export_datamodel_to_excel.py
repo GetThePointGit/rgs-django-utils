@@ -184,6 +184,22 @@ def table_field_style(styles, row, rows, use_even_odd=True, for_default=False):
 
 
 def export_datamodel_to_excel(export_path=None):
+    """Write the datamodel documentation to an XLSX file.
+
+    Produces one overview sheet plus one sheet per table section, listing
+    the fields, their types, permissions and docstrings. Expects the
+    ``DescriptionTable`` / ``DescriptionField`` tables to be populated
+    first — typically by calling
+    :func:`~rgs_django_utils.commands.sync_db_description.sync_db_meta_tables`
+    via the ``sync_db_description`` management command.
+
+    Parameters
+    ----------
+    export_path : str, optional
+        Target ``.xlsx`` path. Defaults to
+        ``<BASE_DIR>/../var/datamodel.xlsx``. Parent directories are
+        created on demand.
+    """
     if export_path is None:
         export_path = os.path.join(settings.BASE_DIR, os.pardir, "var", "datamodel.xlsx")
         os.makedirs(os.path.dirname(export_path), exist_ok=True)
@@ -286,12 +302,12 @@ def export_datamodel_to_excel(export_path=None):
 
                 for i, record in enumerate(real_table.default_records()["data"]):
                     style = table_field_style(styles, i, len(real_table.default_records()["data"]), use_even_odd=True)
-                    if type(record) == dict:
+                    if isinstance(record, dict):
                         for ii, col in enumerate(real_table.default_records()["fields"]):
                             worksheet.write(row, ii, record[col], style)
                     else:
                         for ii, value in enumerate(record):
-                            if type(value) == list:
+                            if isinstance(value, list):
                                 value = str(value)
                             worksheet.write(row, ii, value, style)
                     row += 1

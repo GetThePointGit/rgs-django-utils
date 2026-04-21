@@ -2,7 +2,7 @@
 ## Logging in de taken van de SPOC
 
 Gebruik de volgende functies bij het loggen:
-- `set_run(name: str)` en `finish_run()` voor een gehele run van meerdere taken. Deze run komt in LogRun in de 
+- `set_run(name: str)` en `finish_run()` voor een gehele run van meerdere taken. Deze run komt in LogRun in de
   database en admin. De logging wordt gelinkt aan de LogRun.
 - Individuele taken worden gelogd met `set_task(name: str, log_timing: bool = True)` en `finish_task()`. De taak wordt
   opgenomen als kolom bij de logging en gebruikt als kopje in de admin bij de logs. Van de taken wordt automatisch
@@ -20,7 +20,7 @@ Zie voorbeelden van het gebruik in [test_db_logging.py](..%2F..%2Ftests%2Ftest_d
 Speciale loggers om te gebruiken:
 - `data_log = get_data_logger(__name__)` voor logging van meldingen over data. Deze worden apart gelabeld in de
   database, kunnen apart worden bekeken in de admin en worden apart gebruikt voor bepalen van de status van een taak.
-- `task_console_info` is een logger die alleen naar de console logt. Gebruik deze bij commando's in plaats van 
+- `task_console_info` is een logger die alleen naar de console logt. Gebruik deze bij commando's in plaats van
   `self.stdout.write()` (geeft soms problemen als deze wordt aangeroepen vanuit de admin/ webserver). Meldingen
   over het starten en eindigen van runs, taken en subtaken worden automatisch naar de console gelogd.
 
@@ -41,7 +41,7 @@ python manage.py cleanup_old_logs --period_days_logs 30 --period_days_logruns 36
 
 
 
-## Example 
+## Example
 
 ```python
 import logging
@@ -61,42 +61,35 @@ def run_task():
     # set task context, start timers and log to console start of task1
     task_console_info('extra informatie alleen voor console.')
     # log to console only
-    
+
     timer = SubTimer('subtask1')
     for i in range(8):
         log_counter('counter1')
         log_counter('counter2', 2)
-    
+
     data_log.info('some data', extra={'key': 'value'})
     # logs directly to database with extra info
-        
+
     timer.finish()
     # this logs the time of subtask1: "sub subtask1: duration: 0.050s, process_duration: 0.001s"
-    
+
     # of gebruik de subtimer zo:
     with SubTimer('subtask2'):
         for i in range(8):
             log_counter('counter1')
             log_counter('counter2', 2)
     # this logs the time of subtask2: "sub subtask2: duration: 0.050s, process_duration: 0.001s"s
-    
+
     finish_task()
     # this logs the time of task1: "taak task1: duration: 0.050s, process_duration: 0.001s"
     # and the counter information:
     # "* Task summary task1"
     # "  - counter1: 8"
     # "  - counter2: 16"
-    
+
     finish_run()
     # this writes the time of the run and status to the database.
 
 if __name__ == '__main__':
     run_task()
 ```
-
-
-
-
-
-
-

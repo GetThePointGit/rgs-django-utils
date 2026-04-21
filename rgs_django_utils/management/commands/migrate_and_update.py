@@ -12,10 +12,25 @@ if __name__ == "__main__":
 from thissite import settings
 
 from rgs_django_utils.commands.export_datamodel_to_excel import export_datamodel_to_excel
-from rgs_django_utils.database.install_db_default_records import add_default_records
 from rgs_django_utils.commands.export_datamodel_to_json_schema import export_datamodel_to_json_schema
+from rgs_django_utils.database.install_db_default_records import add_default_records
+
 
 class Command(BaseCommand):
+    """Run Django migrations and all rgs post-migration install hooks in order.
+
+    Orchestrates the full "bring the database up to date" flow:
+
+    1. ``install_db_before_functions`` (unless ``--skip_before``)
+    2. ``manage.py migrate`` (unless ``--skip_migration``)
+    3. ``install_db_authorization_functions``
+    4. ``install_db_defaults_and_relation_cascading``
+    5. ``add_default_records``
+    6. ``install_db_functions`` + ``install_db_last_functions``
+    7. Write application version into a Postgres function.
+    8. ``sync_db_meta_tables`` + datamodel exports (xlsx + json-schema).
+    """
+
     help = "Migrate database and update triggers, default records and db description"
 
     def add_arguments(self, parser):
@@ -83,7 +98,7 @@ class Command(BaseCommand):
                     $$
                     BEGIN
                         RETURN {current_version};
-                    END $$; 
+                    END $$;
                 """).format(current_version=current_version)
                 )
 

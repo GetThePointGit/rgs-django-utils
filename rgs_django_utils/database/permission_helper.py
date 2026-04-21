@@ -14,6 +14,35 @@ log = logging.getLogger(__name__)
 
 
 def recursive_list(root_element, permissions, permission_tree, child_list, depth):
+    """Populate *permissions* with the transitive closure of *child_list*.
+
+    Walks the directed graph ``permission_tree`` starting at the children of
+    ``root_element`` and records, for every reachable node, the minimum
+    depth at which it was first encountered. Used by
+    :meth:`PermissionHelper.get_permission_inherence_list` to flatten the
+    role-inheritance graph into per-role role lists.
+
+    Parameters
+    ----------
+    root_element : str
+        Role whose inheritance is being expanded — used only to detect
+        self-references.
+    permissions : dict
+        Mutable dict that is updated in place: ``{role: depth}``.
+    permission_tree : dict
+        Full mapping ``{role: list_of_inherited_roles}`` from settings.
+    child_list : list of str
+        Roles directly inherited by the current node.
+    depth : int
+        Current recursion depth (also stored as the value for newly added
+        entries).
+
+    Raises
+    ------
+    ImproperlyConfigured
+        If *child_list* references a role not present in *permission_tree*,
+        or if a role inherits itself transitively.
+    """
     for child in child_list:
         if child not in permission_tree:
             raise ImproperlyConfigured(f"reference '{child}' from PERMISSION_TREE does not exists.")
@@ -36,6 +65,27 @@ permission_keys = {"select", "insert", "update", "delete"}
 
 
 class PermissionHelper:
+    """Resolve per-role table and field permissions for the Hasura generator.
+
+    The helper flattens the role-inheritance tree defined by
+    ``settings.PERMISSION_TREE`` into ordered role lists, then uses those
+    lists to compute effective permissions per model and per field. Results
+    are cached per-model via ``functools.cache``.
+
+    Typically instantiated once per generator run and passed into the
+    metadata emitter.
+
+    Raises
+    ------
+    ImproperlyConfigured
+        If ``settings.PERMISSION_TREE`` is not defined.
+
+    Examples
+    --------
+    >>> helper = PermissionHelper()                    # doctest: +SKIP
+    >>> helper.get_rol_table_permissions(SomeModel)    # doctest: +SKIP
+    """
+
     def __init__(self):
         if not hasattr(settings, "PERMISSION_TREE"):
             raise ImproperlyConfigured("PERMISSION_TREE must be defined")
@@ -44,6 +94,14 @@ class PermissionHelper:
 
     @staticmethod
     def get_permission_inherence_list():
+        """Flatten ``settings.PERMISSION_TREE`` into ordered inheritance lists.
+
+        Returns
+        -------
+        dict of str to list of str
+            Mapping of role to the list of roles it inherits, ordered from
+            most-specific (the role itself, depth 0) to most-generic.
+        """
         permission_tree = settings.PERMISSION_TREE
         out = {}
 
@@ -51,12 +109,30 @@ class PermissionHelper:
             permissions = {k: 0}
             # for key, find all nested permissions
             recursive_list(k, permissions, permission_tree, permission_tree[k], 1)
-            out[k] = [l[0] for l in sorted(permissions.items(), key=lambda i: i[1])]
+            out[k] = [item[0] for item in sorted(permissions.items(), key=lambda i: i[1])]
 
         return out
 
     @cache
     def get_rol_table_permissions(self, model):
+        """Compute per-role insert/select/update/delete filters for *model*.
+
+        Walks the role-inheritance list for every top-level role. For each
+        role, takes the first matching entry from the model's ``TPerm``
+        (either an explicit ``{select: ..., insert: ..., ...}`` dict or a
+        row-level filter that is applied to every action).
+
+        Parameters
+        ----------
+        model : type[django.db.models.Model]
+            Django model with a classmethod ``get_permissions() -> TPerm``.
+
+        Returns
+        -------
+        dict or None
+            Nested mapping ``{role: {action: filter_or_None}}``. ``None``
+            when the model has no ``get_permissions`` classmethod.
+        """
         # todo: make arrays from subbranches to correctly propagate None
         # get table permissions
         if not hasattr(model, "get_permissions"):
@@ -77,7 +153,7 @@ class PermissionHelper:
                 if role in table_permissions.config:
                     rol_table_permissions = table_permissions.config[role]
                     if type(rol_table_permissions) is str:
-                        a = 1
+                        pass
 
                     if set(rol_table_permissions.keys()).issubset(permission_keys):
                         out[k].update(rol_table_permissions)
@@ -93,6 +169,25 @@ class PermissionHelper:
 
     @cache
     def get_rol_field_permissions(self, model):
+        """Compute per-role insert/select/update flags and presets for every field.
+
+        For each field on *model* the returned structure records, per role,
+        which Hasura actions are allowed (boolean flags) and any column
+        presets attached via ``Config(presets=...)``. Primary keys without
+        an explicit ``Config`` default to select-only.
+
+        Parameters
+        ----------
+        model : type[django.db.models.Model]
+            Django model whose field-level permissions are being computed.
+
+        Returns
+        -------
+        dict
+            Mapping ``{field_name: {role: {...flags + presets...}}}``.
+            Action flags are booleans (``insert``, ``select``, ``update``);
+            presets are tuples ``(applied: bool, value: str?)``.
+        """
         out = {}
         for field in model._meta.get_fields():
             if field.is_relation:
@@ -131,8 +226,6 @@ class PermissionHelper:
                     "insert": False,
                     "select": False,
                     "update": False,
-                    "preset_insert": (False,),
-                    "preset_update": (False,),
                 }
 
                 for role in role_list:
@@ -146,12 +239,12 @@ class PermissionHelper:
                             out_fr["update"] = True
                     if presets is not None and role in presets.config:
                         role_presets = presets.config[role]
-                        if not out_fr["preset_insert"]:
+                        if "preset_insert" not in out_fr:
                             if role_presets[0][0] == "i":
                                 out_fr["preset_insert"] = (True, role_presets[1])
                             elif type(role_presets[0]) is tuple and role_presets[0][0][0] == "i":
                                 out_fr["preset_insert"] = (True, role_presets[0][1])
-                        if not out_fr["preset_update"]:
+                        if "preset_update" not in out_fr:
                             if role_presets[0][1] == "u":
                                 out_fr["preset_update"] = (True, role_presets[1])
                             elif type(role_presets[0]) is tuple and role_presets[1][0][1] == "u":
@@ -160,7 +253,7 @@ class PermissionHelper:
                 out[name][k] = out_fr
 
             if "User" == model.__name__:
-                a = 1
+                pass
 
             # table_permissions = model.get_permissions()
             # table_permissions: TPerm
@@ -228,7 +321,7 @@ class PermissionHelper:
             try:
                 action_fields = [k for k, p in role_fields if p["select"]]
             except TypeError:
-                a = 1
+                pass
             if role_table_filter.get("select") is not None and len(action_fields) > 0:
                 select_permissions.append(
                     {
@@ -243,11 +336,9 @@ class PermissionHelper:
                     }
                 )
             action_fields = [k for k, p in role_fields if p["insert"]]
-            set_fields = dict(
-                (k, p["preset_insert"][1])
-                for k, p in role_fields
-                if p["insert"] and p["preset_insert"] and p["preset_insert"][0]
-            )
+            set_fields = {
+                k: p["preset_insert"][1] for k, p in role_fields if p["insert"] and p.get("preset_insert", (False,))[0]
+            }
             if role_table_filter.get("insert") is not None and len(action_fields) > 0:
                 insert_permissions.append(
                     {
@@ -263,11 +354,9 @@ class PermissionHelper:
                     }
                 )
             action_fields = [k for k, p in role_fields if p["update"]]
-            set_fields = dict(
-                (k, p["preset_update"][1])
-                for k, p in role_fields
-                if p["update"] and p["preset_update"] and p["preset_update"][0]
-            )
+            set_fields = {
+                k: p["preset_update"][1] for k, p in role_fields if p["update"] and p.get("preset_update", (False,))[0]
+            }
             if role_table_filter.get("update") is not None and len(action_fields) > 0:
                 update_permissions.append(
                     {

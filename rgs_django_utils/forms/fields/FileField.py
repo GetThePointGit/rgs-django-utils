@@ -4,6 +4,27 @@ from rgs_django_utils.forms.fields.Field import Field
 
 
 class FileField(Field):
+    """File-attachment form field backed by an upload/download URL pair.
+
+    The stored value is the integer id of a ``ProjectFile``-style row;
+    the UI uses *upload_url* and *download_url* to move the bytes.
+
+    Parameters
+    ----------
+    upload_url : str
+        Endpoint the widget should POST the file to.
+    download_url : str
+        Template URL the widget uses to fetch the stored file. Typically
+        contains a ``{id}`` placeholder replaced at render time.
+    value : int, optional
+        Initial id of an already-uploaded file.
+    accept : str, optional
+        MIME / extension hint passed to the browser file picker
+        (e.g. ``".xlsx"`` or ``"image/*"``).
+    **kwargs
+        Forwarded to :class:`~rgs_django_utils.forms.fields.Field.Field`.
+    """
+
     def __init__(
         self,
         upload_url: str,

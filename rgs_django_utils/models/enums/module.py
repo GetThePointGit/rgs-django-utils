@@ -3,13 +3,17 @@ import logging
 from rgs_django_utils.database import dj_extended_models as models
 from rgs_django_utils.database.base_models.enums import BaseEnumExtended
 
-from .enum_sections import section_enum_base
-
 log = logging.getLogger(__name__)
 
 
 class EnumModuleBase(BaseEnumExtended):
-    """Enum for modules"""
+    """Abstract base for per-app "module" enums (e.g. ``project``, ``admin``).
+
+    Modules gate feature sets inside an app. Each consuming app should
+    subclass this, set a concrete ``db_table`` and declare its module
+    constants, so the Hasura metadata generator can filter fields by
+    module membership.
+    """
 
     order = models.IntegerField(
         config=models.Config(

@@ -16,16 +16,33 @@ if __name__ == "__main__":
 
 
 def install_db_defaults_and_relation_cascading(*args, **kwargs):
-    """add default values defined in django and cascading to the database
-    (so defaults and delete cascading are also available for Hasura).
+    """Push Django field defaults and FK cascade actions into Postgres DDL.
 
-    restrictions:
-    - only static values (functions must be manually added as postgres trigger function)
-    - default for uuid is always a random uuid7
-    - no defaults for datetime fields (must be manually set with a trigger function)
-    - only for schema public
-    - only CASCADE, SET_NULL and SET_DEFAULT supported
+    Django stores these at the ORM level only, which means Hasura (and any
+    other SQL-only client) doesn't see them. This helper rewrites the
+    Postgres DDL so the defaults and ``ON DELETE`` actions match what
+    Django would apply — letting mutations that bypass the ORM (Hasura,
+    raw SQL) behave consistently.
 
+    Supported:
+
+    * Static defaults on scalar fields.
+    * ``auto_now_add`` / ``auto_now`` (set to ``NOW()``).
+    * Empty-list default on array columns (``array[]::integer[]``).
+    * ``on_delete`` values of ``CASCADE``, ``SET_NULL`` and ``SET_DEFAULT``.
+
+    Not supported:
+
+    * Callable defaults other than the ones listed above — they must be
+      installed as Postgres trigger functions separately.
+    * ``DateTimeField`` defaults; add them via triggers.
+    * Schemas other than ``public``.
+
+    Notes
+    -----
+    Enables the ``pgcrypto`` extension on entry (used by UUID defaults).
+    Runs in autocommit-off mode while rewriting FK constraints and commits
+    once per FK change.
     """
     log.info("install field default values to database (for Hasura)")
 
@@ -45,7 +62,7 @@ def install_db_defaults_and_relation_cascading(*args, **kwargs):
                 if hasattr(field, "r_config") and getattr(field.r_config, "default_function", None):
                     cursor.execute(
                         sql.SQL("""
-                        ALTER TABLE ONLY {db_table} ALTER COLUMN {column} 
+                        ALTER TABLE ONLY {db_table} ALTER COLUMN {column}
                         SET DEFAULT {function};
                     """).format(
                             db_table=sql.Identifier(db_table),
@@ -57,7 +74,7 @@ def install_db_defaults_and_relation_cascading(*args, **kwargs):
                 elif hasattr(field, "auto_now_add") and field.auto_now_add:
                     cursor.execute(
                         sql.SQL("""
-                        ALTER TABLE ONLY {db_table} ALTER COLUMN {column} 
+                        ALTER TABLE ONLY {db_table} ALTER COLUMN {column}
                         SET DEFAULT NOW();
                     """).format(db_table=sql.Identifier(db_table), column=sql.Identifier(column))
                     )
@@ -65,7 +82,7 @@ def install_db_defaults_and_relation_cascading(*args, **kwargs):
                 elif hasattr(field, "auto_now") and field.auto_now:
                     cursor.execute(
                         sql.SQL("""
-                            ALTER TABLE ONLY {db_table} ALTER COLUMN {column} 
+                            ALTER TABLE ONLY {db_table} ALTER COLUMN {column}
                             SET DEFAULT NOW();
                         """).format(db_table=sql.Identifier(db_table), column=sql.Identifier(column))
                     )
@@ -76,10 +93,10 @@ def install_db_defaults_and_relation_cascading(*args, **kwargs):
                         )
                     )
                 elif (field.default != NOT_PROVIDED) and (field.default is not None):
-                    if field.default == list:
+                    if field.default is list:
                         cursor.execute(
                             sql.SQL("""
-                            ALTER TABLE ONLY {db_table} ALTER COLUMN {column} 
+                            ALTER TABLE ONLY {db_table} ALTER COLUMN {column}
                             SET DEFAULT array[]::integer[];
                         """).format(db_table=sql.Identifier(db_table), column=sql.Identifier(column))
                         )
@@ -93,7 +110,7 @@ def install_db_defaults_and_relation_cascading(*args, **kwargs):
                         value = field.default
                         cursor.execute(
                             sql.SQL("""
-                            ALTER TABLE ONLY {db_table} ALTER COLUMN {column} 
+                            ALTER TABLE ONLY {db_table} ALTER COLUMN {column}
                             SET DEFAULT %(value)s;
                             """).format(db_table=sql.Identifier(db_table), column=sql.Identifier(column)),
                             {"value": value},
@@ -118,13 +135,13 @@ def install_db_defaults_and_relation_cascading(*args, **kwargs):
                               ,string_agg(f.attname, ', ') AS referenced_columns
                               ,c.conname AS fk_name
                               ,pg_get_constraintdef(c.oid) AS fk_definition
-                            FROM pg_attribute  a 
+                            FROM pg_attribute  a
                             JOIN pg_constraint c ON (c.conrelid, c.conkey[1]) = (a.attrelid, a.attnum)
                             JOIN pg_attribute  f ON f.attrelid = c.confrelid
                                               AND f.attnum = ANY (confkey)
                             WHERE c.contype  = 'f'
                             AND a.attrelid = %(table)s::regclass
-                            AND a.attname  = %(column)s 
+                            AND a.attname  = %(column)s
                             GROUP  BY c.confrelid, c.conname, c.oid;
                         """,
                             {"table": f"public.{db_table}", "column": field.column},
@@ -144,8 +161,8 @@ def install_db_defaults_and_relation_cascading(*args, **kwargs):
                         cursor.execute(query)
 
                         query = sql.SQL("""
-                            ALTER TABLE {db_table} ADD CONSTRAINT {constraint} FOREIGN KEY ({column}) 
-                            REFERENCES {ref_table} ({ref_column}) 
+                            ALTER TABLE {db_table} ADD CONSTRAINT {constraint} FOREIGN KEY ({column})
+                            REFERENCES {ref_table} ({ref_column})
                             MATCH SIMPLE ON DELETE {action} DEFERRABLE INITIALLY IMMEDIATE;
                         """).format(
                             db_table=sql.Identifier(db_table),

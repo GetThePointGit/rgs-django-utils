@@ -10,4 +10,3 @@ Testapp with model definitions for testing the rgs_django_utils package
 cd backend/tests/testapp
 python manage.py makemigrations
 ```
-

@@ -1,7 +1,7 @@
 import json
 import os
-import urllib.request
 import urllib.error
+import urllib.request
 
 from django.core.management.base import BaseCommand
 
@@ -12,6 +12,19 @@ if __name__ == "__main__":
 
 
 class Command(BaseCommand):
+    """Generate and optionally apply Hasura metadata.
+
+    Without flags: writes ``hasura_metadata_exported.json`` using
+    :class:`~rgs_django_utils.commands.hasura_permissions.HasuraPermissions`.
+
+    With ``--apply``: also POSTs the freshly generated metadata to the
+    Hasura admin API.
+
+    With ``--apply-only``: skips generation and POSTs an existing JSON
+    file (useful in CI when metadata is generated in one step and applied
+    in another).
+    """
+
     help = "generate json with hasura config"
 
     def add_arguments(self, parser):
@@ -83,26 +96,25 @@ class Command(BaseCommand):
         admin_secret = os.environ.get("HASURA_GRAPHQL_ADMIN_SECRET")
 
         if not hasura_url:
-            self.stderr.write(self.style.ERROR(
-                "HASURA_GRAPHQL_URL is niet ingesteld. "
-                "Stel deze in, bijv. http://localhost:8080"
-            ))
+            self.stderr.write(
+                self.style.ERROR("HASURA_GRAPHQL_URL is niet ingesteld. Stel deze in, bijv. http://localhost:8080")
+            )
             return
 
         if not admin_secret:
-            self.stderr.write(self.style.ERROR(
-                "HASURA_GRAPHQL_ADMIN_SECRET is niet ingesteld."
-            ))
+            self.stderr.write(self.style.ERROR("HASURA_GRAPHQL_ADMIN_SECRET is niet ingesteld."))
             return
 
-        payload = json.dumps({
-            "type": "replace_metadata",
-            "version": 2,
-            "args": {
-                "allow_inconsistent_metadata": True,
-                "metadata": metadata,
-            },
-        }).encode("utf-8")
+        payload = json.dumps(
+            {
+                "type": "replace_metadata",
+                "version": 2,
+                "args": {
+                    "allow_inconsistent_metadata": True,
+                    "metadata": metadata,
+                },
+            }
+        ).encode("utf-8")
 
         url = hasura_url.rstrip("/") + "/v1/metadata"
         req = urllib.request.Request(
@@ -121,9 +133,7 @@ class Command(BaseCommand):
             with urllib.request.urlopen(req) as resp:
                 body = json.loads(resp.read().decode("utf-8"))
                 if body.get("is_consistent") is False:
-                    self.stdout.write(self.style.WARNING(
-                        "Metadata toegepast, maar Hasura meldt inconsistenties:"
-                    ))
+                    self.stdout.write(self.style.WARNING("Metadata toegepast, maar Hasura meldt inconsistenties:"))
                     for inc in body.get("inconsistent_objects", []):
                         self.stdout.write(f"  - {inc.get('type')}: {inc.get('name', '')} — {inc.get('reason', '')}")
                 else:

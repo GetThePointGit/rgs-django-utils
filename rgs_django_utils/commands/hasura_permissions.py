@@ -13,7 +13,6 @@ from django.apps import apps
 from django.conf import settings
 from django.db import models as dj_models
 
-from rgs_django_utils.database.dj_extended_models import TableType, TPerm
 from rgs_django_utils.database.dj_settings_helper import TableDescriptionGetter
 from rgs_django_utils.database.permission_helper import PermissionHelper
 
@@ -34,6 +33,15 @@ class HasuraConfigClass(type):
 
 
 class HasuraConfig(metaclass=HasuraConfigClass):
+    """Registry of Hasura-exposed SQL functions and SQL views.
+
+    Subclass this once per Django app that needs to expose functions or
+    views through Hasura. The metaclass resets ``registered_functions`` /
+    ``registered_views`` per subclass so apps don't inherit each other's
+    entries. ``HasuraPermissions`` reads both lists when it emits the
+    final metadata blob.
+    """
+
     @classmethod
     def register_multiple_functions(cls, functions):
         for function in functions:
@@ -182,13 +190,31 @@ class HasuraConfig(metaclass=HasuraConfigClass):
 
 
 class HasuraPermissions(object):
+    """Emit the full ``hasura/metadata.json`` payload for the configured app.
+
+    Combines ORM-reflected tables (via :class:`TableDescriptionGetter` and
+    :class:`PermissionHelper`) with any functions/views registered through
+    :class:`HasuraConfig`, wrapping them in the ``sources`` / ``metadata``
+    structure that Hasura v2 expects.
+    """
+
     def get_tables(self):
+        """Return the combined table-entries list (ORM tables + registered views)."""
         return [*self.get_tables_from_models(), *HasuraConfig.registered_views]
 
     def get_functions(self):
+        """Return the list of registered SQL-function metadata entries."""
         return HasuraConfig.registered_functions
 
     def generate_hasura_metadata(self):
+        """Build the full ``resource_version / metadata / sources`` payload.
+
+        Returns
+        -------
+        dict
+            Ready-to-serialise mapping that Hasura accepts via its
+            ``POST /v1/metadata {type: "replace_metadata", ...}`` endpoint.
+        """
         return {
             "resource_version": 1,  # ??
             "metadata": {
@@ -218,6 +244,14 @@ class HasuraPermissions(object):
         }
 
     def write_generate_hasura_metadata(self, file_path: str = None):
+        """Write :meth:`generate_hasura_metadata` output to *file_path*.
+
+        Parameters
+        ----------
+        file_path : str, optional
+            Target path. Defaults to
+            ``<ROOT_DIR>/hasura/hasura_metadata_exported.json``.
+        """
         if file_path is None:
             file_path = os.path.join(settings.ROOT_DIR, "hasura", "hasura_metadata_exported.json")
 
@@ -364,7 +398,7 @@ class HasuraPermissions(object):
             from_model = model.get("from_model")
             through_model = model.get("through_model")
             to_model = model.get("to_model")
-            to_field = model.get("to_field")
+            model.get("to_field")
             array_relationships = []
             # for field in [field for field in through_model._meta.fields if field != through_model._meta.pk]:
             #     array_relationships.append(
