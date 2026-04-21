@@ -15,10 +15,9 @@ class ParentModel(models.Model):
         default=uuid.uuid4,
         config=models.Config(
             section=section_one,
-            trigger_calc=[40, 50],
             hasura_set=models.HasuraSet("x-hasura-userId", "now()"),
             permissions=models.FPerm(
-                project="-s-",
+                project_read="-s-",
             ),
         ),
     )
@@ -26,7 +25,7 @@ class ParentModel(models.Model):
         config=models.Config(
             section=section_one,
             permissions=models.FPerm(
-                project="-s-",
+                project_read="-s-",
             ),
         ),
     )
@@ -37,7 +36,7 @@ class ParentModel(models.Model):
         config=models.Config(
             section=section_one,
             permissions=models.FPerm(
-                project="-s-",
+                project_read="-s-",
             ),
         ),
     )
@@ -53,7 +52,7 @@ class ParentModel(models.Model):
     def get_permissions(cls):
         return models.TPerm(
             public=None,
-            project={
+            project_read={
                 "insert": {},
                 "select": {},
                 "update": {},
@@ -93,7 +92,7 @@ class MiddleModel(models.Model):
         config=models.Config(
             section=section_one,
             permissions=models.FPerm(
-                project="-s-",
+                project_read="-s-",
                 project_edit="is-",
             ),
         ),
@@ -102,7 +101,7 @@ class MiddleModel(models.Model):
         config=models.Config(
             section=section_one,
             permissions=models.FPerm(
-                project="-s-",
+                project_read="-s-",
                 project_edit="isu",
             ),
         ),
@@ -116,7 +115,7 @@ class MiddleModel(models.Model):
         config=models.Config(
             section=section_one,
             permissions=models.FPerm(
-                project="-s-",
+                project_read="-s-",
                 project_edit="isu",
             ),
         ),
@@ -134,8 +133,8 @@ class MiddleModel(models.Model):
         filt = {"parent_model": {"ids": {"_eq": "test"}}}
         return models.TPerm(
             public=None,
-            project=filt,
-            project_management={
+            project_read=filt,
+            proj_man={
                 "insert": filt,
                 "select": filt,
                 "update": filt,
@@ -153,7 +152,7 @@ class MiddleExtendedModel(models.Model):
         config=models.Config(
             section=section_one,
             permissions=models.FPerm(
-                project="-s-",
+                project_read="-s-",
                 project_edit="is-",
             ),
         ),
@@ -162,7 +161,7 @@ class MiddleExtendedModel(models.Model):
         config=models.Config(
             section=section_one,
             permissions=models.FPerm(
-                project="-s-",
+                project_read="-s-",
                 project_edit="isu",
             ),
         ),
@@ -177,7 +176,7 @@ class MiddleExtendedModel(models.Model):
         filt = {"parent_model": {"ids": {"_eq": "test"}}}
         return models.TPerm(
             public=None,
-            project=filt,
+            project_read=filt,
         )
 
 
@@ -188,7 +187,7 @@ class ChildModel(models.Model):
         config=models.Config(
             section=section_one,
             permissions=models.FPerm(
-                project="-s-",
+                project_read="-s-",
                 project_edit="is-",
             ),
         ),
@@ -197,7 +196,7 @@ class ChildModel(models.Model):
         config=models.Config(
             section=section_one,
             permissions=models.FPerm(
-                project="-s-",
+                project_read="-s-",
                 project_edit="is-",
             ),
         ),
@@ -211,7 +210,7 @@ class ChildModel(models.Model):
         config=models.Config(
             section=section_one,
             permissions=models.FPerm(
-                project="-s-",
+                project_read="-s-",
                 project_edit="is-",
             ),
         ),
@@ -229,7 +228,7 @@ class ChildModel(models.Model):
         filt = {"middle_model": {"parent_model": {"ids": {"_eq": "test"}}}}
         return models.TPerm(
             public=None,
-            project=filt,
+            project_read=filt,
         )
 
 
@@ -248,8 +247,8 @@ class ManyToManyModel(models.Model):
         filt = {"middle_model": {"parent_model": {"ids": {"_eq": "test"}}}}
         return models.TPerm(
             public=None,
-            project=filt,
-            project_management={
+            project_read=filt,
+            proj_man={
                 "insert": {},
                 "select": {},
             },

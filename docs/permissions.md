@@ -1,6 +1,6 @@
 # Permissions
 
-The package provide a way to define permissions on a model level, which can be used to define the access rights 
+The package provide a way to define permissions on a model level, which can be used to define the access rights
 in Hasura.
 
 roles can inherit permissions from groups. First the roles are definined, including the groups the belong to.
@@ -25,7 +25,7 @@ permissions = [
     ('mod_auth_post', 'mod_auth_post'),
     ('api', 'api'),
     ('superuser', 'auth_development'),
-    
+
 ]
 ```
 
@@ -41,4 +41,3 @@ Then the permissions are defined for each role, which can be inherited from grou
 
 idea's:
 - also apply the rights for django models.
-
