@@ -28,6 +28,7 @@ __all__ = base_all + [
     "FieldSection",
     "Calculation",
     "Config",
+    "HasuraSet",
     "Validation",
 ]
 
@@ -389,6 +390,59 @@ class TPerm(Perm[dict[TableAction, dict]]):
                 raise ValueError(f"Role {key} is not a valid role")
 
 
+class HasuraSet:
+    """Column preset for Hasura — sets a column value automatically on insert and/or update.
+
+    A column preset tells Hasura to inject a value into the column server-side
+    whenever the row is inserted or updated. The value can be a session-variable
+    reference (e.g. ``"x-hasura-user-id"``) or a SQL expression rendered as a
+    string (e.g. ``"now()"``). Leaving an argument as ``None`` means "no preset
+    for this action".
+
+    In the Hasura metadata this expands to a ``set`` entry under the matching
+    action's permission, e.g.::
+
+        "insert_permissions": [
+          {"role": "user", "permission": {"set": {"created_by": "x-hasura-user-id"}, ...}}
+        ]
+
+    Parameters
+    ----------
+    insert : str or None, optional
+        Value to set when a row is inserted. Use a Hasura session variable
+        such as ``"x-hasura-user-id"`` for identity columns, or a SQL
+        expression like ``"now()"`` for timestamps. ``None`` disables the
+        insert preset.
+    update : str or None, optional
+        Value to set when a row is updated. Same value semantics as *insert*.
+        ``None`` disables the update preset.
+
+    Examples
+    --------
+    Stamp ``created_by`` with the current user on insert only:
+
+    >>> HasuraSet(insert="x-hasura-user-id")
+    HasuraSet(insert='x-hasura-user-id', update=None)
+
+    Keep ``updated_at`` fresh on every update:
+
+    >>> HasuraSet(update="now()")
+    HasuraSet(insert=None, update='now()')
+
+    Both at once (positional form matches the insert/update order):
+
+    >>> HasuraSet("x-hasura-user-id", "now()")
+    HasuraSet(insert='x-hasura-user-id', update='now()')
+    """
+
+    def __init__(self, insert: str | None = None, update: str | None = None):
+        self.insert = insert
+        self.update = update
+
+    def __repr__(self) -> str:
+        return f"HasuraSet(insert={self.insert!r}, update={self.update!r})"
+
+
 class Validation(object):
     """Validation config for field."""
 
@@ -438,6 +492,7 @@ class Config:
         import_mode: str = "all",  # "EnumImportModeEnum"
         export: bool = True,
         presets: FPresets = None,
+        hasura_set: HasuraSet = None,
     ):
         self.modules = modules
         self.section = section
@@ -459,6 +514,7 @@ class Config:
         self.import_mode = import_mode
         self.export = export
         self.presets = presets
+        self.hasura_set = hasura_set
 
 
 class FieldConfig:
