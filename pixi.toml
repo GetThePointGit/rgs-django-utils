@@ -71,7 +71,6 @@ ruff = "*"
 pixi-pycharm = "==0.0.11"
 
 [feature.dev.pypi-dependencies]
-notebook = "*"
 build = "*"
 tox = "*"
 
