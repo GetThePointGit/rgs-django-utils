@@ -17,6 +17,7 @@ pre-commit-run = "pre-commit run --all-files"
 sort_imports = "ruff check  ./**/*.py --select I --fix --force-exclude"
 fmt = "ruff format ./**/*.py --force-exclude"
 style = { depends-on = ["sort_imports", "fmt"] } # `pixi run style`
+lint = "ruff check ./rgs_django_utils"  # non-fixing check for CI / review
 
 # build
 build_wheels = "rm -rf dist/ && python -m build" # build wheels
@@ -26,6 +27,7 @@ build = { depends-on = ["build_wheels", "twine_check"] }
 # test
 tests = 'pytest --cov-report term-missing --cov=rgs_django_utils --cov-report=xml'
 test_manage = 'python tests/manage.py'
+tox = "tox"  # run full matrix locally (requires docker/postgres service for integration tests)
 
 [dependencies]
 python = "3.12.*"
@@ -75,6 +77,7 @@ pixi-pycharm = ">=0.0.8,<0.0.9"
 [feature.dev.pypi-dependencies]
 notebook = "*"
 build = "*"
+tox = "*"
 
 pytest-django = "*"
 pytest-cov = "*"

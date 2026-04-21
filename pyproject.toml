@@ -1,9 +1,14 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = [
+  "setuptools>=77.0.0",
+]
+
 [project]
 name = "rgs-django-utils"
-version = "0.1.0"
 description = "Functions related to Django, shared between projects"
 readme = "README.md"
-requires-python = "~=3.12"
+requires-python = ">=3.12"
 license-files = ["LICENSE"]
 authors = [
     { name = "Bastiaan Roos", email = "bastiaan.roos@roosgeo.nl" }
@@ -12,6 +17,19 @@ maintainers = [
     { name = "Bastiaan Roos" }
 ]
 keywords = []
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Framework :: Django",
+  "Framework :: Django :: 5.0",
+  "Framework :: Django :: 5.1",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+dynamic = ["version"]
 
 [project.urls]
 repository = "https://github.com/GetThePointGit/rgs-django-utils"
@@ -20,10 +38,8 @@ repository = "https://github.com/GetThePointGit/rgs-django-utils"
 packages = { find = { include = ["rgs_django_utils*"] } }
 include-package-data = true
 
-
-[tool.pytest.ini_options]
-DJANGO_SETTINGS_MODULE = "testapp.settings_test"
-django_find_project = false
+[tool.setuptools.dynamic]
+version = { attr = "rgs_django_utils.__version__" }
 
 # FORMATTING
 [tool.ruff]
