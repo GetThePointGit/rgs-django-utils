@@ -87,12 +87,22 @@ class TableDescriptionGetter:
 
     @property
     def one_to_many_relationships(self):
-        """Reverse relations where many child rows point back to this model."""
-        return [f for f in self.model._meta.related_objects if f.is_relation and (f.one_to_many)]
+        """Reverse relations where many child rows point back to this model.
+
+        Includes both reverse ``ForeignKey`` (``one_to_many``) and reverse
+        ``ManyToManyField`` (``many_to_many``) relations — from the parent's
+        point of view both surface as Hasura "array relationships".
+        """
+        return [f for f in self.model._meta.related_objects if f.is_relation and (f.one_to_many or f.many_to_many)]
 
     @property
     def many_to_many_relationships(self):
-        """Reverse many-to-many relations involving this model."""
+        """Reverse many-to-many relations involving this model.
+
+        Strict subset of :attr:`one_to_many_relationships` — exposed
+        separately so the Hasura metadata generator can resolve the
+        ``through`` model for each M2M.
+        """
         return [f for f in self.model._meta.related_objects if f.is_relation and f.many_to_many]
 
     @property

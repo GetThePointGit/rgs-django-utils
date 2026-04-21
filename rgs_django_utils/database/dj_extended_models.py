@@ -357,22 +357,22 @@ class Perm(Generic[T], ABC):
         key: Roles,
     ) -> T:
         try:
-            return self._dict[key]
+            return self.config[key]
         except KeyError:
             pass
         try:
             # if key is not found, try public
-            return self._dict["public"]
+            return self.config["public"]
         except KeyError:
             # if public is not found, return empty
             return self.empty
 
     def items(self):
         """Iterate ``(role, value)`` pairs in insertion order."""
-        return self._dict.items()
+        return self.config.items()
 
     def __repr__(self):
-        return self._dict.__repr__()
+        return self.config.__repr__()
 
 
 class FPerm(Perm[FieldPermissionType]):
