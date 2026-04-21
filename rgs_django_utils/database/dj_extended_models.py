@@ -111,7 +111,38 @@ section_register = {}
 
 
 class TableSection(object):
-    """Section for Tables/ models."""
+    """Grouping of tables/models under one heading in the generated docs and metadata.
+
+    Table sections provide the top-level hierarchy used by the Hasura metadata
+    generator and by the datamodel exporters (``export_datamodel_to_excel``,
+    ``export_datamodel_to_json_schema``). Each unique ``id_`` may only register
+    once per process — a second instantiation with the same id raises
+    ``ValueError``.
+
+    Parameters
+    ----------
+    id_ : str
+        Unique section identifier. Used as the lookup key in
+        ``section_register``.
+    name : str, optional
+        Human-readable section name. Falls back to the id when omitted.
+    order : int, optional
+        Sort order within the parent scope. Lower comes first. Default is 0.
+    description : str, optional
+        Free-form description shown in the generated documentation.
+
+    Raises
+    ------
+    ValueError
+        If *id_* has already been registered earlier in the process.
+
+    Examples
+    --------
+    >>> from rgs_django_utils.database import dj_extended_models as models
+    >>> section = models.TableSection("loc", name="Locatie", order=1)
+    >>> section.id, section.order
+    ('loc', 1)
+    """
 
     def __init__(
         self,
@@ -132,7 +163,31 @@ class TableSection(object):
 
 
 class FieldSection(object):
-    """Section for field."""
+    """Grouping of fields within a single table.
+
+    A ``FieldSection`` is attached to individual fields via ``Config(section=...)``
+    and lets the generated UI and docs cluster related fields (for instance
+    "location" vs "measurement values"). Unlike :class:`TableSection`, field
+    sections are not globally registered — each table may reuse the same
+    ``id_`` independently.
+
+    Parameters
+    ----------
+    id_ : str
+        Identifier of the field section, scoped to the owning table.
+    name : str, optional
+        Human-readable section name.
+    order : int, optional
+        Sort order among sections of the same table. Default is 0.
+    description : str, optional
+        Free-form description of the section.
+
+    Examples
+    --------
+    >>> from rgs_django_utils.database import dj_extended_models as models
+    >>> section = models.FieldSection("loc", "Locatie", order=1)
+    >>> models.IntegerField(config=models.Config(section=section))  # doctest: +SKIP
+    """
 
     def __init__(
         self,
@@ -149,7 +204,30 @@ class FieldSection(object):
 
 
 class Calculation(object):
-    """Default values and calculation config for field."""
+    """Reference to a calculation that produces or consumes a field.
+
+    Attach a ``Calculation`` to ``Config(calculated_by=...)`` for output fields
+    and to ``Config(calculation_input_for=[...])`` for input fields. The object
+    is a pure value holder used by the metadata/docs pipeline; no calculation
+    is executed here.
+
+    Parameters
+    ----------
+    obj : str
+        Name of the object or module that owns the calculation.
+    name : str
+        Name of the calculation itself.
+    nr : int, optional
+        Optional sequence number to disambiguate multiple calculations on the
+        same object.
+
+    Examples
+    --------
+    >>> from rgs_django_utils.database import dj_extended_models as models
+    >>> calc = models.Calculation("Measurement", "mean_depth", nr=1)
+    >>> calc.obj, calc.name, calc.nr
+    ('Measurement', 'mean_depth', 1)
+    """
 
     def __init__(
         self,
@@ -258,7 +336,19 @@ roles_set = set(roles_list)
 
 
 class Perm(Generic[T], ABC):
-    """Abstract permission."""
+    """Abstract base for per-role permission / preset containers.
+
+    Subclasses (:class:`FPerm`, :class:`TPerm`, :class:`FPresets`) store a
+    mapping of role name to permission value. Lookup falls back to
+    ``"public"`` when the requested role is not configured, and to
+    :attr:`empty` when even ``"public"`` is missing.
+
+    Attributes
+    ----------
+    empty : T
+        Class-level default returned by ``__getitem__`` when neither the
+        requested role nor ``"public"`` is configured.
+    """
 
     empty: T
 
@@ -278,6 +368,7 @@ class Perm(Generic[T], ABC):
             return self.empty
 
     def items(self):
+        """Iterate ``(role, value)`` pairs in insertion order."""
         return self._dict.items()
 
     def __repr__(self):
@@ -285,33 +376,47 @@ class Perm(Generic[T], ABC):
 
 
 class FPerm(Perm[FieldPermissionType]):
-    """Field Permission."""
+    """Per-role field permission attached to a column's ``Config``.
+
+    Each role gets a three-character action mask where position 0 controls
+    insert (``'i'`` / ``'-'``), position 1 select (``'s'`` / ``'-'``) and
+    position 2 update (``'u'`` / ``'-'``). Valid masks are ``'---'``, ``'-s-'``,
+    ``'i--'``, ``'-su'``, ``'isu'`` and ``'is-'``. Roles not configured fall
+    back to the ``public`` setting.
+
+    Parameters
+    ----------
+    public : FieldActions, optional
+        Default permission mask used by every role that isn't given an
+        explicit entry. Pass as positional or keyword argument. Default is
+        ``'---'`` (no access).
+    **kwargs : FieldActions
+        Per-role overrides. Role names must be valid members of
+        :data:`roles_list`.
+
+    Raises
+    ------
+    ValueError
+        If a mask is not one of the recognised action strings, or if a role
+        name is unknown.
+
+    Examples
+    --------
+    >>> FPerm()
+    FPerm()
+    >>> FPerm('-s-')
+    FPerm(public='-s-',)
+    >>> FPerm(module_auth='isu')
+    FPerm(module_auth='isu',)
+    >>> FPerm('-s-', module_auth='isu')
+    FPerm(public='-s-', module_auth='isu',)
+    >>> FPerm(public='-s-', user_self='isu')
+    FPerm(public='-s-', user_self='isu',)
+    """
 
     empty = "---"
 
     def __init__(self, public: FieldActions = "---", **kwargs: typing.Unpack[FieldPermissionType]):
-        """Initialize Field permission.
-
-        Args:
-            public (FieldActions): Optional. Can be passed as positional argument or additional argument. Default is '---'.
-            args: Optional. Can be passed as additional argument. Default is '---'.
-            kwargs: Optional. Can be passed as additional argument. Default is empty.
-
-        Raises:
-            ValueError: If more than one positional argument is passed.
-
-        Examples:
-            >>> FPerm()
-            FPerm()
-            >>> FPerm('-s-')
-            FPerm(public='-s-',)
-            >>> FPerm(module_auth='isu')
-            FPerm(module_auth='isu',)
-            >>> FPerm('-s-', module_auth='isu')
-            FPerm(public='-s-', module_auth='isu',)
-            >>> FPerm(public='-s-', user_self='isu')
-            FPerm(public='-s-', user_self='isu',)
-        """
         self.config = kwargs
         if public:
             self.config["public"] = public
@@ -330,34 +435,45 @@ type PresetArgument = tuple[PresetActions, str] | tuple[tuple[Literal["i-"], str
 
 
 class FPresets(Perm[dict[Roles, PresetArgument]]):
-    """Field Presets."""
+    """Per-role field preset — injects a value on insert or update per role.
+
+    Each entry is a tuple ``(action, value)`` where *action* is one of
+    ``'--'`` (disabled), ``'i-'`` (insert only), ``'-u'`` (update only) or
+    ``'iu'`` (both). *value* is a Hasura session variable name or a SQL
+    expression string (same semantics as :class:`HasuraSet`).
+
+    For presets that are identical for every role, prefer :class:`HasuraSet`
+    — :class:`FPresets` is meant for the more elaborate case where different
+    roles need different preset values.
+
+    Parameters
+    ----------
+    public : PresetArgument, optional
+        Preset applied to the ``public`` role (fallback role). Default is
+        ``None`` (no public preset).
+    **kwargs : PresetArgument
+        Per-role presets, keyed by role name.
+
+    Raises
+    ------
+    ValueError
+        If any preset value is not a tuple.
+
+    Examples
+    --------
+    >>> FPresets()
+    FPresets()
+    >>> FPresets(('i-', 'value'))
+    FPresets(public=('i-', 'value'))
+    >>> FPresets(module_auth=('i-', 'value'))
+    FPresets(module_auth=('i-', 'value'))
+    >>> FPresets(('i-', 'value'), module_auth=('i-', 'value2'))
+    FPresets(public=('i-', 'value'), module_auth=('i-', 'value2'))
+    """
+
+    empty = ("--",)
 
     def __init__(self, public: PresetArgument = None, **kwargs: typing.Unpack[typing.Mapping[Roles, PresetArgument]]):
-        """Initialize Field Presets.
-
-
-        Args:
-            public (PresetArgument): Optional. Can be passed as positional argument or additional argument. Default is ('--',).
-            args: Optional. Can be passed as additional argument. Default is ('--',).
-            kwargs: Optional. Can be passed as additional argument. Default is empty.
-
-        Raises:
-            ValueError: If more than one positional argument is passed.
-
-        Examples:
-            >>> FPresets()
-            FPresets()
-            >>> FPresets('i-', 'value')
-            FPresets(public=('i-', 'value'))
-            >>> FPresets(module_auth=('i-', 'value'))
-            FPresets(module_auth=('i-', 'value'))
-            >>> FPresets('i-', 'value', module_auth=('i-', 'value2'))
-            FPresets(public=('i-', 'value'), module_auth=('i-', 'value2'))
-            >>> FPresets(('i-', 'value'), ('-u', 'value2'))
-            FPresets(public=(('i-', 'value'), ('-u', 'value2')))
-            >>> FPresets(public=('iu', 'value'), user_self=(('i', 'value'), ('-u', 'value2')))
-            FPresets(public=('iu', 'value'), user_self=(('i', 'value'), ('-u', 'value2')))
-        """
         self.config = kwargs
         if public:
             self.config["public"] = public
@@ -366,11 +482,42 @@ class FPresets(Perm[dict[Roles, PresetArgument]]):
             if not isinstance(value, tuple):
                 raise ValueError(f"Preset for {key} should be a tuple, got {type(value)}")
 
-    empty = ("--",)
-
 
 class TPerm(Perm[dict[TableAction, dict]]):
-    """Table Permission."""
+    """Per-role table permission — returned by ``Model.get_permissions()``.
+
+    Each role maps to a mapping of ``TableAction`` (``"select"``, ``"insert"``,
+    ``"update"``, ``"delete"``) to a row-level filter expression (Hasura
+    boolean expression, represented as a Python ``dict``). An empty dict
+    ``{}`` means "allow the action with no row filter"; ``None`` means "no
+    permission for this action".
+
+    Parameters
+    ----------
+    public : dict or None, optional
+        Permission mapping for the ``public`` role. Pass ``None`` to disable
+        public access (common default). Default is ``None``.
+    **kwargs : dict
+        Per-role permission mappings, keyed by role name from
+        :data:`roles_list`.
+
+    Raises
+    ------
+    ValueError
+        If any permission value is not a dict, or if a role name is not
+        recognised.
+
+    Examples
+    --------
+    Allow authenticated users to read (select) any row of the table:
+
+    >>> TPerm(auth={"select": {}})
+    {'auth': {'select': {}}}
+
+    Restrict project members to rows linked to their project:
+
+    >>> TPerm(project_read={"select": {"project_id": {"_eq": "X-Hasura-Project-Id"}}})  # doctest: +SKIP
+    """
 
     def __init__(
         self,
@@ -378,7 +525,6 @@ class TPerm(Perm[dict[TableAction, dict]]):
         *args,
         **kwargs: typing.Dict[TableAction, typing.Dict[typing.Any, typing.Any]],
     ):
-        """Initialize Table permission."""
         self.config = kwargs
         if public:
             self.config["public"] = public
@@ -444,7 +590,14 @@ class HasuraSet:
 
 
 class Validation(object):
-    """Validation config for field."""
+    """Placeholder validation descriptor attached via ``Config(validation=...)``.
+
+    Intended to collect UI/server-side validation rules (min/max length,
+    comparisons relative to other fields, per-organisation overrides) that
+    cannot be expressed directly on the Django field. The implementation is
+    intentionally empty — concrete attributes are added on demand by
+    consumers.
+    """
 
     # relevant django keys:
     #   - unique
@@ -471,6 +624,87 @@ class Model(base_models.Model):
 
 
 class Config:
+    """Attach rgs-specific metadata to a Django model field.
+
+    ``Config`` is the single container passed as ``config=...`` to the
+    extended field classes in this module. It drives Hasura permission
+    generation, field-level documentation, section grouping, import/export
+    behaviour and validation. All parameters are optional — only the ones
+    you actually need have to be filled in.
+
+    Parameters
+    ----------
+    modules : iterable of str or EnumModuleBase, optional
+        Modules in which this field is active. Used by the metadata
+        generator to gate fields behind a module flag.
+    section : FieldSection, optional
+        UI/docs grouping within the owning table.
+    doc_unit : str, optional
+        Unit shown next to the field (e.g. ``"m"``, ``"°C"``).
+    doc_short : str, optional
+        Short single-line description for tooltips / table headers.
+    doc_full : str, optional
+        Full multi-paragraph description for generated documentation.
+    doc_constraint : str, optional
+        Human-readable description of the field's business constraints.
+    doc_development : str, optional
+        Developer-oriented notes (why the field exists, known gotchas).
+    calculated_by : Calculation, optional
+        Marks the field as the output of a named calculation.
+    calculation_input_for : list of Calculation, optional
+        Marks the field as input to one or more named calculations.
+    default_function : Any, optional
+        Optional Postgres default function applied during
+        ``install_db_defaults_and_relation_cascading``.
+    validation : Validation, optional
+        Validation descriptor — see :class:`Validation`.
+    permissions : FPerm, optional
+        Per-role insert/select/update permission for the field.
+    ignore_for_history : bool, optional
+        If ``True`` the field is excluded from auto-generated history
+        tracking. Default is ``False``.
+    precision : int, optional
+        Numeric precision surfaced in the generated docs / form builder.
+    dbf_name : str, optional
+        DBF-compatible (≤ 10-char) column name for legacy exports.
+    import_mode : str, optional
+        Import behaviour for the field during bulk data loads. Default
+        ``"all"``.
+    export : bool, optional
+        Whether the field participates in dataset exports. Default
+        ``True``.
+    presets : FPresets, optional
+        Role-dependent Hasura column presets. Use :class:`FPresets` when
+        different roles need different preset values.
+    hasura_set : HasuraSet, optional
+        Role-independent Hasura column preset (same value for every role).
+        Simpler and sufficient for stamping ``created_by`` / ``updated_at``.
+
+    Raises
+    ------
+    ValueError
+        If ``dbf_name`` is longer than 10 characters.
+
+    Examples
+    --------
+    Minimal read-only text field, public select only:
+
+    >>> from rgs_django_utils.database import dj_extended_models as models
+    >>> cfg = models.Config(permissions=models.FPerm('-s-'))
+    >>> cfg.permissions['public']
+    '-s-'
+
+    Timestamped audit column auto-filled by Hasura on insert:
+
+    >>> cfg = models.Config(
+    ...     doc_short="Creation time (UTC)",
+    ...     permissions=models.FPerm('-s-'),
+    ...     hasura_set=models.HasuraSet(insert="now()"),
+    ... )
+    >>> cfg.hasura_set.insert
+    'now()'
+    """
+
     def __init__(
         self,
         # verbose_name: str = None,

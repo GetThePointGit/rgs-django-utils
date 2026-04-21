@@ -59,7 +59,7 @@ ignore = ["D1", "D202", "D205", "D400", "D404", "E501", "PD002"]
 # `fixable` left unset — default allows all safe fixes.
 
 [tool.ruff.lint.pydocstyle]
-convention = "google"
+convention = "numpy"
 
 [tool.ruff.lint.per-file-ignores]
 # Re-export pattern: __init__.py legitimately uses `from .submodule import *`
