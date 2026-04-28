@@ -5,6 +5,7 @@ from typing import OrderedDict
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
+from rgs_django_utils.database import dj_extended_models
 from rgs_django_utils.database.dj_extended_models import FPerm, FPresets, TPerm
 
 # cache permission instance
@@ -188,15 +189,22 @@ class PermissionHelper:
             Action flags are booleans (``insert``, ``select``, ``update``);
             presets are tuples ``(applied: bool, value: str?)``.
         """
+
         out = {}
+
         for field in model._meta.get_fields():
+            # Skip generated fields for insert/update permissions
+            if getattr(field, "__class__", None) is not None and (
+                field.__class__.__name__ == "GeneratedField" or isinstance(field, getattr(dj_extended_models, "GeneratedField", type(None)))
+            ):
+                continue
+
             if field.is_relation:
                 if getattr(field, "attname", None) is not None:
                     # foreign key, add _id field
                     name = field.attname
                 else:
                     continue
-
             else:
                 name = field.name
 
