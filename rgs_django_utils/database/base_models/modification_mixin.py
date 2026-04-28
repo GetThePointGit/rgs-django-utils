@@ -41,7 +41,7 @@ class ModificationMetaMixin(models.Model):
             section=section,
             doc_short="id van de gebruiker die record laatst heeft aangepast",
             doc_development="'Lazy link' - veld wordt gezet door hasura of import",
-            presets=FPresets(('-u', {"last_modified_by_id": "x-hasura-user-id"})),
+            presets=FPresets(("-u", {"last_modified_by_id": "x-hasura-user-id"})),
         ),
     )
     last_modified_at = models.DateTimeField(
@@ -51,7 +51,7 @@ class ModificationMetaMixin(models.Model):
             section=section,
             doc_short="datum waarop record laatst is aangepast",
             doc_development="wordt gezet door hasura of import",
-            presets=FPresets(('-u', {"last_modified_at": "x-hasura-now"})),
+            presets=FPresets(("-u", {"last_modified_at": "x-hasura-now"})),
         ),
     )
     created_by = models.ForeignKey(
@@ -63,7 +63,7 @@ class ModificationMetaMixin(models.Model):
             section=section,
             doc_short="id van de gebruiker die record heeft aangemaakt",
             doc_development="'Lazy link' - wordt gezet op basis van 'last_modified_by' bij aanmaken van record",
-            presets=FPresets(('i-', {"created_by_id": "x-hasura-user-id"})),
+            presets=FPresets(("i-", {"created_by_id": "x-hasura-user-id"})),
         ),
     )
     created_at = models.DateTimeField(
@@ -73,7 +73,7 @@ class ModificationMetaMixin(models.Model):
             section=section,
             doc_short="datum waarop record is aangemaakt",
             doc_development="wordt gezet op basis van 'last_modified_at' bij aanmaken van record",
-            presets=FPresets(('i-', {"created_at": "x-hasura-now"})),
+            presets=FPresets(("i-", {"created_at": "x-hasura-now"})),
         ),
     )
 
