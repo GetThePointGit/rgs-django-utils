@@ -317,7 +317,7 @@ class PermissionHelper:
                 )
             action_fields = [k for k, p in role_fields if p["insert"]]
             set_fields = {
-                k: p["preset_insert"][1] for k, p in role_fields if p["insert"] and p.get("preset_insert", (False,))[0]
+                k: p["preset_insert"][1][k] for k, p in role_fields if p["insert"] and p.get("preset_insert", (False,))[0]
             }
             if role_table_filter.get("insert") is not None and len(action_fields) > 0:
                 insert_permissions.append(
@@ -328,14 +328,14 @@ class PermissionHelper:
                             if wrap_role_table_filter
                             else role_table_filter.get("insert"),
                             "columns": action_fields,
-                            "set": set_fields,  # todo
+                            "set": set_fields,
                         },
                         "backend_only": False,
                     }
                 )
             action_fields = [k for k, p in role_fields if p["update"]]
             set_fields = {
-                k: p["preset_update"][1] for k, p in role_fields if p["update"] and p.get("preset_update", (False,))[0]
+                k: p["preset_update"][1][k] for k, p in role_fields if p["update"] and p.get("preset_update", (False,))[0]
             }
             if role_table_filter.get("update") is not None and len(action_fields) > 0:
                 update_permissions.append(
@@ -347,7 +347,7 @@ class PermissionHelper:
                             else role_table_filter.get("update"),
                             "check": {},  # todo: also support?
                             "columns": action_fields,
-                            "set": set_fields,  # todo: also support?
+                            "set": set_fields,
                         },
                     }
                 )
