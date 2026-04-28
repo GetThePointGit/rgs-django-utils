@@ -188,7 +188,7 @@ class PermissionHelper:
             Action flags are booleans (``insert``, ``select``, ``update``);
             presets are tuples ``(applied: bool, value: str?)``.
         """
-        out = {}
+        out = {}        
         for field in model._meta.get_fields():
             if field.is_relation:
                 if getattr(field, "attname", None) is not None:
@@ -211,11 +211,16 @@ class PermissionHelper:
             if field_config is None:
                 log.info(f"'{name}' has no config for with permissions ")
                 continue
+
+            presets: FPresets | None = getattr(field_config, "presets", None)
+
             field_permissions = getattr(field_config, "permissions", None)
             if field_permissions is None:
                 log.info(f"'{name}' has no config for with permissions ")
-                continue
-            presets: FPresets | None = getattr(field_config, "presets", None)
+                if presets is None:
+                    continue
+                else:
+                    field_permissions = FPerm("---")
 
             out[name] = {}
 
@@ -255,50 +260,25 @@ class PermissionHelper:
             if "User" == model.__name__:
                 pass
 
-            # table_permissions = model.get_permissions()
-            # table_permissions: TPerm
-            # if table_permissions.config.get("module_auth") is not None:
-            #     out_fr = {
-            #         "insert": False,
-            #         "select": False,
-            #         "update": False,
-            #         "preset_insert": (False,),
-            #         "preset_update": (False,),
-            #     }
-            #     role_field_permission = field_permissions.config.get("module_auth", "---")
-            #     if role_field_permission and not out_fr["select"] and role_field_permission[1] == "s":
-            #         out_fr["select"] = True
-            #     out[name]["module_auth"] = out_fr
-            # todo: make auth a normal role
-            # if table_permissions.config.get("module_auth_2") is not None:
-            #     out_fr = {
-            #         "insert": False,
-            #         "select": False,
-            #         "update": False,
-            #         "preset_insert": (False,),
-            #         "preset_update": (False,),
-            #     }
-            #     role_field_permission = field_permissions.config.get("module_auth_2", "---")
-            #     if role_field_permission and not out_fr["insert"] and role_field_permission[0] == "i":
-            #         out_fr["insert"] = True
-            #     if role_field_permission and not out_fr["select"] and role_field_permission[1] == "s":
-            #         out_fr["select"] = True
-            #     if role_field_permission and not out_fr["update"] and role_field_permission[2] == "u":
-            #         out_fr["update"] = True
-            #     # TODO auth_module_2 presets
-            #     if presets is not None and "module_auth_2" in presets.config:
-            #         role_presets = presets.config.get("module_auth_2")
-            #         if not out_fr["preset_insert"][0]:
-            #             if role_presets[0][0] == "i":
-            #                 out_fr["preset_insert"] = (True, role_presets[1])
-            #             elif type(role_presets[0]) is tuple and role_presets[0][0][0] == "i":
-            #                 out_fr["preset_insert"] = (True, role_presets[0][1])
-            #         if not out_fr["preset_update"][0]:
-            #             if role_presets[0][1] == "u":
-            #                 out_fr["preset_update"] = (True, role_presets[1])
-            #             elif type(role_presets[0]) is tuple and role_presets[1][0][1] == "u":
-            #                 out_fr["preset_update"] = (True, role_presets[1][1])
-            #     out[name]["module_auth_2"] = out_fr
+        # foreach role check if there are select, insert and/or update permissions on any column. 
+        # If there are no permissions for action, then do not add presets for that action, even if they are defined on field level, because they should not be applied without permissions on table level.
+        # If there are permissions for action and there are presets defined on field level, then add the permissions for preset as well, because they should be applied with permissions on table level.
+        for role in self.role_perm_lists.keys():
+            has_insert = any(out[field][role]["insert"] for field in out if role in out[field])
+            has_update = any(out[field][role]["update"] for field in out if role in out[field])
+            for field in out:
+                if role in out[field]:
+                    if not has_insert:
+                        if "preset_insert" in out[field][role]:
+                            del out[field][role]["preset_insert"]
+                    else:
+                        out[field][role]["insert"] = True
+                    if not has_update:
+                        if "preset_update" in out[field][role]:
+                            del out[field][role]["preset_update"]
+                    else:
+                        out[field][role]["update"] = True
+
         return out
 
     def get_hasura_model_permissions(self, model, wrap_role_table_filter=None):
