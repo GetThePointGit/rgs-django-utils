@@ -52,7 +52,7 @@ class ParentModel(models.Model):
     def get_permissions(cls):
         return models.TPerm(
             public=None,
-            project_read={
+            proj_read={
                 "insert": {},
                 "select": {},
                 "update": {},
@@ -133,7 +133,7 @@ class MiddleModel(models.Model):
         filt = {"parent_model": {"ids": {"_eq": "test"}}}
         return models.TPerm(
             public=None,
-            project_read=filt,
+            proj_read=filt,
             proj_man={
                 "insert": filt,
                 "select": filt,
@@ -176,7 +176,7 @@ class MiddleExtendedModel(models.Model):
         filt = {"parent_model": {"ids": {"_eq": "test"}}}
         return models.TPerm(
             public=None,
-            project_read=filt,
+            proj_read=filt,
         )
 
 
@@ -228,7 +228,7 @@ class ChildModel(models.Model):
         filt = {"middle_model": {"parent_model": {"ids": {"_eq": "test"}}}}
         return models.TPerm(
             public=None,
-            project_read=filt,
+            proj_read=filt,
         )
 
 
@@ -247,7 +247,7 @@ class ManyToManyModel(models.Model):
         filt = {"middle_model": {"parent_model": {"ids": {"_eq": "test"}}}}
         return models.TPerm(
             public=None,
-            project_read=filt,
+            proj_read=filt,
             proj_man={
                 "insert": {},
                 "select": {},
