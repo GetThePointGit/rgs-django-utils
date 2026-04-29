@@ -250,18 +250,19 @@ class PermissionHelper:
                             out_fr["select"] = True
                         if not out_fr["update"] and role_field_permission[2] == "u":
                             out_fr["update"] = True
-                    if presets is not None and role in presets.config:
-                        role_presets = presets.config[role]
-                        if "preset_insert" not in out_fr:
-                            if role_presets[0][0] == "i":
-                                out_fr["preset_insert"] = (True, role_presets[1])
-                            elif type(role_presets[0]) is tuple and role_presets[0][0][0] == "i":
-                                out_fr["preset_insert"] = (True, role_presets[0][1])
-                        if "preset_update" not in out_fr:
-                            if role_presets[0][1] == "u":
-                                out_fr["preset_update"] = (True, role_presets[1])
-                            elif type(role_presets[0]) is tuple and role_presets[1][0][1] == "u":
-                                out_fr["preset_update"] = (True, role_presets[1][1])
+                    if presets is not None:
+                        role_presets = presets[role]  # falls back to "public" via __getitem__
+                        if len(role_presets) > 1:  # skip empty sentinel ("--",)
+                            if "preset_insert" not in out_fr:
+                                if role_presets[0][0] == "i":
+                                    out_fr["preset_insert"] = (True, role_presets[1])
+                                elif type(role_presets[0]) is tuple and role_presets[0][0][0] == "i":
+                                    out_fr["preset_insert"] = (True, role_presets[0][1])
+                            if "preset_update" not in out_fr:
+                                if role_presets[0][1] == "u":
+                                    out_fr["preset_update"] = (True, role_presets[1])
+                                elif type(role_presets[0]) is tuple and role_presets[1][0][1] == "u":
+                                    out_fr["preset_update"] = (True, role_presets[1][1])
 
                 out[name][k] = out_fr
 
@@ -280,12 +281,14 @@ class PermissionHelper:
                         if "preset_insert" in out[field][role]:
                             del out[field][role]["preset_insert"]
                     else:
-                        out[field][role]["insert"] = True
+                        if "preset_insert" in out[field][role]:
+                            out[field][role]["insert"] = True
                     if not has_update:
                         if "preset_update" in out[field][role]:
                             del out[field][role]["preset_update"]
                     else:
-                        out[field][role]["update"] = True
+                        if "preset_update" in out[field][role]:
+                            out[field][role]["update"] = True
 
         return out
 

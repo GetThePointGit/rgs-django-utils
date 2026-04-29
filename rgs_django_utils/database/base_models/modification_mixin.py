@@ -51,7 +51,8 @@ class ModificationMetaMixin(models.Model):
             section=section,
             doc_short="datum waarop record laatst is aangepast",
             doc_development="wordt gezet door hasura of import",
-            presets=FPresets(("-u", {"last_modified_at": "x-hasura-now"})),
+            # X-Hasura-Now cannot be read from header. So we are going to pass it from frontend as a custom variable.
+            # presets=FPresets(("-u", {"last_modified_at": "x-hasura-now"})),
         ),
     )
     created_by = models.ForeignKey(
@@ -73,7 +74,8 @@ class ModificationMetaMixin(models.Model):
             section=section,
             doc_short="datum waarop record is aangemaakt",
             doc_development="wordt gezet op basis van 'last_modified_at' bij aanmaken van record",
-            presets=FPresets(("i-", {"created_at": "x-hasura-now"})),
+            # X-Hasura-Now cannot be read from header. So we are going to pass it from frontend as a custom variable.
+            # presets=FPresets(("i-", {"created_at": "x-hasura-now"})),
         ),
     )
 
