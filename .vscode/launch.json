@@ -1,0 +1,38 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Tox (debugpy)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/.pixi/envs/default/bin/tox",
+            "env": {
+                "PYTHONBREAKPOINT": "debugpy.breakpoint",
+                "PATH": "${workspaceFolder}/.pixi/envs/default/bin:${env:PATH}",
+                "GDAL_LIBRARY_PATH": "${workspaceFolder}/.pixi/envs/default/lib/libgdal.dylib"
+            },
+            "windows": {
+                "console": "integratedTerminal"
+            },
+            "linux": {
+                "console": "internalConsole"
+            },
+            "osx": {
+                "console": "internalConsole" // "integratedTerminal does not work on MacOS with debugpy"
+            },
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}/.pixi/envs/default/bin/python",
+            "justMyCode": true
+        }
+    ],
+    "inputs": [
+        {
+            "id": "pickTest",
+            "description": "Which test (default to all)",
+            "type": "promptString"
+        }
+    ]
+}
