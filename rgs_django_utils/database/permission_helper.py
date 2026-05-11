@@ -195,7 +195,8 @@ class PermissionHelper:
         for field in model._meta.get_fields():
             # Skip generated fields for insert/update permissions
             if getattr(field, "__class__", None) is not None and (
-                field.__class__.__name__ == "GeneratedField" or isinstance(field, getattr(dj_extended_models, "GeneratedField", type(None)))
+                field.__class__.__name__ == "GeneratedField"
+                or isinstance(field, getattr(dj_extended_models, "GeneratedField", type(None)))
             ):
                 continue
 
