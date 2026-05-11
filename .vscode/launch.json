@@ -9,6 +9,10 @@
             "type": "debugpy",
             "request": "launch",
             "program": "${workspaceFolder}/.pixi/envs/default/bin/tox",
+            "args": [
+                "--",
+                "--ds=tests.testapp.local_settings_test"
+            ],
             "env": {
                 "PYTHONBREAKPOINT": "debugpy.breakpoint",
                 "PATH": "${workspaceFolder}/.pixi/envs/default/bin:${env:PATH}",
