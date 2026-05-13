@@ -1,12 +1,13 @@
 import os
 
 from django.core.management.base import BaseCommand
-from thissite import settings
 
 if __name__ == "__main__":
     from rgs_django_utils.setup_django import setup_django
 
     setup_django()
+
+from thissite import settings
 
 from rgs_django_utils.commands.export_datamodel_to_excel import export_datamodel_to_excel
 

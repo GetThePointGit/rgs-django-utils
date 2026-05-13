@@ -2,12 +2,13 @@ import json
 import logging
 import os
 
+log = logging.getLogger(__name__)
+
 if __name__ == "__main__":
-    import django
+    from rgs_django_utils.setup_django import setup_django
 
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "thissite.settings")
-    django.setup()
-
+    setup_django(log=log)
 
 from django.apps import apps
 from django.conf import settings
@@ -93,6 +94,35 @@ class HasuraConfig(metaclass=HasuraConfigClass):
             }
         )
 
+
+HasuraConfig.register_multiple_views(
+    [
+        {
+            "table": {"name": "vw_auth_uman_roles_summary_type", "schema": "public"},
+            "select_permissions": [
+                {
+                    "role": "org_uman",
+                    "permission": {
+                        "columns": ["user_id", "email", "user_is_external", "team", "team_is_external", "project", "project_role", "organization_role"],
+                        "filter": {},
+                    },
+                    "comment": "Returns all columns so the function auth_uman_get_roles_summary can return these columns without any permission issues. This view always returns zero rows, it is only used in hasura as return type.",
+                },
+            ],
+            # "comment": "Return type of auth_uman_get_roles_summary function. This view always returns zero rows, it is only used to define the return type of the function in hasura.",
+        },
+    ]
+)
+HasuraConfig.register_multiple_functions(
+    [
+        {
+            "function": {"name": "auth_uman_get_roles_summary", "schema": "public"},
+            "configuration": {"custom_root_fields": {}, "session_argument": "hasura_session"},
+            "permissions": [{"role": "org_uman"}],
+            # "comment": "Get a summary of the user's roles in the organization, including project and team memberships and whether they are external to the organization",
+        },
+    ]
+)
 
 # HasuraConfig.register_multiple_functions(
 #     [

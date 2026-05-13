@@ -54,19 +54,75 @@ def find_env_file_with_param(start_dir: Path, parameter: str, including_dev: boo
     cur_dir = start_dir
     while True:
         env_file = Path(cur_dir, ".env")
-        if Path(cur_dir, ".env").touch(exist_ok=True):
-            if check_env_file_has_param(env_file, parameter):
-                return env_file
+        Path(cur_dir, ".env").touch(exist_ok=True)
+        if check_env_file_has_param(env_file, parameter):
+            return env_file
         if including_dev:
             env_file_dev = Path(cur_dir, ".env.dev")
-            if env_file_dev.touch(exist_ok=True):
-                if check_env_file_has_param(env_file_dev, parameter):
-                    return env_file_dev
+            Path(cur_dir, ".env.dev").touch(exist_ok=True)
+            if check_env_file_has_param(env_file_dev, parameter):
+                return env_file_dev
         parent_dir = cur_dir.parent
         if parent_dir == cur_dir:  # reached the root directory
             break
         cur_dir = parent_dir
 
+    return None
+
+
+def reexec_with_project_python(django_root: Path) -> None:
+    """Re-execute the current script using the project's Python interpreter.
+
+    Checks for pixi environments (``.pixi/envs/default``) and common virtualenv
+    locations (``.venv``, ``venv``). When a project Python is found and differs
+    from the running interpreter, replaces the current process via ``os.execv``
+    so that all project dependencies are available. No-ops when already running
+    inside the project environment.
+
+    Parameters
+    ----------
+    django_root : Path
+        The directory containing ``manage.py`` for the target Django project.
+    """
+    candidates = [
+        django_root / ".pixi" / "envs" / "default" / "bin" / "python",
+        django_root / ".venv" / "bin" / "python",
+        django_root / "venv" / "bin" / "python",
+    ]
+    for python in candidates:
+        if python.exists() and os.path.realpath(sys.executable) != os.path.realpath(python):
+            os.execv(str(python), [str(python)] + sys.argv)
+
+
+def find_django_root(start_dir: Path) -> Path | None:
+    """Find the directory containing ``manage.py`` near *start_dir*.
+
+    Checks *start_dir* itself first, then its immediate subdirectories,
+    then walks upward to the filesystem root.
+
+    Parameters
+    ----------
+    start_dir : Path
+        Directory to begin the search from.
+
+    Returns
+    -------
+    Path or None
+        The directory containing ``manage.py``, or ``None`` if not found.
+    """
+    if (start_dir / "manage.py").exists():
+        return start_dir
+    for subdir in sorted(start_dir.iterdir()):
+        if subdir.is_dir() and (subdir / "manage.py").exists():
+            return subdir
+    cur = start_dir.parent
+    while True:
+        if (cur / "manage.py").exists():
+            return cur
+        parent = cur.parent
+        if parent == cur:
+            break
+        cur = parent
     return None
 
 
@@ -138,12 +194,24 @@ def setup_django(from_env=False, log: logging.Logger = None):
     ...     main()
     """
 
+    pathname = Path(sys.argv[0]).parent
+    path = find_env_file_with_param(pathname, "PATH_TO_THISSITE_ENV", including_dev=True)
+    if path is None:
+        raise Exception(
+            "PATH_TO_THISSITE_ENV not set and no .env file found with PATH_TO_THISSITE_ENV parameter"
+        )
+    else:
+        dotenv.load_dotenv(path)
+        env_file = os.getenv("PATH_TO_THISSITE_ENV")
+        django_root = find_django_root(Path(env_file).parent) if env_file else None
+        if django_root:
+            reexec_with_project_python(django_root)
+        pathname = django_root or Path(sys.argv[0]).parent
+        if str(pathname) not in sys.path:
+            sys.path.insert(0, str(pathname))
     if not os.environ.get("DJANGO_SETTINGS_MODULE"):
-        pathname = Path(sys.argv[0]).parent
-
         if from_env:
-            env_file = find_env_file_with_param(pathname, "DJANGO_SETTINGS_MODULE", including_dev=True)
-            if env_file is not None:
+            if env_file is not None and check_env_file_has_param(env_file, "DJANGO_SETTINGS_MODULE"):
                 dotenv.load_dotenv(env_file)
             else:
                 raise Exception(

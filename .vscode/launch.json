@@ -30,8 +30,31 @@
             "cwd": "${workspaceFolder}",
             "python": "${workspaceFolder}/.pixi/envs/default/bin/python",
             "justMyCode": true
+        },
+        {
+            "name": "Python: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "windows": {
+                "console": "integratedTerminal"
+            },
+            "linux": {
+                "console": "internalConsole"
+            },
+            "osx": {
+                "console": "internalConsole" // "integratedTerminal does not work on MacOS with debugpy"
+            },
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}/.pixi/envs/default/bin/python",
+            "env": {
+                "PIXIE_ACTIVE": "1",
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+                "justMyCode": false
         }
     ],
+    
     "inputs": [
         {
             "id": "pickTest",

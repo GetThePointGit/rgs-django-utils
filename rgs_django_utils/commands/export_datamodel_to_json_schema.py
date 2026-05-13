@@ -9,6 +9,7 @@ log = logging.getLogger(__name__)
 if __name__ == "__main__":
     from rgs_django_utils.setup_django import setup_django
 
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "thissite.settings")
     setup_django(log=log)
 
 from thissite import settings
