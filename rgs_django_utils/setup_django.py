@@ -197,9 +197,7 @@ def setup_django(from_env=False, log: logging.Logger = None):
     pathname = Path(sys.argv[0]).parent
     path = find_env_file_with_param(pathname, "PATH_TO_THISSITE_ENV", including_dev=True)
     if path is None:
-        raise Exception(
-            "PATH_TO_THISSITE_ENV not set and no .env file found with PATH_TO_THISSITE_ENV parameter"
-        )
+        raise Exception("PATH_TO_THISSITE_ENV not set and no .env file found with PATH_TO_THISSITE_ENV parameter")
     else:
         dotenv.load_dotenv(path)
         env_file = os.getenv("PATH_TO_THISSITE_ENV")

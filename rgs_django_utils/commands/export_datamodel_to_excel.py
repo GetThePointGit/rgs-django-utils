@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
     setup_django(log)
 
-from thissite import settings
+from django.conf import settings
 
 from rgs_django_utils.models import DescriptionField, DescriptionTable, DescriptionTableSection
 

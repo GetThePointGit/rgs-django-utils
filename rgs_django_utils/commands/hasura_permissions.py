@@ -104,7 +104,16 @@ HasuraConfig.register_multiple_views(
                 {
                     "role": "org_uman",
                     "permission": {
-                        "columns": ["user_id", "email", "user_is_external", "team", "team_is_external", "project", "project_role", "organization_role"],
+                        "columns": [
+                            "user_id",
+                            "email",
+                            "user_is_external",
+                            "team",
+                            "team_is_external",
+                            "project",
+                            "project_role",
+                            "organization_role",
+                        ],
                         "filter": {},
                     },
                     "comment": "Returns all columns so the function auth_uman_get_roles_summary can return these columns without any permission issues. This view always returns zero rows, it is only used in hasura as return type.",
@@ -360,8 +369,8 @@ class HasuraPermissions(object):
                             {
                                 "name": field.name,
                                 "using": {"foreign_key_constraint_on": getattr(field, "column", field.name)},
-                            }
-                        )
+                        }
+                    )
 
             if len(object_relationships):
                 out["object_relationships"] = object_relationships
@@ -416,7 +425,7 @@ class HasuraPermissions(object):
             out.update(permissions)
 
             tables.append(out)
-
+              
         for model in through_models:
             # Add through model
             out = {

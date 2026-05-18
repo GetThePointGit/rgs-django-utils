@@ -1,9 +1,6 @@
 import logging
 import typing
 
-from django.apps import apps
-from django.db import models as dj_models
-
 log = logging.getLogger(__name__)
 
 if __name__ == "__main__":
@@ -11,7 +8,9 @@ if __name__ == "__main__":
 
     setup_django(log)
 
+from django.apps import apps
 from django.conf import settings
+from django.db import models as dj_models
 
 from rgs_django_utils.database.dj_extended_models import Config, TableSection, section_register
 from rgs_django_utils.models import (

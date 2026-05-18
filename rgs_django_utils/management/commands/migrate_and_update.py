@@ -9,7 +9,7 @@ if __name__ == "__main__":
     setup_django()
 
 
-from thissite import settings
+from django.conf import settings
 
 from rgs_django_utils.commands.export_datamodel_to_excel import export_datamodel_to_excel
 from rgs_django_utils.commands.export_datamodel_to_json_schema import export_datamodel_to_json_schema

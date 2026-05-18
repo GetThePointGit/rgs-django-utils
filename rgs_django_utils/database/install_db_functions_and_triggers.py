@@ -145,5 +145,6 @@ def install_db_function_in_directory(relative_path: str):
                 log.info("run script %s", filename)
                 cursor.execute(f.read())
 
+
 if __name__ == "__main__":
     install_hasura_views()
