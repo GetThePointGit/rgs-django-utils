@@ -3,15 +3,19 @@ import logging
 import os
 from os import path
 
-from core.rgs_django_workflow.tasks.api import GlobalError
 from django.conf import settings
 from ninja import Body, Router
+from ninja import Schema as BaseModel
 
 from rgs_django_utils.utils.authorization import JwtModuleToken
 
 log = logging.getLogger(__name__)
 
 form_api = Router(tags=["forms"])
+
+
+class GlobalError(BaseModel):
+    error: str
 
 
 @form_api.get(
