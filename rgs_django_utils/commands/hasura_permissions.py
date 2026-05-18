@@ -369,8 +369,8 @@ class HasuraPermissions(object):
                             {
                                 "name": field.name,
                                 "using": {"foreign_key_constraint_on": getattr(field, "column", field.name)},
-                        }
-                    )
+                            }
+                        )
 
             if len(object_relationships):
                 out["object_relationships"] = object_relationships
@@ -425,7 +425,7 @@ class HasuraPermissions(object):
             out.update(permissions)
 
             tables.append(out)
-              
+
         for model in through_models:
             # Add through model
             out = {
@@ -519,6 +519,7 @@ class HasuraPermissions(object):
                 pass
 
         from rgs_django_utils.models.views.abstract import HasuraTrackedView
+
         for hasuraTrackedViews in HasuraTrackedView.all():
             hasuraTrackedViews: list[Type[HasuraTrackedView]]
             for view in hasuraTrackedViews.get_all_views():
@@ -549,7 +550,7 @@ class HasuraPermissions(object):
                         log.error(f"Table {tableName} is not included in tables. Skipping relationships for view {view.db_table_name}")
                     else:
                         table.get("object_relationships", []).extend(relationshipsByTable.get("object_relationships", []))
-                    
+
         return tables
 
 
