@@ -135,12 +135,15 @@ def export_datamodel_to_json_schema(export_path=None):
     for model in app_models:
         (props, required) = schema_generator.model_properties(model)
         result["oneOf"].append({"$ref": f"#/$defs/{model._meta.db_table}"})
-        result["$defs"][model._meta.db_table] = {
+        table_def: dict = {
             "type": "object",
             "title": str(model._meta.verbose_name).capitalize(),
             "description": _td_attr(model, "description", ""),
             "properties": props,
         }
+        if modules := _modules_to_list(_td_attr(model, "modules", None)):
+            table_def["modules"] = modules
+        result["$defs"][model._meta.db_table] = table_def
 
     with open(export_path, "w") as f:
         import json
@@ -357,6 +360,22 @@ class SchemaGenerator:
         if doc := _config_attr(field, "doc_short"):
             prop["description"] = doc
 
+        # docFull from config.doc_full (background information)
+        if doc_full := _config_attr(field, "doc_full"):
+            prop["docFull"] = doc_full
+
+        # unit from config.doc_unit (e.g. "m", "°C") – aansluitend op rgs-schema custom keyword
+        if unit := _config_attr(field, "doc_unit"):
+            prop["unit"] = unit
+
+        # precision from config.precision (numeric precision)
+        if (precision := _config_attr(field, "precision")) is not None:
+            prop["precision"] = precision
+
+        # modules from config.modules (None = niet beperkt)
+        if modules := _modules_to_list(_config_attr(field, "modules")):
+            prop["modules"] = modules
+
         # readOnly (rules 26-28)
         readonly = (
             field_name.startswith("c_")  # rule 27: calculated fields
@@ -535,6 +554,27 @@ def _td_attr(model_class, attr: str, default=None):
     """Read *attr* from a model's inner TableDescription class."""
     td = getattr(model_class, "TableDescription", None)
     return getattr(td, attr, default) if td else default
+
+
+def _modules_to_list(modules) -> list[str] | None:
+    """Normalise a ``modules`` value to a list of strings, or ``None``.
+
+    ``modules`` can be:
+
+    - ``None`` – not restricted, returns ``None`` so the caller skips the keyword.
+    - ``"*"`` – all modules, treated as not restricted, returns ``None``.
+    - a string – single module name, returns ``[modules]``.
+    - an iterable – returns ``[str(m) for m in modules]``.
+    """
+    if modules is None or modules == "*":
+        return None
+    if isinstance(modules, str):
+        return [modules]
+    try:
+        result = [str(m) for m in modules]
+    except TypeError:
+        return None
+    return result or None
 
 
 def _is_required(field) -> bool:
