@@ -115,7 +115,7 @@ def install_hasura_views():
         for hasuraTrackedView in hasuraTrackedViews:
             for view in hasuraTrackedView.get_all_views():
                 view: HasuraTrackedView
-                log.info("run script for hasura tracked view %s", view.name)
+                log.info("run script for hasura tracked view %s", view.db_table_name)
                 sql = view.get_sql()
                 cursor.execute(sql)
 

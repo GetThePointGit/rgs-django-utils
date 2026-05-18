@@ -67,50 +67,58 @@ class UserView(HasuraTrackedView):
 
     @classmethod
     def get_permissions(cls):
-        return {
-            "config": TPerm(
-                org_mem={
-                    "select": {"project": {"organization_id": {"_eq": "x-hasura-org-id"}}},
-                    "proj_read": {
-                        "select": {
-                            "project": {
-                                "upm": {"_and": [{"user_id": {"_eq": "x-hasura-org-id"}}, {"role": {"_lte": 140}}]}
-                            }
-                        },
+        return TPerm(
+            org_mem={
+                "select": {"project": {"organization_id": {"_eq": "x-hasura-org-id"}}},
+                "proj_read": {
+                    "select": {
+                        "project": {
+                            "upm": {"_and": [{"user_id": {"_eq": "x-hasura-org-id"}}, {"role": {"_lte": 140}}]}
+                        }
                     },
-                }
-            ),
-        }
+                },
+            }
+        )
 
     def get_relations(self):
-        fields = self.model._meta.get_fields()
+        fields = self._field_referencing_user()
         return [
             {
                 "table": self.model._meta.db_table,
                 "object_relationships": [
                     {
                         "name": f"{field.name}_short",
-                        "manual_configuration": {
-                            "column_mapping": {"created_by_id": "id"},
-                            "insertion_order": None,
-                            "remote_table": {"name": f"vw_{self.model._meta.db_table}_user", "schema": "public"},
+                        "using":{
+                            "manual_configuration": {
+                                "column_mapping": {"created_by_id": "id"},
+                                "insertion_order": "before_parent",
+                                "remote_table": {"name": f"vw_{self.model._meta.db_table}_user", "schema": "public"},
+                            },
                         },
                     }
                     for field in fields
                 ],
             }
         ]
-
-    def get_sql(self):
-        db_table = self.model._meta.db_table
+    
+    def _field_referencing_user(self):
         fields = self.model._meta.get_fields()
-        fields_refencing_user = [
+        return [
             field
             for field in fields
             if field.is_relation
             and field.related_model == apps.get_model("core", "User")
             and isinstance(field, dj_models.ForeignKey)
         ]
+
+    @property
+    def db_view_name(self):
+        return f"vw_{self._meta.db_table}_user"
+
+    def get_sql(self):
+        db_table = self.model._meta.db_table
+        fields = self.model._meta.get_fields()
+        fields_refencing_user = self._field_referencing_user()
         if self.through_model != self.model:
             field_that_references_through_model = next(
                 (
@@ -134,9 +142,9 @@ class UserView(HasuraTrackedView):
         # We drop the view instead of replace so we can change the columns without problems in PostgreSQL.
         # If we would use CREATE OR REPLACE VIEW, we would get an error if we try to change the columns of the view.
         return f"""
-            DROP VIEW IF EXISTS "vw_{db_table}_user"
+            DROP VIEW IF EXISTS "{self.db_view_name}"
             ;
-            CREATE VIEW "vw_{db_table}_user" AS
+            CREATE VIEW "{self.db_view_name}" AS
             SELECT distinct {"tbl" if self.through_model == self.model else self.through_model._meta.db_table}.project_id, au.id, au.alias, org.name as organization_name
             FROM "{db_table}" tbl
             {join_clause}

@@ -523,15 +523,32 @@ class HasuraPermissions(object):
             hasuraTrackedViews: list[Type[HasuraTrackedView]]
             for view in hasuraTrackedViews.get_all_views():
                 view: HasuraTrackedView
-                tables.append(view.get_permissions())
-                relationshipsByTable = view.get_relations()
-                for tableName, relationships in relationshipsByTable.items():
+                perm_helper = PermissionHelper()
+                perm_helper.get_hasura_model_permissions(view, lambda x: {view._meta.db_table: x})
+                for perm_type in ["select_permissions", "insert_permissions", "update_permissions", "delete_permissions"]:
+                    if perm_type in permissions:
+                        for perm in permissions[perm_type]:
+                            if "permission" in perm and "columns" in perm["permission"]:
+                                perm["permission"]["columns"] = [
+                                    getattr(model._meta.get_field(col), "column", col)
+                                    for col in perm["permission"]["columns"]
+                            ]
+                tables.append({
+                    "table": {
+                        "name": view.db_view_name,
+                        "schema": "public",
+                    },
+                    **permissions,
+                })
+                relationshipsByTables = view.get_relations()
+                for relationshipsByTable in relationshipsByTables:
+                    tableName = relationshipsByTable["table"]
                     try:
                         table = next(table for table in tables if table["table"]["name"] == tableName)
                     except StopIteration:
-                        log.error(f"Table {tableName} is not included in tables, adding it now.")
+                        log.error(f"Table {tableName} is not included in tables. Skipping relationships for view {view.db_table_name}")
                     else:
-                        table.get("object_relationships", []).extend(relationships.get("object_relationships", []))
+                        table.get("object_relationships", []).extend(relationshipsByTable.get("object_relationships", []))
                     
         return tables
 

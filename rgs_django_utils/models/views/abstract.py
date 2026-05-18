@@ -14,10 +14,17 @@ class HasuraTrackedView(ABC):
 
     def __repr__(self):
         return self.get_sql()
+    
+    def __name__(self):
+        return "_".join(part.capitalize() for part in self._meta.db_table.split("_"))
 
     @property
-    def name(self):
-        self._meta.db_table
+    def db_table_name(self):
+        return self._meta.db_table
+    
+    @property
+    def db_view_name(self):
+        return f"vw_{self._meta.db_table}"
 
     @staticmethod
     def all() -> list[Type[Self]]:
@@ -25,12 +32,12 @@ class HasuraTrackedView(ABC):
 
         Returns
         -------
-            list[Type[Self]]: All classes that inherit View.
+            list[Type[Self]]: All classes that inherit HasuraTrackedView.
 
         Example
         -------
         ```python
-        views = View.all()
+        views = HasuraTrackedView.all()
         # returns [<class 'UserView'>, <class 'AnotherView'>, ...]
         ```
         """
@@ -73,8 +80,8 @@ class HasuraTrackedView(ABC):
         Example
         -------
         ```python
-        all_views = Userview.get_all_views()
-        # returns [Userview("vw_ww_user"), Userview("vw_pl_user"), ...]
+        all_views = HasuraTrackedView.get_all_views()
+        # returns [HasuraTrackedView("vw_ww_user"), HasuraTrackedView("vw_pl_user"), ...]
         ```
         """
         ...
