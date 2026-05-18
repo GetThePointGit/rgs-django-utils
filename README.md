@@ -476,4 +476,3 @@ Alpha (`0.1.0`). Used in waterworks and urbanworks, so the core API surface (`Co
 load-bearing. The roles list in `dj_extended_models.roles_list` is
 still evolving — see `tests/testapp/models.py` for gaps that surfaced
 during the tooling alignment pass.
-

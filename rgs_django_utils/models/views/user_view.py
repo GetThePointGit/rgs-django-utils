@@ -76,9 +76,7 @@ class UserView(HasuraTrackedView):
             for perm in perms:
                 if perm == "select":
                     new_perm[role] = {
-                        "select": {
-                            self.model._meta.db_table: perms[perm]
-                        },
+                        "select": {self.model._meta.db_table: perms[perm]},
                     }
         return TPerm(**new_perm)
 
@@ -87,48 +85,54 @@ class UserView(HasuraTrackedView):
         object_relationships = []
         for field in fields:
             # relationship from the original table to the view for querying
-            object_relationships.append({
-                "table": self.model._meta.db_table,
-                "object_relationship": {
-                    "name": f"{field.name}_short",
-                    "using": {
-                        "manual_configuration": {
-                            "column_mapping": {field.db_column or field.column: "id"},
-                            "insertion_order": "before_parent",
-                            "remote_table": {"name": self.db_view_name, "schema": "public"},
+            object_relationships.append(
+                {
+                    "table": self.model._meta.db_table,
+                    "object_relationship": {
+                        "name": f"{field.name}_short",
+                        "using": {
+                            "manual_configuration": {
+                                "column_mapping": {field.db_column or field.column: "id"},
+                                "insertion_order": "before_parent",
+                                "remote_table": {"name": self.db_view_name, "schema": "public"},
+                            },
                         },
                     },
                 }
-            })
+            )
         # reverse relationship from the view to the original table for permissions in hasura
-        object_relationships.append({
-            "table": self.db_view_name,
-            "object_relationship": {
-                "name": self.model._meta.db_table,
-                "using": {
-                    "manual_configuration": {
-                        "column_mapping": {"id": self.model._meta.pk.column},
-                        "insertion_order": "before_parent",
-                        "remote_table": {"name": self.model._meta.db_table, "schema": "public"},
+        object_relationships.append(
+            {
+                "table": self.db_view_name,
+                "object_relationship": {
+                    "name": self.model._meta.db_table,
+                    "using": {
+                        "manual_configuration": {
+                            "column_mapping": {"id": self.model._meta.pk.column},
+                            "insertion_order": "before_parent",
+                            "remote_table": {"name": self.model._meta.db_table, "schema": "public"},
+                        },
                     },
                 },
             }
-        })
+        )
         # group permission by table
         relationshipsByTable = []
         for relationship in object_relationships:
             tableName = relationship["table"]
             if tableName not in [r["table"] for r in relationshipsByTable]:
-                relationshipsByTable.append({
-                    "table": tableName,
-                    "object_relationships": [],
-                })
+                relationshipsByTable.append(
+                    {
+                        "table": tableName,
+                        "object_relationships": [],
+                    }
+                )
             for r in relationshipsByTable:
                 if r["table"] == tableName:
                     r["object_relationships"].append(relationship["object_relationship"])
                     break
         return relationshipsByTable
-    
+
     def _field_referencing_user(self):
         fields = self.model._meta.get_fields()
         return [
