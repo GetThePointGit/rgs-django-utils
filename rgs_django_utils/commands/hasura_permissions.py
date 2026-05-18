@@ -105,7 +105,16 @@ HasuraConfig.register_multiple_views(
                 {
                     "role": "org_uman",
                     "permission": {
-                        "columns": ["user_id", "email", "user_is_external", "team", "team_is_external", "project", "project_role", "organization_role"],
+                        "columns": [
+                            "user_id",
+                            "email",
+                            "user_is_external",
+                            "team",
+                            "team_is_external",
+                            "project",
+                            "project_role",
+                            "organization_role",
+                        ],
                         "filter": {},
                     },
                     "comment": "Returns all columns so the function auth_uman_get_roles_summary can return these columns without any permission issues. This view always returns zero rows, it is only used in hasura as return type.",
@@ -374,24 +383,21 @@ class HasuraPermissions(object):
                                 "using": {"foreign_key_constraint_on": getattr(field, "column", field.name)},
                             }
                         )
-            
+
             fields_refencing_user = get_fields_referencing(model, table_name="auth_user")
             for field in fields_refencing_user:
                 if field.remote_field.model._meta.db_table == "auth_user":
-                    log.debug(f"Adding object relationship for field {field.name} referencing auth_user in model {model._meta.object_name}")
+                    log.debug(
+                        f"Adding object relationship for field {field.name} referencing auth_user in model {model._meta.object_name}"
+                    )
                     object_relationships.append(
                         {
                             "name": f"{field.name}_short",
                             "manual_configuration": {
-                                "column_mapping": {
-                                    "created_by_id": "id"
-                                },
+                                "column_mapping": {"created_by_id": "id"},
                                 "insertion_order": None,
-                                "remote_table": {
-                                    "name": f"vw_{model._meta.db_table}_user",
-                                    "schema": "public"
-                                }
-                            }
+                                "remote_table": {"name": f"vw_{model._meta.db_table}_user", "schema": "public"},
+                            },
                         }
                     )
 
@@ -450,7 +456,9 @@ class HasuraPermissions(object):
             tables.append(out)
 
             if len(fields_refencing_user) > 0:
-                permissions = perm_helper.get_hasura_model_permissions(UserView(db_view=f"vw_{model._meta.db_table}_user"))
+                permissions = perm_helper.get_hasura_model_permissions(
+                    UserView(db_view=f"vw_{model._meta.db_table}_user")
+                )
 
                 user_view = {
                     "table": {
@@ -462,22 +470,17 @@ class HasuraPermissions(object):
                             "name": "project",
                             "using": {
                                 "manual_configuration": {
-                                    "column_mapping": {
-                                    "project_id": "id"
-                                    },
+                                    "column_mapping": {"project_id": "id"},
                                     "insertion_order": None,
-                                    "remote_table": {
-                                    "name": "project",
-                                    "schema": "public"
-                                    }
+                                    "remote_table": {"name": "project", "schema": "public"},
                                 }
-                            }
+                            },
                         }
                     ],
                     "select_permissions": permissions.get("select_permissions", []),
                 }
                 tables.append(user_view)
-                
+
         for model in through_models:
             # Add through model
             out = {

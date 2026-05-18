@@ -1,9 +1,6 @@
 import logging
 import os
 
-from django.apps import apps
-from django.db import models as dj_models
-
 log = logging.getLogger(__name__)
 
 if __name__ == "__main__":
@@ -12,7 +9,9 @@ if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "thissite.settings")
     setup_django(log=log)
 
-from thissite import settings
+from django.apps import apps
+from django.conf import settings
+from django.db import models as dj_models
 
 # Django field type name → JSON Schema "type"
 _TYPE_MAP: dict[str, str] = {

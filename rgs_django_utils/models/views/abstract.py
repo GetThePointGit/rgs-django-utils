@@ -3,11 +3,12 @@ from typing import Self, Type
 
 all = []
 
+
 class HasuraTrackedView(ABC):
     def __init__(self, db_view):
         self._meta = self.Meta(db_view)
 
-    def __init_subclass__( cls, **kwargs ):
+    def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         all.append(cls)
 
@@ -40,7 +41,7 @@ class HasuraTrackedView(ABC):
     def get_permissions(cls):
         """
         Permissions for the view. Used for auto generation of permissions in hasura.
-        
+
         Example
         -------
         ```python
@@ -86,6 +87,7 @@ class HasuraTrackedView(ABC):
 
         view = True
         abstract = True
+
 
 class ViewField(object):
     def __init__(self, name, verbose_name, column, config):

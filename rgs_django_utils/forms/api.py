@@ -4,8 +4,8 @@ import os
 from os import path
 
 from core.rgs_django_workflow.tasks.api import GlobalError
+from django.conf import settings
 from ninja import Body, Router
-from thissite import settings
 
 from rgs_django_utils.utils.authorization import JwtModuleToken
 
