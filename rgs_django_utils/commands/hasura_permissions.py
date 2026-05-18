@@ -525,13 +525,13 @@ class HasuraPermissions(object):
             for view in hasuraTrackedViews.get_all_views():
                 view: HasuraTrackedView
                 perm_helper = PermissionHelper()
-                perm_helper.get_hasura_model_permissions(view, lambda x: {view._meta.db_table: x})
-                for perm_type in ["select_permissions", "insert_permissions", "update_permissions", "delete_permissions"]:
+                permissions = perm_helper.get_hasura_model_permissions(view)
+                for perm_type in ["select_permissions"]:
                     if perm_type in permissions:
                         for perm in permissions[perm_type]:
                             if "permission" in perm and "columns" in perm["permission"]:
                                 perm["permission"]["columns"] = [
-                                    getattr(model._meta.get_field(col), "column", col)
+                                    getattr(view._meta.get_field(col), "column", col)
                                     for col in perm["permission"]["columns"]
                             ]
                 tables.append({
@@ -539,6 +539,7 @@ class HasuraPermissions(object):
                         "name": view.db_view_name,
                         "schema": "public",
                     },
+                    "object_relationships": [],
                     **permissions,
                 })
                 relationshipsByTables = view.get_relations()

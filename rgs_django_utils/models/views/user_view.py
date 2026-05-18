@@ -28,6 +28,10 @@ class UserView(HasuraTrackedView):
         def __init__(self, model):
             super().__init__(model._meta.db_table)
 
+        @classmethod
+        def get_field(cls, col):
+            return next(field for field in cls.get_fields() if field.name == col)
+
         @staticmethod
         def get_fields():
             return [
@@ -65,41 +69,65 @@ class UserView(HasuraTrackedView):
                 ),
             ]
 
-    @classmethod
-    def get_permissions(cls):
-        return TPerm(
-            org_mem={
-                "select": {"project": {"organization_id": {"_eq": "x-hasura-org-id"}}},
-                "proj_read": {
-                    "select": {
-                        "project": {
-                            "upm": {"_and": [{"user_id": {"_eq": "x-hasura-org-id"}}, {"role": {"_lte": 140}}]}
-                        }
-                    },
-                },
-            }
-        )
+    def get_permissions(self):
+        new_perm = {}
+        model_permissions = self.model.get_permissions() if hasattr(self.model, "get_permissions") else {}
+        for role, perms in model_permissions.items():
+            for perm in perms:
+                if perm == "select":
+                    new_perm[role] = {
+                        "select": {
+                            self.model._meta.db_table: perms[perm]
+                        },
+                    }
+        return TPerm(**new_perm)
 
     def get_relations(self):
         fields = self._field_referencing_user()
-        return [
-            {
+        object_relationships = []
+        for field in fields:
+            # relationship from the original table to the view for querying
+            object_relationships.append({
                 "table": self.model._meta.db_table,
-                "object_relationships": [
-                    {
-                        "name": f"{field.name}_short",
-                        "using":{
-                            "manual_configuration": {
-                                "column_mapping": {field.db_column or field.column: "id"},
-                                "insertion_order": "before_parent",
-                                "remote_table": {"name": f"vw_{self.model._meta.db_table}_user", "schema": "public"},
-                            },
+                "object_relationship": {
+                    "name": f"{field.name}_short",
+                    "using": {
+                        "manual_configuration": {
+                            "column_mapping": {field.db_column or field.column: "id"},
+                            "insertion_order": "before_parent",
+                            "remote_table": {"name": self.db_view_name, "schema": "public"},
                         },
-                    }
-                    for field in fields
-                ],
+                    },
+                }
+            })
+        # reverse relationship from the view to the original table for permissions in hasura
+        object_relationships.append({
+            "table": self.db_view_name,
+            "object_relationship": {
+                "name": self.model._meta.db_table,
+                "using": {
+                    "manual_configuration": {
+                        "column_mapping": {"id": self.model._meta.pk.column},
+                        "insertion_order": "before_parent",
+                        "remote_table": {"name": self.model._meta.db_table, "schema": "public"},
+                    },
+                },
             }
-        ]
+        })
+        # group permission by table
+        relationshipsByTable = []
+        for relationship in object_relationships:
+            tableName = relationship["table"]
+            if tableName not in [r["table"] for r in relationshipsByTable]:
+                relationshipsByTable.append({
+                    "table": tableName,
+                    "object_relationships": [],
+                })
+            for r in relationshipsByTable:
+                if r["table"] == tableName:
+                    r["object_relationships"].append(relationship["object_relationship"])
+                    break
+        return relationshipsByTable
     
     def _field_referencing_user(self):
         fields = self.model._meta.get_fields()
