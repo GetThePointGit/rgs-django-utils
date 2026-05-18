@@ -82,6 +82,25 @@ class UserView(HasuraTrackedView):
             ),
         }
 
+    def get_relations(self):
+        fields = self.model._meta.get_fields()
+        return [
+            {
+                "table": self.model._meta.db_table,
+                "object_relationships": [
+                    {
+                        "name": f"{field.name}_short",
+                        "manual_configuration": {
+                            "column_mapping": {"created_by_id": "id"},
+                            "insertion_order": None,
+                            "remote_table": {"name": f"vw_{self.model._meta.db_table}_user", "schema": "public"},
+                        },
+                    }
+                    for field in fields
+                ],
+            }
+        ]
+
     def get_sql(self):
         db_table = self.model._meta.db_table
         fields = self.model._meta.get_fields()

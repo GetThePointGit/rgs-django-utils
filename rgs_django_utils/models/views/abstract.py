@@ -51,6 +51,19 @@ class HasuraTrackedView(ABC):
         """
         ...
 
+    @abstractmethod
+    def get_relations(self):
+        """Get the relations for the view. Used for auto generation of permissions in hasura.
+
+        Example
+        -------
+        ```python
+        view = SomeView()
+        view.get_relations()
+        ```
+        """
+        ...
+
     @classmethod
     @abstractmethod
     def get_all_views(cls) -> list[Self]:
