@@ -5,7 +5,6 @@ and the modules-normalisation helper. Geen Django DB nodig — alle tests
 werken op losse veld-instanties met handmatig geprikte Config.
 """
 
-import pytest
 from django.db import models as dj_models
 
 from rgs_django_utils.commands.export_datamodel_to_json_schema import (
