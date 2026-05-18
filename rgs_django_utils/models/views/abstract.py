@@ -14,14 +14,14 @@ class HasuraTrackedView(ABC):
 
     def __repr__(self):
         return self.get_sql()
-    
+
     def __name__(self):
         return "_".join(part.capitalize() for part in self._meta.db_table.split("_"))
 
     @property
     def db_table_name(self):
         return self._meta.db_table
-    
+
     @property
     def db_view_name(self):
         return f"vw_{self._meta.db_table}"

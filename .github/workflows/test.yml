@@ -82,12 +82,18 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Cache pre-commit hook environments
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ runner.os }}-py${{ matrix.python-version }}-${{ hashFiles('.pre-commit-config.yaml') }}
+
       - name: Install Dependencies
         run: |
           pip install tox
 
       - name: Quality tests
         env:
-          TOXENV: ruff
+          TOXENV: quality
         run: |
           tox

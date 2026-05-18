@@ -21,10 +21,13 @@ test-manage = "python tests/manage.py"
 # --- Styling / linting ---
 # `style` auto-sorts imports and formats. `lint` only checks rgs_django_utils/
 # (tests get their own relaxed rules — see pyproject.toml).
+# `quality` is the full gate that CI runs (delegates to pre-commit so the
+# hook, this task and `tox -e quality` all execute the same checks).
 sort-imports = "ruff check --select I --fix --force-exclude"
 format = "ruff format --force-exclude"
 style = { depends-on = ["sort-imports", "format"] }
 lint = "ruff check"
+quality = "pre-commit run --all-files --show-diff-on-failure"
 
 # --- Build / publish ---
 build-clean = "rm -rf dist build *.egg-info rgs_django_utils.egg-info"

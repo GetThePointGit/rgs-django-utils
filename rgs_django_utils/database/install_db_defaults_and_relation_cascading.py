@@ -1,13 +1,12 @@
 import logging
 
-from psycopg import sql
-
-log = logging.getLogger(__name__)
-
 import django.apps
 from django.db import connection, transaction
 from django.db import models as dj_models
 from django.db.models.fields import NOT_PROVIDED
+from psycopg import sql
+
+log = logging.getLogger(__name__)
 
 if __name__ == "__main__":
     from rgs_django_utils.setup_django import setup_django

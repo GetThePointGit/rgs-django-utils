@@ -533,24 +533,30 @@ class HasuraPermissions(object):
                                 perm["permission"]["columns"] = [
                                     getattr(view._meta.get_field(col), "column", col)
                                     for col in perm["permission"]["columns"]
-                            ]
-                tables.append({
-                    "table": {
-                        "name": view.db_view_name,
-                        "schema": "public",
-                    },
-                    "object_relationships": [],
-                    **permissions,
-                })
+                                ]
+                tables.append(
+                    {
+                        "table": {
+                            "name": view.db_view_name,
+                            "schema": "public",
+                        },
+                        "object_relationships": [],
+                        **permissions,
+                    }
+                )
                 relationshipsByTables = view.get_relations()
                 for relationshipsByTable in relationshipsByTables:
                     tableName = relationshipsByTable["table"]
                     try:
                         table = next(table for table in tables if table["table"]["name"] == tableName)
                     except StopIteration:
-                        log.error(f"Table {tableName} is not included in tables. Skipping relationships for view {view.db_table_name}")
+                        log.error(
+                            f"Table {tableName} is not included in tables. Skipping relationships for view {view.db_table_name}"
+                        )
                     else:
-                        table.get("object_relationships", []).extend(relationshipsByTable.get("object_relationships", []))
+                        table.get("object_relationships", []).extend(
+                            relationshipsByTable.get("object_relationships", [])
+                        )
 
         return tables
 
