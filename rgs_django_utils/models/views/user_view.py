@@ -90,7 +90,7 @@ class UserView(HasuraTrackedView):
                         "name": f"{field.name}_short",
                         "using":{
                             "manual_configuration": {
-                                "column_mapping": {"created_by_id": "id"},
+                                "column_mapping": {field.db_column or field.column: "id"},
                                 "insertion_order": "before_parent",
                                 "remote_table": {"name": f"vw_{self.model._meta.db_table}_user", "schema": "public"},
                             },
