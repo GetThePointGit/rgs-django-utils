@@ -1,8 +1,7 @@
 import json
 import logging
 import os
-
-from rgs_django_utils.models.views.user_view import UserView
+from typing import Type
 
 log = logging.getLogger(__name__)
 
@@ -221,17 +220,6 @@ HasuraConfig.register_multiple_functions(
 # )
 
 
-def get_fields_referencing(model, table_name=None):
-    fields = []
-    for field in model._meta.get_fields():
-        if hasattr(field, "remote_field") and field.remote_field is not None:
-            related_model = field.remote_field.model
-            related_table_name = related_model._meta.db_table
-            if table_name is None or related_table_name == table_name:
-                fields.append(field)
-    return fields
-
-
 class HasuraPermissions(object):
     """Emit the full ``hasura/metadata.json`` payload for the configured app.
 
@@ -374,26 +362,6 @@ class HasuraPermissions(object):
                                 "using": {"foreign_key_constraint_on": getattr(field, "column", field.name)},
                             }
                         )
-            
-            fields_refencing_user = get_fields_referencing(model, table_name="auth_user")
-            for field in fields_refencing_user:
-                if field.remote_field.model._meta.db_table == "auth_user":
-                    log.debug(f"Adding object relationship for field {field.name} referencing auth_user in model {model._meta.object_name}")
-                    object_relationships.append(
-                        {
-                            "name": f"{field.name}_short",
-                            "manual_configuration": {
-                                "column_mapping": {
-                                    "created_by_id": "id"
-                                },
-                                "insertion_order": None,
-                                "remote_table": {
-                                    "name": f"vw_{model._meta.db_table}_user",
-                                    "schema": "public"
-                                }
-                            }
-                        }
-                    )
 
             if len(object_relationships):
                 out["object_relationships"] = object_relationships
@@ -449,35 +417,6 @@ class HasuraPermissions(object):
 
             tables.append(out)
 
-            if len(fields_refencing_user) > 0:
-                permissions = perm_helper.get_hasura_model_permissions(UserView(db_view=f"vw_{model._meta.db_table}_user"))
-
-                user_view = {
-                    "table": {
-                        "name": f"vw_{model._meta.db_table}_user",
-                        "schema": "public",
-                    },
-                    "object_relationships": [
-                        {
-                            "name": "project",
-                            "using": {
-                                "manual_configuration": {
-                                    "column_mapping": {
-                                    "project_id": "id"
-                                    },
-                                    "insertion_order": None,
-                                    "remote_table": {
-                                    "name": "project",
-                                    "schema": "public"
-                                    }
-                                }
-                            }
-                        }
-                    ],
-                    "select_permissions": permissions.get("select_permissions", []),
-                }
-                tables.append(user_view)
-                
         for model in through_models:
             # Add through model
             out = {
@@ -570,6 +509,21 @@ class HasuraPermissions(object):
             except StopIteration:
                 pass
 
+        from rgs_django_utils.models.views.abstract import HasuraTrackedView
+        for hasuraTrackedViews in HasuraTrackedView.all():
+            hasuraTrackedViews: list[Type[HasuraTrackedView]]
+            for view in hasuraTrackedViews.get_all_views():
+                view: HasuraTrackedView
+                tables.append(view.get_permissions())
+                relationshipsByTable = view.get_relations()
+                for tableName, relationships in relationshipsByTable.items():
+                    try:
+                        table = next(table for table in tables if table["table"]["name"] == tableName)
+                    except StopIteration:
+                        log.error(f"Table {tableName} is not included in tables, adding it now.")
+                    else:
+                        table.get("object_relationships", []).extend(relationships.get("object_relationships", []))
+                    
         return tables
 
 
