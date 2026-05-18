@@ -1,10 +1,16 @@
 import logging
 import os
+from typing import Type
 
 from django.conf import settings
 from django.db import connection
 
 log = logging.getLogger(__name__)
+
+if __name__ == "__main__":
+    from rgs_django_utils.setup_django import setup_django
+
+    setup_django()
 
 SUB_DIR_BEFORE = getattr(settings, "SUB_DIR_BEFORE", "01_before")
 SUB_DIR_AUTHORIZATION = getattr(settings, "SUB_DIR_AUTHORIZATION", "98_authorization")
@@ -94,7 +100,24 @@ def install_db_functions(install_before=False, install_last=False):
 
         install_db_function_in_directory(sub_dir)
 
+        install_hasura_views()
+
     log.info("##### done #####")
+
+
+def install_hasura_views():
+    """Execute the sql for the creation of a view for every every tracked view in Hasura."""
+    # Import lazily to avoid importing model modules while Django apps are still populating.
+    from rgs_django_utils.models.views.abstract import HasuraTrackedView
+
+    hasuraTrackedViews: list[Type[HasuraTrackedView]] = HasuraTrackedView.all()
+    with connection.cursor() as cursor:
+        for hasuraTrackedView in hasuraTrackedViews:
+            for view in hasuraTrackedView.get_all_views():
+                view: HasuraTrackedView
+                log.info("run script for hasura tracked view %s", view.name)
+                sql = view.get_sql()
+                cursor.execute(sql)
 
 
 def install_db_function_in_directory(relative_path: str):
@@ -121,3 +144,6 @@ def install_db_function_in_directory(relative_path: str):
             with open(os.path.join(path, filename), "r", encoding="utf-8") as f:
                 log.info("run script %s", filename)
                 cursor.execute(f.read())
+
+if __name__ == "__main__":
+    install_hasura_views()
