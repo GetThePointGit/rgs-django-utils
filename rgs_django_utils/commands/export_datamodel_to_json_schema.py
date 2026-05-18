@@ -537,8 +537,14 @@ def _enum_oneofs(model_class) -> list[dict]:
 
 
 def _config_attr(field, attr: str, default=None):
-    """Read *attr* from a field's .config object (rgs_django_utils Config)."""
-    config = getattr(field, "config", None)
+    """Read *attr* from a field's ``Config`` object.
+
+    ``rgs_django_utils.database.dj_extended_models.FieldConfig._init_extras``
+    stores the ``Config`` instance as ``field.r_config`` (not ``field.config``,
+    which is reserved on some related-field types). Fall back to ``field.config``
+    so plain Django models without ``r_config`` still work.
+    """
+    config = getattr(field, "r_config", None) or getattr(field, "config", None)
     return getattr(config, attr, default) if config else default
 
 

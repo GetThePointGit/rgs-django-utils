@@ -122,3 +122,20 @@ class TestFieldToPropertyMetadata:
         field.config = Config(precision=0)
         prop = self._gen()._field_to_property(field=field)
         assert prop["precision"] == 0
+
+    def test_r_config_is_read(self):
+        """FieldConfig._init_extras stores Config as field.r_config; exporter must honour it."""
+        field = _bare_field(dj_models.FloatField)
+        field.r_config = Config(doc_unit="m", precision=2, doc_short="diepte")
+        prop = self._gen()._field_to_property(field=field)
+        assert prop["unit"] == "m"
+        assert prop["precision"] == 2
+        assert prop["description"] == "diepte"
+
+    def test_r_config_takes_precedence_over_config(self):
+        """Wanneer beide bestaan, wint r_config (rgs-django-utils convention)."""
+        field = _bare_field(dj_models.FloatField)
+        field.r_config = Config(doc_unit="m")
+        field.config = Config(doc_unit="kg")
+        prop = self._gen()._field_to_property(field=field)
+        assert prop["unit"] == "m"
