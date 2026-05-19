@@ -318,6 +318,37 @@ with RunContext("nightly-import"):
 max-severity, counters) that surfaces in the run overview, so failing
 tasks are visible even when the Python call returns successfully.
 
+## Module map
+
+Where to look when you know what you need. Paths are relative to
+`rgs_django_utils/`.
+
+| You want…                                       | Open                                                       |
+|-------------------------------------------------|------------------------------------------------------------|
+| Extended model + `Config(...)` API              | `database/dj_extended_models.py`                           |
+| `FPerm`, `TPerm`, `FPresets`, `HasuraSet`       | `database/dj_extended_models.py`                           |
+| Abstract mixins (modification, validity)        | `database/base_models/`                                    |
+| Enum table bases (`BaseEnum`, `BaseEnumExtended`) | `database/base_models/enums.py`                          |
+| Hasura metadata generator                       | `commands/hasura_permissions.py`                           |
+| Permission walker (`PermissionHelper`)          | `database/permission_helper.py`                            |
+| DB defaults + FK cascade sync                   | `database/install_db_defaults_and_relation_cascading.py`   |
+| Postgres functions / triggers installer         | `database/install_db_functions_and_triggers.py`            |
+| Default-records seeding                         | `database/install_db_default_records.py`                   |
+| Bulk upsert with geometry                       | `database/upsert_multiple_data.py`                         |
+| `migrate_and_update` chain                      | `management/commands/migrate_and_update.py`                |
+| Datamodel export — Excel                        | `commands/export_datamodel_to_excel.py`                    |
+| Datamodel export — JSON Schema                  | `commands/export_datamodel_to_json_schema.py`              |
+| JWT auth (`Claims`, `JwtUserToken`, `JwtModuleToken`) | `utils/authorization.py`                             |
+| JWT token validation primitives                 | `utils/token_validator.py`                                 |
+| Form schema endpoints                           | `forms/api.py`                                             |
+| Custom form fields                              | `forms/fields/`                                            |
+| View-backed Django models (`HasuraTrackedView`, `UserView`) | `models/views/abstract.py`, `models/views/user_view.py` |
+| Runtime logging (`RunContext`, `TaskContext`, `PostgresHandler`) | `logging/logging/`                       |
+| Layered settings (`SettingsGetter`)             | `utils/settings_getter.py`                                 |
+| Django settings introspection helper            | `database/dj_settings_helper.py`                           |
+| Email templates                                 | `utils/email_template.py`                                  |
+| Django bootstrap helper (`setup_django`)        | `setup_django.py`                                          |
+
 ## Important notes
 
 - **Primary-key columns without `Config(...)` default to select-only**
