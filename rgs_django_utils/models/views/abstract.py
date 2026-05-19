@@ -1,7 +1,10 @@
 from abc import ABC, abstractmethod
-from typing import Self, Type
+from typing import Self, Type, TypedDict
 
 all = []
+
+
+SchemaJsonParts = TypedDict("SchemaJsonParts", {"defs": dict[str, dict], "referenced_by": dict[str, str]})
 
 
 class HasuraTrackedView(ABC):
@@ -42,6 +45,22 @@ class HasuraTrackedView(ABC):
         ```
         """
         return set(all)
+
+    def get_json_schema_parts(self) -> SchemaJsonParts:
+        """Get the JSON schema parts for the view. Used for auto generation of JSON schema.
+
+        Returns
+        -------
+            SchemaJsonParts: JSON schema parts for the view.
+
+        Example
+        -------
+        ```python
+        view = SomeView()
+        view.get_json_schema_parts()
+        ```
+        """
+        ...
 
     @classmethod
     @abstractmethod

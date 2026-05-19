@@ -471,6 +471,72 @@
     },
     {
       "$ref": "#/$defs/source"
+    },
+    {
+      "$ref": "#/$defs/vw_auth_user_project_user"
+    },
+    {
+      "$ref": "#/$defs/vw_workflow_user"
+    },
+    {
+      "$ref": "#/$defs/vw_legger_type_user"
+    },
+    {
+      "$ref": "#/$defs/vw_auth_upm_user"
+    },
+    {
+      "$ref": "#/$defs/vw_core_recalctrigger_user"
+    },
+    {
+      "$ref": "#/$defs/vw_planning_variant_user"
+    },
+    {
+      "$ref": "#/$defs/vw_planning_processing_method_user"
+    },
+    {
+      "$ref": "#/$defs/vw_dc_user"
+    },
+    {
+      "$ref": "#/$defs/vw_ss_user"
+    },
+    {
+      "$ref": "#/$defs/vw_ss_classification_user"
+    },
+    {
+      "$ref": "#/$defs/vw_ww_user"
+    },
+    {
+      "$ref": "#/$defs/vw_ww_data_user"
+    },
+    {
+      "$ref": "#/$defs/vw_ww_legger_user"
+    },
+    {
+      "$ref": "#/$defs/vw_ww_planning_user"
+    },
+    {
+      "$ref": "#/$defs/vw_ww_planning_calc_user"
+    },
+    {
+      "$ref": "#/$defs/vw_pl_user"
+    },
+    {
+      "$ref": "#/$defs/vw_pl_legger_user"
+    },
+    {
+      "$ref": "#/$defs/vw_pl_data_user"
+    },
+    {
+      "$ref": "#/$defs/vw_pm_user"
+    },
+    {
+      "$ref": "#/$defs/vw_pm_data_user"
+    },
+    {
+      "$ref": "#/$defs/vw_pp_user"
+    },
+    {
+      "$ref": "#/$defs/vw_selection_user"
     }
   ],
   "$defs": {
@@ -1013,10 +1079,13 @@
         },
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -1027,26 +1096,32 @@
       "description": "De gebruikersrollen voor staf, organisaties en projecten",
       "properties": {
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         },
         "for_staff": {
           "title": "Voor superuser",
+          "description": "Voor superuser",
           "type": "boolean"
         },
         "for_org": {
           "title": "Voor organisatie",
+          "description": "Voor organisatie",
           "type": "boolean"
         },
         "for_project": {
           "title": "Voor project",
+          "description": "Voor project",
           "type": "boolean"
         },
         "order": {
           "title": "Volgorde",
+          "description": "Volgorde van de rollen",
           "type": "integer"
         },
         "description": {
           "title": "Omschrijving",
+          "description": "Omschrijving van de rol",
           "type": "string"
         }
       }
@@ -1073,10 +1148,13 @@
         },
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -1087,22 +1165,27 @@
       "description": "",
       "properties": {
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         },
         "order": {
           "title": "Volgorde",
+          "description": "Volgorde in selectielijsten",
           "type": "integer"
         },
         "available": {
           "title": "Beschikbaar",
+          "description": "Is deze methode beschikbaar of nog in ontwikkeling",
           "type": "boolean"
         },
         "extra_costs": {
           "title": "Extra kosten",
+          "description": "Gebruik van deze methode kost extra geld",
           "type": "boolean"
         },
         "am_note": {
           "title": "Notities applicatie/ontwikkelaars",
+          "description": "Notities voor de ontwikkelaars",
           "type": [
             "string",
             "null"
@@ -1124,12 +1207,14 @@
           "description": "Beschrijving van de databasetabellen"
         },
         "code": {
+          "description": "Code van de sectie.",
           "readOnly": true,
           "type": "string",
           "maxLength": 50
         },
         "name": {
           "title": "Naam",
+          "description": "Naam van de sectie (in het Nederlands). Wordt gebruikt om de secties te groeperen en sorteren.",
           "type": [
             "string",
             "null"
@@ -1137,10 +1222,12 @@
         },
         "order": {
           "title": "Volgorde",
+          "description": "Volgorde van de sectie.",
           "type": "integer"
         },
         "description": {
           "title": "Omschrijving",
+          "description": "Omschrijving van de sectie (in het Nederlands).",
           "type": [
             "string",
             "null"
@@ -1155,10 +1242,13 @@
       "properties": {
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -1202,14 +1292,17 @@
         },
         "id": {
           "title": "Database tabel",
+          "description": "Naam van de tabel in de database.",
           "readOnly": true,
           "type": "string",
           "maxLength": 100
         },
         "order": {
+          "description": "Volgorde van de tabel.",
           "type": "integer"
         },
         "model": {
+          "description": "Naam van het model in Django (bron code).",
           "type": [
             "string",
             "null"
@@ -1217,26 +1310,31 @@
         },
         "name": {
           "title": "Naam",
+          "description": "Naam van de tabel (in het Nederlands).",
           "type": "string"
         },
         "name_plural": {
           "title": "Naam meervoud",
+          "description": "Naam van de tabel in het meervoud (in het Nederlands).",
           "type": [
             "string",
             "null"
           ]
         },
         "description": {
+          "description": "Beschrijving van de tabel (in het Nederlands).",
           "type": [
             "string",
             "null"
           ]
         },
         "modules": {
+          "description": "Modules waarin de tabel gebruikt wordt.",
           "type": "string"
         },
         "with_history": {
           "title": "Met historie",
+          "description": "Heeft de tabel een historie trigger",
           "type": "boolean"
         }
       }
@@ -1263,6 +1361,7 @@
           "description": "Beschrijving van de velden die als input dienen voor berekeningen"
         },
         "id": {
+          "description": "Unique identifier for the calculation, as specific numberingsystem is used",
           "readOnly": true,
           "type": "integer"
         },
@@ -1270,6 +1369,7 @@
           "type": "string"
         },
         "description": {
+          "description": "Description of the calculation.",
           "type": "string"
         }
       }
@@ -1293,11 +1393,13 @@
           "type": "integer"
         },
         "code": {
+          "description": "Naam van de tabel waar de sectie bij hoort.",
           "type": "string",
           "maxLength": 50
         },
         "name": {
           "title": "Naam",
+          "description": "Naam van de tabel waar de sectie bij hoort.",
           "type": [
             "string",
             "null"
@@ -1305,10 +1407,12 @@
         },
         "order": {
           "title": "Volgorde",
+          "description": "Naam van de tabel waar de sectie bij hoort.",
           "type": "integer"
         },
         "description": {
           "title": "Omschrijving",
+          "description": "Naam van de tabel waar de sectie bij hoort.",
           "type": [
             "string",
             "null"
@@ -1336,18 +1440,22 @@
         },
         "order": {
           "title": "Volgorde",
+          "description": "volgorde van de kolom in de tabel. gebruikt voor beschrijving",
           "type": "integer"
         },
         "column_name": {
           "title": "Kolomnaam",
+          "description": "Naam van de kolom in de database.",
           "type": "string"
         },
         "verbose_name": {
           "title": "Naam",
+          "description": "Naam van het veld (in het Nederlands).",
           "type": "string"
         },
         "dbf_name": {
           "title": "Dbf naam",
+          "description": "Naam van de kolom in de dbf file.",
           "type": [
             "string",
             "null"
@@ -1356,20 +1464,24 @@
         },
         "field_type": {
           "title": "Veldtype",
+          "description": "Type van het veld in de database.",
           "type": "string"
         },
         "max_length": {
           "title": "Maximale lengte",
+          "description": "Maximale lengte van het veld in de database.",
           "type": [
             "integer",
             "null"
           ]
         },
         "nullable": {
+          "description": "Geeft aan of het veld in de database NULL waardes kan bevatten.",
           "type": "boolean"
         },
         "precision": {
           "title": "Aantal decimalen",
+          "description": "aantal decimalen voor exports, etc.",
           "type": [
             "integer",
             "null"
@@ -1377,13 +1489,16 @@
         },
         "is_relation": {
           "title": "Is relatie",
+          "description": "Geeft aan of het veld een relatie heeft met een andere tabel.",
           "type": "boolean"
         },
         "modules": {
+          "description": "Modules waarin het veld gebruikt wordt.",
           "type": "string"
         },
         "doc_unit": {
           "title": "Eenheid",
+          "description": "Eenheid van het veld.",
           "type": [
             "string",
             "null"
@@ -1391,6 +1506,7 @@
         },
         "doc_short": {
           "title": "Omschrijving kort",
+          "description": "Korte omschrijving van het veld (in het Nederlands).",
           "type": [
             "string",
             "null"
@@ -1398,6 +1514,7 @@
         },
         "doc_full": {
           "title": "Omschrijving volledig",
+          "description": "Volledige omschrijving van het veld (in het Nederlands).",
           "type": [
             "string",
             "null"
@@ -1405,6 +1522,7 @@
         },
         "doc_constraint": {
           "title": "Omschrijving voorwaarde",
+          "description": "Omschrijving van de voorwaarde van het veld (in het Nederlands).",
           "type": [
             "string",
             "null"
@@ -1412,6 +1530,7 @@
         },
         "doc_development": {
           "title": "Omschrijving voor ontwikkelaars",
+          "description": "Omschrijving van het veld voor ontwikkelaars (in het Nederlands).",
           "type": [
             "string",
             "null"
@@ -1419,13 +1538,16 @@
         },
         "import_mode": {
           "title": "Import mode",
+          "description": "Import modus van het veld.",
           "type": "string"
         },
         "export": {
+          "description": "Geeft aan of het veld geëxporteerd moet worden.",
           "type": "boolean"
         },
         "default_value": {
           "title": "Default waarde of functie",
+          "description": "Default waarde of functie van het veld.",
           "type": [
             "string",
             "null"
@@ -1433,6 +1555,7 @@
         },
         "with_history": {
           "title": "Gebruikt in historie trigger",
+          "description": "Geeft aan of het veld gebruikt wordt in de historie trigger.",
           "type": "boolean"
         }
       }
@@ -1463,10 +1586,13 @@
         },
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -1492,10 +1618,13 @@
         },
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -1506,6 +1635,7 @@
       "description": "",
       "properties": {
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         },
         "config_fields": {
@@ -1539,10 +1669,13 @@
         },
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -1553,6 +1686,7 @@
       "description": "",
       "properties": {
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         },
         "config_fields": {
@@ -1591,10 +1725,12 @@
         },
         "name": {
           "title": "Naam",
+          "description": "Naam van de kaartbron",
           "type": "string"
         },
         "description": {
           "title": "Omschrijving",
+          "description": "Omschrijving van de kaartbron",
           "type": [
             "string",
             "null"
@@ -1602,6 +1738,7 @@
         },
         "icon": {
           "title": "Icoon",
+          "description": "Icoon van de kaartlaag (bijv. URL naar afbeelding)",
           "type": [
             "string",
             "null"
@@ -1609,6 +1746,7 @@
         },
         "access_id": {
           "title": "Toegang id",
+          "description": "ID van de organisatie of het project waartoe deze kaartlaag behoort, indien van toepassing",
           "type": [
             "integer",
             "null"
@@ -1616,6 +1754,7 @@
         },
         "source_layer": {
           "title": "Laag in bron",
+          "description": "Layer binnen de kaartbron, indien van toepassing",
           "type": [
             "string",
             "null"
@@ -1623,6 +1762,7 @@
         },
         "params": {
           "title": "Parameters",
+          "description": "Extra parameters voor de kaartlaag, indien van toepassing",
           "type": [
             "object",
             "null"
@@ -1631,12 +1771,14 @@
         },
         "geometry_type": {
           "title": "Geometrie type",
+          "description": "Type geometrie van de kaartlaag (Point, LineString, Polygon), indien van toepassing",
           "type": [
             "string",
             "null"
           ]
         },
         "extent": {
+          "description": "Extent van de kaartlaag als [minX, minY, maxX, maxY], indien van toepassing in WGS84",
           "type": "array",
           "items": {
             "type": "number"
@@ -1644,6 +1786,7 @@
         },
         "min_zoom": {
           "title": "Min zoom",
+          "description": "Minimale zoomniveau voor de kaartlaag, indien van toepassing",
           "type": [
             "integer",
             "null"
@@ -1651,6 +1794,7 @@
         },
         "max_zoom": {
           "title": "Max zoom",
+          "description": "Maximale zoomniveau voor de kaartlaag, indien van toepassing",
           "type": [
             "integer",
             "null"
@@ -1658,6 +1802,7 @@
         },
         "license": {
           "title": "Licentie",
+          "description": "Licentie van de kaartlaag, indien van toepassing",
           "type": [
             "string",
             "null"
@@ -1665,6 +1810,7 @@
         },
         "refresh_interval": {
           "title": "Verversingsinterval",
+          "description": "Verversingsinterval in minuten voor de kaartlaag, indien van toepassing",
           "type": [
             "integer",
             "null"
@@ -1691,10 +1837,12 @@
         },
         "name": {
           "title": "Naam",
+          "description": "Naam van de kaartbron",
           "type": "string"
         },
         "description": {
           "title": "Omschrijving",
+          "description": "Omschrijving van de kaartbron",
           "type": [
             "string",
             "null"
@@ -1702,11 +1850,13 @@
         },
         "source_config": {
           "title": "Source configuratie",
+          "description": "Configuratie van de kaartbron, afhankelijk van het type",
           "type": "object",
           "additionalProperties": true
         },
         "geojson_file": {
           "title": "Geojson bestand",
+          "description": "GeoJSON bestand voor GeoJSON kaartbronnen. bestand in wgs84 coördinatenstelsel",
           "type": [
             "string",
             "null"
@@ -1716,6 +1866,7 @@
         },
         "authentication_config": {
           "title": "Authenticatie configuratie",
+          "description": "Configuratie van de authenticatie voor de kaartbron, indien nodig",
           "type": [
             "object",
             "null"
@@ -1743,10 +1894,12 @@
         },
         "name": {
           "title": "Naam",
+          "description": "Naam van de kaartbron",
           "type": "string"
         },
         "notes": {
           "title": "Opmerkingen",
+          "description": "opmerkingen bij stijl",
           "type": [
             "string",
             "null"
@@ -1754,6 +1907,7 @@
         },
         "style_config": {
           "title": "Stijl configuratie",
+          "description": "Configuratie van de stijl, afhankelijk van het type",
           "type": "object",
           "additionalProperties": true
         }
@@ -1771,18 +1925,22 @@
         },
         "name": {
           "title": "Naam",
+          "description": "Naam van de kaartbron",
           "type": "string"
         },
         "order": {
           "title": "Volgorde",
+          "description": "Volgorde van de stijlen binnen de kaartlaag. Lage getallen worden eerst getoond",
           "type": "integer"
         },
         "active": {
           "title": "Selecteerbaar",
+          "description": "Geeft aan of deze stijl selecteerbaar is",
           "type": "boolean"
         },
         "warnings": {
           "title": "Waarschuwingen",
+          "description": "Eventuele waarschuwingen met betrekking tot deze stijl gekoppeld aan deze laag",
           "type": [
             "object",
             "null"
@@ -1810,10 +1968,12 @@
         },
         "name": {
           "title": "Naam",
+          "description": "Naam van de kaart",
           "type": "string"
         },
         "description": {
           "title": "Omschrijving",
+          "description": "Omschrijving van de kaart",
           "type": [
             "string",
             "null"
@@ -1821,6 +1981,7 @@
         },
         "icon": {
           "title": "Icoon",
+          "description": "Icoon van de kaartlaag (bijv. URL naar afbeelding)",
           "type": [
             "string",
             "null"
@@ -1828,10 +1989,12 @@
         },
         "order": {
           "title": "Volgorde",
+          "description": "Volgorde van de kaarten in de lijst (laagste index wordt eerst getoond)",
           "type": "integer"
         },
         "access_id": {
           "title": "Toegang id",
+          "description": "ID van de organisatie of het project waartoe deze kaartlaag behoort, indien van toepassing",
           "type": [
             "integer",
             "null"
@@ -1839,6 +2002,7 @@
         },
         "warnings": {
           "title": "Waarschuwingen",
+          "description": "Eventuele waarschuwingen of opmerkingen over de kaartlaag",
           "type": [
             "object",
             "null"
@@ -1847,6 +2011,7 @@
         },
         "default_extent": {
           "title": "Extent",
+          "description": "Extent van de kaartlaag als [minX, minY, maxX, maxY] in wgs84 bij laden van de kaart",
           "type": "array",
           "items": {
             "title": "Default extent",
@@ -1867,14 +2032,17 @@
         },
         "order": {
           "title": "Volgorde",
+          "description": "De volgorde van de laag in de kaart. laag nummer is hoger in de stapel",
           "type": "integer"
         },
         "visible": {
           "title": "Zichtbaar",
+          "description": "Of de laag standaard zichtbaar is in de kaart",
           "type": "boolean"
         },
         "default_style": {
           "title": "Standaard stijl",
+          "description": "De standaard stijl voor de laag, indien van toepassing",
           "type": [
             "object",
             "null"
@@ -1883,6 +2051,7 @@
         },
         "default_opacity": {
           "title": "Standaard dekking",
+          "description": "De standaard dekking voor de laag, tussen 0 (volledig transparant) en 1 (volledig zichtbaar)",
           "type": "number"
         }
       }
@@ -1902,10 +2071,13 @@
         },
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -1916,12 +2088,15 @@
       "description": "Beschrijving van de toetsen in WIT",
       "properties": {
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         },
         "order": {
+          "description": "Volgorde van de toetsen",
           "type": "integer"
         },
         "configuration": {
+          "description": "Configuratie van de toets (velden, etc)",
           "type": [
             "object",
             "null"
@@ -1930,6 +2105,7 @@
         },
         "description": {
           "title": "Omschrijving",
+          "description": "Omschrijving van de toets",
           "type": [
             "string",
             "null"
@@ -1951,10 +2127,13 @@
         },
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -1965,12 +2144,15 @@
       "description": "",
       "properties": {
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         },
         "level": {
+          "description": "Niveau van de melding",
           "type": "integer"
         },
         "message": {
+          "description": "Melding",
           "type": "string"
         }
       }
@@ -1989,10 +2171,13 @@
         },
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -2003,6 +2188,7 @@
       "description": "",
       "properties": {
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -2022,10 +2208,13 @@
         },
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -2036,10 +2225,12 @@
       "description": "Termen die kan worden aangepast in de applicatie",
       "properties": {
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         },
         "order": {
           "title": "Volgorde",
+          "description": "Volgorde van de term",
           "type": "integer"
         }
       }
@@ -2059,10 +2250,13 @@
         },
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -2073,13 +2267,16 @@
       "description": "De modules binnen WIT",
       "properties": {
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         },
         "order": {
           "title": "Volgorde",
+          "description": "Volgorde van de modules",
           "type": "integer"
         },
         "available": {
+          "description": "Is de module beschikbaar",
           "type": "boolean"
         }
       }
@@ -2098,13 +2295,19 @@
         },
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
-      }
+      },
+      "modules": [
+        "U"
+      ]
     },
     "enum_dredging_status_ext": {
       "type": "object",
@@ -2112,13 +2315,18 @@
       "description": "",
       "properties": {
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         },
         "order": {
           "title": "Volgorde",
+          "description": "Volgorde van de statussen",
           "type": "integer"
         }
-      }
+      },
+      "modules": [
+        "U"
+      ]
     },
     "enum_legger_purpose": {
       "type": "object",
@@ -2127,10 +2335,13 @@
       "properties": {
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -2150,10 +2361,13 @@
         },
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -2164,13 +2378,16 @@
       "description": "Vormen van legger",
       "properties": {
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         },
         "order": {
+          "description": "Volgorde van de vormen",
           "type": "integer"
         },
         "fields": {
           "title": "Actieve velden",
+          "description": "Actieve velden voor configuratie van deze vorm",
           "type": "array",
           "items": {
             "type": "string",
@@ -2193,13 +2410,20 @@
         },
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
-      }
+      },
+      "modules": [
+        "M",
+        "V"
+      ]
     },
     "enum_meas_status_ext": {
       "type": "object",
@@ -2207,13 +2431,19 @@
       "description": "",
       "properties": {
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         },
         "order": {
           "title": "Volgorde",
+          "description": "Volgorde van de statussen",
           "type": "integer"
         }
-      }
+      },
+      "modules": [
+        "M",
+        "V"
+      ]
     },
     "enum_organization_role": {
       "type": "object",
@@ -2229,10 +2459,13 @@
         },
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -2243,17 +2476,21 @@
       "description": "",
       "properties": {
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         },
         "order": {
           "title": "Volgorde",
+          "description": "Volgorde van de rollen",
           "type": "integer"
         },
         "auth_nr": {
+          "description": "Autorisatieniveau van de rol (hoe lager het nummer, hoe hoger de rechten)",
           "type": "integer"
         },
         "description": {
           "title": "Omschrijving",
+          "description": "Omschrijving van de rol",
           "type": [
             "string",
             "null"
@@ -2275,10 +2512,13 @@
         },
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -2289,17 +2529,21 @@
       "description": "",
       "properties": {
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         },
         "order": {
           "title": "Volgorde",
+          "description": "Volgorde van de rollen",
           "type": "integer"
         },
         "auth_nr": {
+          "description": "Autorisatieniveau van de rol (hoe lager het nummer, hoe hoger de rechten)",
           "type": "integer"
         },
         "description": {
           "title": "Omschrijving",
+          "description": "Omschrijving van de rol",
           "type": [
             "string",
             "null"
@@ -2321,10 +2565,13 @@
         },
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -2335,10 +2582,12 @@
       "description": "",
       "properties": {
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         },
         "order": {
           "title": "Volgorde",
+          "description": "Volgorde van de statussen",
           "type": "integer"
         }
       }
@@ -2357,10 +2606,13 @@
         },
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -2371,10 +2623,12 @@
       "description": "",
       "properties": {
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         },
         "order": {
           "title": "Volgorde",
+          "description": "Volgorde",
           "type": "integer"
         }
       }
@@ -2394,10 +2648,13 @@
         },
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -2408,14 +2665,18 @@
       "description": "Projectfase, basis voor welke functionaliteiten primair zichtbaar zijn",
       "properties": {
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         },
         "order": {
           "title": "Volgorde",
+          "description": "volgorde",
           "type": "integer"
         },
         "previous_states": {
           "title": "Vorige fases",
+          "description": "fases, waarop deze fase kan volgen",
+          "docFull": "geef fase 'initial' op om aan te geven dat deze fase de eerste is",
           "type": "array",
           "items": {
             "title": "Previous states",
@@ -2424,6 +2685,8 @@
           }
         },
         "module": {
+          "description": "module",
+          "docFull": "module, waarin deze fase beschikbaar is",
           "type": "string",
           "maxLength": 16
         }
@@ -2443,10 +2706,13 @@
         },
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -2457,10 +2723,12 @@
       "description": "",
       "properties": {
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         },
         "order": {
           "title": "Volgorde",
+          "description": "volgorde",
           "type": "integer"
         }
       }
@@ -2480,10 +2748,13 @@
         },
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -2494,14 +2765,17 @@
       "description": "Kwaliteitsklasse monstervak",
       "properties": {
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         },
         "order": {
           "title": "Volgorde",
+          "description": "Volgorde in selectielijsten",
           "type": "integer"
         },
         "old": {
           "title": "Oude kwalificatie",
+          "description": "Is deze kwaliteitsklasse verouderd en niet meer in gebruik",
           "type": "boolean"
         }
       }
@@ -2520,10 +2794,13 @@
         },
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -2534,16 +2811,20 @@
       "description": "",
       "properties": {
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         },
         "value": {
+          "description": "identificatie van de classificatie waarde",
           "type": "integer"
         },
         "color": {
+          "description": "RGBA kleur, start met #",
           "type": "string",
           "maxLength": 9
         },
         "active": {
+          "description": "Is deze waarde actief (te selecteren)",
           "type": "boolean"
         }
       }
@@ -2555,13 +2836,22 @@
       "properties": {
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
-      }
+      },
+      "modules": [
+        "D",
+        "P",
+        "V",
+        "U"
+      ]
     },
     "enum_staff_role": {
       "type": "object",
@@ -2577,10 +2867,13 @@
         },
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -2591,14 +2884,17 @@
       "description": "",
       "properties": {
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         },
         "order": {
           "title": "Volgorde",
+          "description": "Volgorde van de rollen",
           "type": "integer"
         },
         "description": {
           "title": "Omschrijving",
+          "description": "Omschrijving van de rol",
           "type": [
             "string",
             "null"
@@ -2620,10 +2916,13 @@
         },
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -2634,10 +2933,12 @@
       "description": "",
       "properties": {
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         },
         "order": {
           "title": "Volgorde",
+          "description": "Volgorde van de statussen",
           "type": "integer"
         }
       }
@@ -2657,10 +2958,13 @@
         },
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -2671,10 +2975,12 @@
       "description": "Kwalificaties van gebruikers",
       "properties": {
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         },
         "description_on_report": {
           "title": "Omschrijving op rapport",
+          "description": "Omschrijving van de kwalificatie op het rapport",
           "type": [
             "string",
             "null"
@@ -2696,10 +3002,13 @@
         },
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -2710,14 +3019,17 @@
       "description": "",
       "properties": {
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         },
         "order": {
           "title": "Volgorde",
+          "description": "Volgorde van de rollen",
           "type": "integer"
         },
         "description": {
           "title": "Omschrijving",
+          "description": "Omschrijving van de rol",
           "type": [
             "string",
             "null"
@@ -2725,6 +3037,7 @@
         },
         "auth_nr": {
           "title": "Auth nummer",
+          "description": "Authenticatie nummer",
           "type": "integer"
         }
       }
@@ -2840,18 +3153,21 @@
         },
         "db_last_modified": {
           "title": "Laatst aangepast in central database",
+          "description": "laatst aangepast in centrale database. Gebruikt voor synchronisatie",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "last_modified_at": {
           "title": "Laatst aangepast op",
+          "description": "datum waarop record laatst is aangepast",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "created_at": {
           "title": "Aangemaakt op",
+          "description": "datum waarop record is aangemaakt",
           "type": "string",
           "format": "date-time"
         },
@@ -2860,10 +3176,14 @@
           "type": "integer"
         },
         "slug": {
+          "description": "unieke slug van de organisatie - vanuit betterauth",
+          "docFull": "unieke slug van de organisatie, afkomstig uit betterauth. Wordt gebruikt in de URL en als referentie in andere tabellen. Wordt gegenereerd bij het aanmaken van de organisatie, en kan niet worden aangepast.",
           "type": "string"
         },
         "active": {
           "title": "Actief",
+          "description": "is de organisatie actief?",
+          "docFull": "Als de organisatie niet actief is, kunnen gebruikers van deze organisatie niet inloggen",
           "type": "boolean"
         },
         "name": {
@@ -2873,10 +3193,13 @@
         },
         "note_color": {
           "title": "Kleur notitie",
+          "description": "kleur van de notitie op de kaart gemaakt door een gebruiker van deze organisatie",
           "type": "string",
           "maxLength": 9
         },
         "logo": {
+          "description": "logo van de organisatie",
+          "docFull": "wordt gebruikt bij... (TODO)",
           "type": [
             "string",
             "null"
@@ -2885,6 +3208,8 @@
           "maxLength": 100
         },
         "metadata": {
+          "description": "metadata van de organisatie - vanuit betterauth",
+          "docFull": "metadata van de organisatie, afkomstig uit betterauth. Wordt gebruikt voor authenticatie en autorisatie. Wordt gegenereerd bij het aanmaken van de organisatie, en kan niet worden aangepast.",
           "type": [
             "string",
             "null"
@@ -2892,6 +3217,7 @@
         },
         "source_ref": {
           "title": "Bron referentie",
+          "description": "referentie voor synchronisatie",
           "type": [
             "string",
             "null"
@@ -2906,22 +3232,26 @@
       "properties": {
         "db_last_modified": {
           "title": "Laatst aangepast in central database",
+          "description": "laatst aangepast in centrale database. Gebruikt voor synchronisatie",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "last_modified_at": {
           "title": "Laatst aangepast op",
+          "description": "datum waarop record laatst is aangepast",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "created_at": {
           "title": "Aangemaakt op",
+          "description": "datum waarop record is aangemaakt",
           "type": "string",
           "format": "date-time"
         },
         "domains": {
+          "description": "domeinnamen van de organisatie",
           "type": "array",
           "items": {
             "type": "string",
@@ -2930,10 +3260,13 @@
         },
         "is_2fa_enabled": {
           "title": "2fa ingeschakeld",
+          "description": "Is 2FA ingeschakeld voor de organisatie?",
+          "docFull": "Als 2FA is ingeschakeld, moeten gebruikers een tweede factor gebruiken bij het inloggen",
           "type": "boolean"
         },
         "stamp_information": {
           "title": "Stempel informatie",
+          "description": "Stempel informatie die wordt gebruikt in profielen export",
           "type": [
             "string",
             "null"
@@ -2941,6 +3274,7 @@
         },
         "autocad_template": {
           "title": "Autocad template",
+          "description": "Autocad template die wordt gebruikt bij het exporteren van profielen",
           "type": [
             "string",
             "null"
@@ -2950,6 +3284,7 @@
         },
         "autocad_template_uitpeiling": {
           "title": "Autocad template uitpeiling",
+          "description": "Autocad template die wordt gebruikt bij het exporteren van profielen",
           "type": [
             "string",
             "null"
@@ -2971,31 +3306,39 @@
         },
         "db_last_modified": {
           "title": "Laatst aangepast in central database",
+          "description": "laatst aangepast in centrale database. Gebruikt voor synchronisatie",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "last_modified_at": {
           "title": "Laatst aangepast op",
+          "description": "datum waarop record laatst is aangepast",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "created_at": {
           "title": "Aangemaakt op",
+          "description": "datum waarop record is aangemaakt",
           "type": "string",
           "format": "date-time"
         },
         "enabled": {
           "title": "Ingeschakeld",
+          "description": "Is authenticatie methode actief voor organisatie?",
+          "docFull": "Als de methode uitgeschakeld is kan deze niet worden gebruikt bij het inloggen",
           "type": "boolean"
         },
         "visible": {
           "title": "Zichtbaar",
+          "description": "Wordt de authenticatie methode aangeboden op de inlogpagina van de organisatie?",
+          "docFull": "Als de methode niet zichtbaar is wordt deze niet aangeboden op de inlogpagina. Echter kan deze nog wel ingeschakeld zijn voor de organisatie.",
           "type": "boolean"
         },
         "config": {
           "title": "Configuratie authenticatie provider",
+          "description": "configuratie van de authentication provider voor de primaire authenticatie methode",
           "type": [
             "object",
             "null"
@@ -3004,6 +3347,7 @@
         },
         "notes_organization_admin": {
           "title": "Aantekeningen organisatie beheer",
+          "description": "opmerkingen van/ voor organisatie beheer. Alleen zichtbaar voor organisatie beheerders",
           "type": [
             "string",
             "null"
@@ -3011,6 +3355,7 @@
         },
         "notes_application_management": {
           "title": "Aantekeningen applicatiebeheer",
+          "description": "opmerkingen van/ voor applicatiebeheer. Alleen zichtbaar voor applicatiebeheerders",
           "type": [
             "string",
             "null"
@@ -3025,18 +3370,21 @@
       "properties": {
         "db_last_modified": {
           "title": "Laatst aangepast in central database",
+          "description": "laatst aangepast in centrale database. Gebruikt voor synchronisatie",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "last_modified_at": {
           "title": "Laatst aangepast op",
+          "description": "datum waarop record laatst is aangepast",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "created_at": {
           "title": "Aangemaakt op",
+          "description": "datum waarop record is aangemaakt",
           "type": "string",
           "format": "date-time"
         },
@@ -3046,14 +3394,17 @@
         },
         "active": {
           "title": "Actief",
+          "description": "module is actief voor organisatie",
           "type": "boolean"
         },
         "including_mobile": {
           "title": "Inclusief mobiel",
+          "description": "is ook de mobiele versie van de module ook actief voor de organisatie",
           "type": "boolean"
         },
         "until": {
           "title": "Geldig tot",
+          "description": "tot wanneer is de module actief voor de organisatie, in geval van tijdelijke (proef)licenties",
           "type": [
             "string",
             "null"
@@ -3061,6 +3412,7 @@
           "format": "date"
         },
         "note": {
+          "description": "opmerkingen over de module zichtbaar voor de organisatie",
           "type": [
             "string",
             "null"
@@ -3068,6 +3420,7 @@
         },
         "note_management": {
           "title": "Note management",
+          "description": "opmerkingen van/ voor applicatiebeheer, Alleen zichtbaar voor applicatiebeheerders",
           "type": [
             "string",
             "null"
@@ -3091,18 +3444,24 @@
         },
         "name": {
           "title": "Naam",
+          "description": "naam van de vestiging",
           "type": "string",
           "maxLength": 50
         },
         "code_lab": {
           "title": "Code lab",
+          "description": "code voor in het boring xml export voor het lab",
+          "docFull": "als deze leeg is, is deze niet te gebruiken in de boring xml export",
           "type": [
             "string",
             "null"
           ],
           "maxLength": 25
         }
-      }
+      },
+      "modules": [
+        "M"
+      ]
     },
     "org_client": {
       "type": "object",
@@ -3120,6 +3479,8 @@
           "maxLength": 50
         },
         "logo": {
+          "description": "logo van de organisatie",
+          "docFull": "wordt gebruikt bij... (TODO)",
           "type": [
             "string",
             "null"
@@ -3141,10 +3502,12 @@
         },
         "custom": {
           "title": "Aangepaste naam",
+          "description": "aangepaste naam van de term binnen een organisatie",
           "type": "string"
         },
         "plural": {
           "title": "Aangepast meervoud",
+          "description": "aangepaste meervoud van de term binnen een organisatie",
           "type": "string"
         }
       }
@@ -3168,27 +3531,32 @@
         },
         "db_last_modified": {
           "title": "Laatst aangepast in central database",
+          "description": "laatst aangepast in centrale database. Gebruikt voor synchronisatie",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "last_modified_at": {
           "title": "Laatst aangepast op",
+          "description": "datum waarop record laatst is aangepast",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "created_at": {
           "title": "Aangemaakt op",
+          "description": "datum waarop record is aangemaakt",
           "type": "string",
           "format": "date-time"
         },
         "name": {
           "title": "Naam",
+          "description": "naam van de toets",
           "type": "string"
         },
         "description": {
           "title": "Beschrijving",
+          "description": "beschrijving/ uitleg van de toets voor deze organisatie",
           "type": [
             "string",
             "null"
@@ -3196,6 +3564,7 @@
         },
         "config": {
           "title": "Configuratie",
+          "description": "default configuratie van de toets voor deze organisatie. Kan worden aangevuld/ overschreven in project",
           "type": [
             "object",
             "null"
@@ -3203,13 +3572,18 @@
           "additionalProperties": true
         },
         "styling": {
+          "description": "styling van de toetsresultaten op de kaart",
           "type": [
             "object",
             "null"
           ],
           "additionalProperties": true
         }
-      }
+      },
+      "modules": [
+        "P",
+        "V"
+      ]
     },
     "org_ww_stakeholder": {
       "type": "object",
@@ -3228,6 +3602,7 @@
         },
         "description": {
           "title": "Omschrijving",
+          "description": "omschrijving van de watergang betrokkene",
           "type": [
             "string",
             "null"
@@ -3235,6 +3610,7 @@
         },
         "color": {
           "title": "Kleur",
+          "description": "kleur van de betrokkene op de kaart",
           "type": "string",
           "maxLength": 9
         }
@@ -3767,6 +4143,8 @@
           "type": "integer"
         },
         "uuid": {
+          "description": "Unieke identificatie van de gebruiker",
+          "docFull": "Wordt gebruikt bij overzetten van gegevens tussen systemen en bij (generieke) import/export.",
           "readOnly": true,
           "type": "string",
           "format": "uuid",
@@ -3774,6 +4152,8 @@
         },
         "username": {
           "title": "Gebruikersnaam",
+          "description": "Gebruikersnaam",
+          "docFull": "Wordt gebruikt voor inloggen en communicatie met de gebruiker.",
           "type": [
             "string",
             "null"
@@ -3782,20 +4162,26 @@
         },
         "email": {
           "title": "Email adres",
+          "docFull": "Wordt gebruikt voor inloggen en communicatie met de gebruiker.",
           "type": "string",
           "format": "email",
           "maxLength": 255
         },
         "email_verified": {
           "title": "E-mailadres verificatie",
+          "description": "is email adres geverifieerd",
           "readOnly": true,
           "type": "boolean"
         },
         "name": {
           "title": "Naam",
+          "description": "Volledige naam van de gebruiker",
+          "docFull": "Volledige naam van de gebruiker, voor gebruik in communicatie en rapportages.",
           "type": "string"
         },
         "alias": {
+          "description": "Alias van de gebruiker - zichtbaar voor alle gebruikers",
+          "docFull": "wordt getoond bij wie wat heeft uitgevoerd (naast organisatie) en andere referenties naar de gebruiker binnen de applicatie. Default voornaam + achternaam.",
           "type": "string",
           "maxLength": 25
         },
@@ -3817,10 +4203,13 @@
         },
         "is_active": {
           "title": "Is actief",
+          "description": "Is de gebruiker actief",
+          "docFull": "Inactieve gebruikers kunnen niet inloggen en worden niet getoond in de gebruikerslijst.",
           "type": "boolean"
         },
         "role": {
           "title": "Rol",
+          "description": "Rol van de gebruiker - vanuit betterAuth",
           "type": [
             "string",
             "null"
@@ -3828,16 +4217,20 @@
         },
         "is_superuser": {
           "title": "Is ontwikkelaar",
+          "description": "Is de gebruiker een ontwikkelaar",
+          "docFull": "Ontwikkelaars hebben toegang tot alle functionaliteit en kunnen ook de applicatie aanpassen.",
           "type": "boolean"
         },
         "date_joined": {
           "title": "Aanmaakdatum",
+          "description": "Datum dat gebruiker is aangemaakt in het systeem",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "last_login": {
           "title": "Laatste login",
+          "description": "Datum van laatste inlog",
           "type": [
             "string",
             "null"
@@ -3846,14 +4239,19 @@
         },
         "show_2fa_qr_code": {
           "title": "Toon 2-factor-authentication qr code",
+          "description": "Toon QR code",
+          "docFull": "Toon QR code op de inlogpagina. Wordt automatisch op False gezet als de gebruiker succesvol met een wachtwoordcode inlogt.",
           "type": "boolean"
         },
         "claims": {
+          "description": "Claims van de gebruiker",
+          "docFull": "Lijst van (hasura) claims die de gebruiker heeft op basis van zijn rollen.",
           "readOnly": true,
           "type": "string"
         },
         "image": {
           "title": "Afbeelding (avatar)",
+          "description": "URL naar de avatar van de gebruiker",
           "type": [
             "string",
             "null"
@@ -3863,16 +4261,20 @@
         },
         "updated_at": {
           "title": "Laatst bijgewerkt",
+          "description": "Datum waarop de gebruiker voor het laatst is bijgewerkt",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "banned": {
           "title": "Is geblokkeerd",
+          "description": "Is de gebruiker geblokkeerd",
+          "docFull": "Geblokkeerde gebruikers kunnen niet inloggen en worden niet getoond in de gebruikerslijst.",
           "type": "boolean"
         },
         "ban_reason": {
           "title": "Reden blokkering",
+          "description": "Reden van blokkering",
           "type": [
             "string",
             "null"
@@ -3880,6 +4282,7 @@
         },
         "ban_expires": {
           "title": "Blokkering verloopt op",
+          "description": "Datum waarop de blokkering verloopt",
           "type": [
             "string",
             "null"
@@ -3927,18 +4330,21 @@
         },
         "created_at": {
           "title": "Aanmaakdatum",
+          "description": "Datum dat de team is aangemaakt in het systeem",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "updated_at": {
           "title": "Laatst bijgewerkt",
+          "description": "Datum waarop de team voor het laatst is bijgewerkt",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "admin_notes": {
           "title": "Admin notities",
+          "description": "Notities voor beheerders over deze groep",
           "type": [
             "string",
             "null"
@@ -3946,6 +4352,8 @@
         },
         "source_ref": {
           "title": "Bron referentie",
+          "description": "Bron referentie bij import vanuit een extern systeem",
+          "docFull": "Unieke referentie van het teamlid in het externe systeem, om dubbele imports te voorkomen.",
           "type": [
             "string",
             "null"
@@ -3965,6 +4373,7 @@
         },
         "created_at": {
           "title": "Aanmaakdatum",
+          "description": "Datum dat het teamlid is aangemaakt in het systeem",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
@@ -3990,6 +4399,9 @@
         "id": {
           "readOnly": true,
           "type": "integer"
+        },
+        "vw_auth_user_project_user": {
+          "$ref": "#/$defs/auth_user_project"
         }
       }
     },
@@ -3999,16 +4411,19 @@
       "description": "Lidmaatschappen van gebruikers binnen een organisatie via Better Auth",
       "properties": {
         "id": {
+          "description": "Unieke identificatie van het lidmaatschap",
           "readOnly": true,
           "type": "string",
           "maxLength": 255
         },
         "role": {
           "title": "Rol",
+          "description": "Rol van het lid - vanuit Better Auth",
           "type": "string"
         },
         "created_at": {
           "title": "Aanmaakdatum",
+          "description": "Datum dat het lidmaatschap is aangemaakt",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
@@ -4030,10 +4445,13 @@
         },
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -4044,14 +4462,17 @@
       "description": "De verschillende datatypes voor exports en imports en configuratie, zoals de id voor in de poid",
       "properties": {
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         },
         "order": {
           "title": "Volgorde",
+          "description": "Volgorde",
           "type": "integer"
         },
         "poid_nr": {
           "title": "Poid nummer",
+          "description": "POID nummer",
           "type": "integer"
         }
       }
@@ -4063,10 +4484,13 @@
       "properties": {
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -4078,10 +4502,13 @@
       "properties": {
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -4101,10 +4528,13 @@
         },
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -4115,9 +4545,11 @@
       "description": "De verschillende meldingscodes",
       "properties": {
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         },
         "template": {
+          "description": "Template voor de melding",
           "type": [
             "string",
             "null"
@@ -4125,6 +4557,7 @@
         },
         "template_fields": {
           "title": "Template fields",
+          "description": "Velden in de template",
           "type": "array",
           "items": {
             "title": "Template fields",
@@ -4148,10 +4581,13 @@
         },
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -4162,18 +4598,22 @@
       "description": "De verschillende bron types",
       "properties": {
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         },
         "order": {
           "title": "Volgorde",
+          "description": "Volgorde van de bron types",
           "type": "integer"
         },
         "for_import": {
           "title": "Voor import",
+          "description": "Volgorde van de bron types",
           "type": "boolean"
         },
         "for_export": {
           "title": "Voor export",
+          "description": "Volgorde van de bron types",
           "type": "boolean"
         }
       }
@@ -4193,10 +4633,13 @@
         },
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -4207,10 +4650,12 @@
       "description": "De statussen die een taak (import, export, processing) kan hebben",
       "properties": {
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         },
         "order": {
           "title": "Volgorde",
+          "description": "Volgorde van de statussen",
           "type": "integer"
         }
       }
@@ -4230,10 +4675,13 @@
         },
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -4244,26 +4692,32 @@
       "description": "De stappen van het import/export/verwerking proces",
       "properties": {
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         },
         "order": {
           "title": "Volgorde",
+          "description": "Volgorde van de stappen",
           "type": "integer"
         },
         "action": {
           "title": "Actie",
+          "description": "Actie - wordt gebruikt in de UI",
           "type": "string"
         },
         "for_import": {
           "title": "Voor import",
+          "description": "Voor import",
           "type": "boolean"
         },
         "for_export": {
           "title": "Voor export",
+          "description": "Voor export",
           "type": "boolean"
         },
         "for_processing": {
           "title": "Voor processing",
+          "description": "Voor processing",
           "type": "boolean"
         }
       }
@@ -4275,10 +4729,13 @@
       "properties": {
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -4297,10 +4754,13 @@
         },
         "id": {
           "title": "Code",
+          "description": "code/ identificatie van de enum",
+          "docFull": "Mag niet beginnen met een cijfer. Gebruik underscores in plaats van spaties.",
           "readOnly": true,
           "type": "string"
         },
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         }
       }
@@ -4311,12 +4771,15 @@
       "description": "",
       "properties": {
         "name": {
+          "description": "naam van de enum",
           "type": "string"
         },
         "level": {
+          "description": "Niveau van de melding",
           "type": "integer"
         },
         "message": {
+          "description": "Melding",
           "type": "string"
         }
       }
@@ -4328,15 +4791,18 @@
       "properties": {
         "id": {
           "title": "Identification",
+          "description": "identificatiecode",
           "readOnly": true,
           "type": "string"
         },
         "name": {
           "title": "Naam",
+          "description": "Naam",
           "type": "string"
         },
         "description": {
           "title": "Omschrijving",
+          "description": "Omschrijving van de import",
           "type": [
             "string",
             "null"
@@ -4380,18 +4846,21 @@
       "properties": {
         "db_last_modified": {
           "title": "Laatst aangepast in central database",
+          "description": "laatst aangepast in centrale database. Gebruikt voor synchronisatie",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "last_modified_at": {
           "title": "Laatst aangepast op",
+          "description": "datum waarop record laatst is aangepast",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "created_at": {
           "title": "Aangemaakt op",
+          "description": "datum waarop record is aangemaakt",
           "type": "string",
           "format": "date-time"
         },
@@ -4400,12 +4869,14 @@
           "type": "integer"
         },
         "uuid": {
+          "description": "unieke identificatie van de upload",
           "type": "string",
           "format": "uuid",
           "maxLength": 32
         },
         "filename": {
           "title": "Bestandsnaam",
+          "description": "naam van het bestand",
           "type": [
             "string",
             "null"
@@ -4413,12 +4884,14 @@
         },
         "remarks": {
           "title": "Opmerkingen",
+          "description": "Opmerkingen over de upload",
           "type": [
             "string",
             "null"
           ]
         },
         "file": {
+          "description": "upload bestand",
           "type": [
             "string",
             "null"
@@ -4456,22 +4929,26 @@
         },
         "db_last_modified": {
           "title": "Laatst aangepast in central database",
+          "description": "laatst aangepast in centrale database. Gebruikt voor synchronisatie",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "last_modified_at": {
           "title": "Laatst aangepast op",
+          "description": "datum waarop record laatst is aangepast",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "created_at": {
           "title": "Aangemaakt op",
+          "description": "datum waarop record is aangemaakt",
           "type": "string",
           "format": "date-time"
         },
         "uuid": {
+          "description": "Unieke identificatie van de import",
           "readOnly": true,
           "type": "string",
           "format": "uuid",
@@ -4479,6 +4956,7 @@
         },
         "name": {
           "title": "Naam",
+          "description": "Naam van import, bestaande uit soort import en bron",
           "type": [
             "string",
             "null"
@@ -4486,16 +4964,19 @@
         },
         "remarks": {
           "title": "Opmerkingen",
+          "description": "Opmerkingen over de import, door gebruiker in te vullen (als naslag)",
           "type": [
             "string",
             "null"
           ]
         },
         "locked": {
+          "description": "Taak is gelocked en kan niet meer worden aangepast",
           "type": "boolean"
         },
         "db_execution_dt": {
           "title": "Datum verwerking in database",
+          "description": "Tijdstip van de uiteindelijk verwerking van de data in de database",
           "type": [
             "string",
             "null"
@@ -4504,6 +4985,7 @@
         },
         "counts": {
           "title": "Aantallen",
+          "description": "Aantallen toegevoegde en geupdate records",
           "type": [
             "object",
             "null"
@@ -4512,11 +4994,15 @@
         },
         "summary": {
           "title": "Samenvatting",
+          "description": "Samenvatting van de workflow",
           "type": [
             "object",
             "null"
           ],
           "additionalProperties": true
+        },
+        "vw_workflow_user": {
+          "$ref": "#/$defs/workflow"
         }
       }
     },
@@ -4548,18 +5034,21 @@
         },
         "db_last_modified": {
           "title": "Laatst aangepast in central database",
+          "description": "laatst aangepast in centrale database. Gebruikt voor synchronisatie",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "last_modified_at": {
           "title": "Laatst aangepast op",
+          "description": "datum waarop record laatst is aangepast",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "created_at": {
           "title": "Aangemaakt op",
+          "description": "datum waarop record is aangemaakt",
           "type": "string",
           "format": "date-time"
         },
@@ -4583,6 +5072,8 @@
         },
         "max_memory_usage": {
           "title": "Max memory usage",
+          "description": "Maximaal geheugengebruik",
+          "unit": "MB",
           "type": [
             "integer",
             "null"
@@ -4590,6 +5081,7 @@
         },
         "running_on": {
           "title": "Running on",
+          "description": "Server en process (web/ task) waar de taak op draait",
           "type": [
             "string",
             "null"
@@ -4597,6 +5089,7 @@
         },
         "config": {
           "title": "Configuratie",
+          "description": "Configuratie van de taak",
           "type": [
             "object",
             "null"
@@ -4604,6 +5097,7 @@
           "additionalProperties": true
         },
         "output": {
+          "description": "output of the processing",
           "type": [
             "object",
             "null"
@@ -4627,24 +5121,29 @@
           "format": "date-time"
         },
         "level": {
+          "description": "Log niveau",
           "type": "integer"
         },
         "message": {
           "title": "Bericht",
+          "description": "Bericht van de log",
           "type": "string"
         },
         "name": {
           "title": "Naam",
+          "description": "Naam van de logger (bijvoorbeeld de functie of module)",
           "type": "string"
         },
         "obj": {
           "title": "Object",
+          "description": "Object waar de log betrekking op heeft",
           "type": [
             "string",
             "null"
           ]
         },
         "extra": {
+          "description": "Extra informatie van de log",
           "type": [
             "object",
             "null"
@@ -4660,10 +5159,13 @@
       "properties": {
         "description": {
           "title": "Beschrijving",
+          "description": "Naam van de taak die momenteel wordt uitgevoerd",
           "type": "string"
         },
         "progress": {
           "title": "Voortgang",
+          "description": "Voortgang van de taak in procenten",
+          "unit": "%",
           "type": "integer"
         },
         "db_last_modified": {
@@ -4691,10 +5193,12 @@
           "format": "date-time"
         },
         "level": {
+          "description": "Log niveau",
           "type": "integer"
         },
         "obj_name": {
           "title": "Object",
+          "description": "Object waar de log betrekking op heeft. Bijvoorbeeld een datatabel of bestand",
           "type": [
             "string",
             "null"
@@ -4702,6 +5206,7 @@
         },
         "record_id": {
           "title": "Record id",
+          "description": "Id van het record waar de log betrekking op heeft",
           "type": [
             "object",
             "null"
@@ -4715,6 +5220,7 @@
           }
         },
         "data": {
+          "description": "Data van de log, wordt gebruikt in het template",
           "type": [
             "object",
             "null"
@@ -4902,29 +5408,35 @@
         },
         "db_last_modified": {
           "title": "Laatst aangepast in central database",
+          "description": "laatst aangepast in centrale database. Gebruikt voor synchronisatie",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "last_modified_at": {
           "title": "Laatst aangepast op",
+          "description": "datum waarop record laatst is aangepast",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "created_at": {
           "title": "Aangemaakt op",
+          "description": "datum waarop record is aangemaakt",
           "type": "string",
           "format": "date-time"
         },
         "source_ref": {
           "title": "Bron referentie",
+          "description": "nummer binnen de bron (bijvoorbeeld regelnummer)",
           "type": [
             "string",
             "null"
           ]
         },
         "id": {
+          "description": "id (nr) van het project in de database",
+          "docFull": "wordt gegenereerd door de database",
           "readOnly": true,
           "type": "integer"
         },
@@ -4936,6 +5448,7 @@
         },
         "ids": {
           "title": "Identificatie",
+          "description": "identificatie/ code binnen WIT",
           "type": "string",
           "maxLength": 25
         },
@@ -4953,9 +5466,13 @@
         },
         "is_main_project": {
           "title": "Is hoofdproject",
+          "description": "project is een hoofdproject",
+          "docFull": "Een hoofdproject is een groepering van projecten. Subprojecten nemen de configuratie over van het hoofdproject.",
           "type": "boolean"
         },
         "modules": {
+          "description": "modules die actief zijn in het project (kunnen er meerdere zijn)",
+          "docFull": "letters conform EnumModule",
           "type": [
             "string",
             "null"
@@ -4963,6 +5480,7 @@
         },
         "mobile_active": {
           "title": "Mobile active",
+          "description": "mobiele app is actief voor dit project",
           "type": [
             "boolean",
             "null"
@@ -4982,39 +5500,66 @@
         },
         "db_last_modified": {
           "title": "Laatst aangepast in central database",
+          "description": "laatst aangepast in centrale database. Gebruikt voor synchronisatie",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "last_modified_at": {
           "title": "Laatst aangepast op",
+          "description": "datum waarop record laatst is aangepast",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "created_at": {
           "title": "Aangemaakt op",
+          "description": "datum waarop record is aangemaakt",
           "type": "string",
           "format": "date-time"
         },
         "default_sludge_growth": {
           "title": "Default slibgroei",
+          "description": "default slibgroei",
+          "docFull": "default slibgroei in m/jaar. Kan bij de watergang worden overruled",
+          "unit": "m/jaar",
+          "modules": [
+            "P"
+          ],
           "type": "number"
         },
         "index_costs": {
           "title": "Indexatie kosten",
+          "description": "indexatie kosten per jaar",
+          "docFull": "percentage waarmee kosten jaarlijks worden geïndexeerd",
+          "unit": "%/jaar",
+          "modules": [
+            "P"
+          ],
           "type": "number"
         },
         "index_base_year": {
           "title": "Basisjaar indexatie",
+          "description": "basisjaar indexatie van de kosten",
+          "docFull": "jaar waarvoor de opgegeven kosten gelden (index=100) en waarop indexatie wordt gebaseerd",
+          "modules": [
+            "P"
+          ],
           "type": "integer"
         },
         "max_cycli_calc": {
           "title": "Planning berekening tot",
+          "description": "tot wanneer planningskosten worden berekend",
+          "docFull": "als getal kleiner of gelijk aan 5 dan is het het aantal cycli (geldig van 1-5), anders het jaartal (geldig van 2030-2150)",
+          "unit": "aantal cycli of jaar",
+          "modules": [
+            "P"
+          ],
           "type": "integer"
         },
         "config": {
           "title": "Configuratie - todo add extra",
+          "description": "configuratie van project. Todo: toevoegen",
           "type": [
             "string",
             "null"
@@ -5022,6 +5567,7 @@
         },
         "extra_fields": {
           "title": "Extra velden - todo: add",
+          "description": "extra velden voor project",
           "type": [
             "string",
             "null"
@@ -5029,6 +5575,7 @@
         },
         "notes_admin": {
           "title": "Aantekeningen - todo: add",
+          "description": "opmerkingen van/ voor organisatie admin",
           "type": [
             "string",
             "null"
@@ -5083,29 +5630,34 @@
         },
         "db_last_modified": {
           "title": "Laatst aangepast in central database",
+          "description": "laatst aangepast in centrale database. Gebruikt voor synchronisatie",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "last_modified_at": {
           "title": "Laatst aangepast op",
+          "description": "datum waarop record laatst is aangepast",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "created_at": {
           "title": "Aangemaakt op",
+          "description": "datum waarop record is aangemaakt",
           "type": "string",
           "format": "date-time"
         },
         "source_ref": {
           "title": "Bron referentie",
+          "description": "nummer binnen de bron (bijvoorbeeld regelnummer)",
           "type": [
             "string",
             "null"
           ]
         },
         "poid": {
+          "description": "Unieke identificatie op basis van project, objecttype en uuid",
           "readOnly": true,
           "type": "string",
           "format": "uuid",
@@ -5119,15 +5671,20 @@
         },
         "name": {
           "title": "Naam",
+          "description": "naam van de legger",
           "type": "string",
           "maxLength": 50
         },
         "remarks": {
           "title": "Opmerkingen",
+          "description": "opmerkingen over legger",
           "type": [
             "string",
             "null"
           ]
+        },
+        "vw_legger_type_user": {
+          "$ref": "#/$defs/legger_type"
         }
       }
     },
@@ -5138,22 +5695,26 @@
       "properties": {
         "db_last_modified": {
           "title": "Laatst aangepast in central database",
+          "description": "laatst aangepast in centrale database. Gebruikt voor synchronisatie",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "last_modified_at": {
           "title": "Laatst aangepast op",
+          "description": "datum waarop record laatst is aangepast",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "created_at": {
           "title": "Aangemaakt op",
+          "description": "datum waarop record is aangemaakt",
           "type": "string",
           "format": "date-time"
         },
         "poid": {
+          "description": "Unieke identificatie op basis van project, objecttype en uuid",
           "readOnly": true,
           "type": "string",
           "format": "uuid",
@@ -5167,15 +5728,19 @@
         },
         "nr": {
           "title": "Nummer",
+          "description": "nummer van de toetsconfiguratie (oa. voor volgorde)",
+          "docFull": "wordt gebruikt voor de volgorde en als nummer in de interface",
           "type": "integer"
         },
         "name": {
           "title": "Naam",
+          "description": "naam van de toetsconfiguratie",
           "type": "string",
           "maxLength": 50
         },
         "config": {
           "title": "Configuratie",
+          "description": "custom configuratie van de toets voor dit project als aanvulling op configuratie vanuit de organisatie",
           "type": [
             "object",
             "null"
@@ -5196,10 +5761,12 @@
         },
         "need_recalc": {
           "title": "Herberekening nodig",
+          "description": "herberekening nodig",
           "type": "boolean"
         },
         "dt_need_recalc": {
           "title": "Tijdstip herberekening nodig",
+          "description": "tijdstip waarop herberekening nodig is",
           "type": [
             "string",
             "null"
@@ -5208,6 +5775,7 @@
         },
         "dt_last_calc": {
           "title": "Tijdstip laatste berekening",
+          "description": "tijdstip waarop de laatste berekening is uitgevoerd",
           "type": [
             "string",
             "null"
@@ -5216,6 +5784,7 @@
         },
         "c_messages": {
           "title": "Berekeningsmeldingen",
+          "description": "codes van berekeningsfouten en waarschuwingen",
           "readOnly": true,
           "type": "array",
           "items": {
@@ -5238,66 +5807,87 @@
         },
         "c_last_modified": {
           "title": "Laatst gewijzigd",
+          "description": "tijdstip van laatste wijziging van gegevens",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "c_geometry": {
           "title": "Geometry",
+          "description": "geometry van het project, op basis van convex hull van alle geometrieën",
           "readOnly": true,
           "type": [
             "object",
             "null"
-          ],
-          "description": "GeoJSON geometrie object."
+          ]
         },
         "c_area": {
           "title": "Aantal gebieden",
+          "description": "aantal actieve gebieden",
           "readOnly": true,
           "type": "integer"
         },
         "c_ww": {
           "title": "Aantal watergangen",
+          "description": "aantal actieve watergangen",
           "readOnly": true,
           "type": "integer"
         },
         "c_pl": {
           "title": "Aantal profiellocaties",
+          "description": "aantal actieve profiellocaties",
           "readOnly": true,
           "type": "integer"
         },
         "c_pl_pm": {
           "title": "Aantal profiellocaties met profielmeting",
+          "description": "aantal actieve profiellocaties met profielmeting",
           "readOnly": true,
           "type": "integer"
         },
         "c_pl_archived": {
           "title": "C pl archived",
+          "description": "aantal gearchiveerde profiellocaties",
+          "modules": [
+            "D"
+          ],
           "readOnly": true,
           "type": "integer"
         },
         "c_pntm": {
           "title": "Aantal puntmetingen",
+          "description": "aantal actieve puntmetingen",
           "readOnly": true,
           "type": "integer"
         },
         "c_ss": {
           "title": "Aantal monstervakken",
+          "description": "aantal actieve monstervakken",
           "readOnly": true,
           "type": "integer"
         },
         "c_notes": {
           "title": "Aantal notities",
+          "description": "aantal actieve notities",
           "readOnly": true,
           "type": "integer"
         },
         "c_photos": {
           "title": "Aantal foto's",
+          "description": "aantal actieve foto's",
+          "modules": [
+            "D",
+            "V",
+            "M",
+            "U"
+          ],
           "readOnly": true,
           "type": "integer"
         },
         "c_progress": {
           "title": "Voortgang statistieken",
+          "description": "voortgang volledigheid ingevulde gegevens",
+          "docFull": "aantallen in subcategorieën, hangt af van de actieve module.",
           "readOnly": true,
           "type": [
             "object",
@@ -5307,6 +5897,8 @@
         },
         "c_validation": {
           "title": "Validatie statistieken",
+          "description": "validatie aantallen",
+          "docFull": "aantallen per validatieregel",
           "readOnly": true,
           "type": [
             "object",
@@ -5328,6 +5920,9 @@
         },
         "role": {
           "type": "integer"
+        },
+        "vw_auth_upm_user": {
+          "$ref": "#/$defs/auth_upm"
         }
       }
     },
@@ -5348,6 +5943,7 @@
         },
         "for_pl": {
           "title": "For pl",
+          "description": "run update alleen voor deze profiellocatie",
           "type": [
             "integer",
             "null"
@@ -5428,6 +6024,9 @@
         "summary": {
           "type": "object",
           "additionalProperties": true
+        },
+        "vw_core_recalctrigger_user": {
+          "$ref": "#/$defs/core_recalctrigger"
         }
       }
     },
@@ -5470,22 +6069,26 @@
         },
         "db_last_modified": {
           "title": "Laatst aangepast in central database",
+          "description": "laatst aangepast in centrale database. Gebruikt voor synchronisatie",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "last_modified_at": {
           "title": "Laatst aangepast op",
+          "description": "datum waarop record laatst is aangepast",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "created_at": {
           "title": "Aangemaakt op",
+          "description": "datum waarop record is aangemaakt",
           "type": "string",
           "format": "date-time"
         },
         "poid": {
+          "description": "Unieke identificatie op basis van project, objecttype en uuid",
           "readOnly": true,
           "type": "string",
           "format": "uuid",
@@ -5499,16 +6102,19 @@
         },
         "ids": {
           "title": "Identificatie",
+          "description": "identificatie van de planningsvariant",
           "type": "string",
           "maxLength": 25
         },
         "name": {
           "title": "Naam",
+          "description": "naam van de variant",
           "type": "string",
           "maxLength": 50
         },
         "description": {
           "title": "Omschrijving",
+          "description": "omschrijving van de variant, zoals status en doel",
           "type": [
             "string",
             "null"
@@ -5516,9 +6122,16 @@
         },
         "is_default": {
           "title": "Is standaard",
+          "description": "standaard of actuele variant voor het project, die standaard wordt geladen voor gebruikers",
           "type": "boolean"
+        },
+        "vw_planning_variant_user": {
+          "$ref": "#/$defs/planning_variant"
         }
-      }
+      },
+      "modules": [
+        "P"
+      ]
     },
     "planning_dredging_method": {
       "type": "object",
@@ -5534,6 +6147,7 @@
           "description": "planning input voor de watergang per variant"
         },
         "poid": {
+          "description": "Unieke identificatie op basis van project, objecttype en uuid",
           "readOnly": true,
           "type": "string",
           "format": "uuid",
@@ -5547,6 +6161,7 @@
         },
         "ids": {
           "title": "Identificatie",
+          "description": "identificatie van de baggermethode",
           "type": "string",
           "maxLength": 25
         },
@@ -5563,9 +6178,16 @@
         },
         "costs_m3": {
           "title": "Kosten per m3",
+          "description": "baggerkosten per m3 verwijderd slib",
+          "docFull": "kosten worden geïndexeerd, basisjaar (index=100) staat onder projectinstellingen",
+          "unit": "€/m3",
+          "precision": 2,
           "type": "number"
         }
-      }
+      },
+      "modules": [
+        "P"
+      ]
     },
     "planning_processing_method": {
       "type": "object",
@@ -5590,22 +6212,26 @@
         },
         "db_last_modified": {
           "title": "Laatst aangepast in central database",
+          "description": "laatst aangepast in centrale database. Gebruikt voor synchronisatie",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "last_modified_at": {
           "title": "Laatst aangepast op",
+          "description": "datum waarop record laatst is aangepast",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "created_at": {
           "title": "Aangemaakt op",
+          "description": "datum waarop record is aangemaakt",
           "type": "string",
           "format": "date-time"
         },
         "poid": {
+          "description": "Unieke identificatie op basis van project, objecttype en uuid",
           "readOnly": true,
           "type": "string",
           "format": "uuid",
@@ -5619,6 +6245,7 @@
         },
         "ids": {
           "title": "Identificatie",
+          "description": "identificatie van de verwerkingsmethode",
           "type": "string",
           "maxLength": 25
         },
@@ -5635,9 +6262,19 @@
         },
         "default_costs": {
           "title": "Defaultkosten",
+          "description": "kosten per kubieke meter voor deze verwerking",
+          "docFull": "Als er geen kwaliteitsbeoordeling is, worden deze kosten gebruikt. Kosten worden geïndexeerd. Berekend per afgevoerde kuub. ",
+          "unit": "€/m3",
+          "precision": 2,
           "type": "number"
+        },
+        "vw_planning_processing_method_user": {
+          "$ref": "#/$defs/planning_processing_method"
         }
-      }
+      },
+      "modules": [
+        "P"
+      ]
     },
     "planning_quantity_indication_set": {
       "type": "object",
@@ -5667,7 +6304,10 @@
             "null"
           ]
         }
-      }
+      },
+      "modules": [
+        "P"
+      ]
     },
     "planning_quantity_indication": {
       "type": "object",
@@ -5685,6 +6325,9 @@
         },
         "quantity": {
           "title": "Hoeveelheid",
+          "description": "hoeveelheid slib in m3 per meter watergang",
+          "unit": "m3/m",
+          "precision": 2,
           "type": "number"
         },
         "note": {
@@ -5694,7 +6337,10 @@
             "null"
           ]
         }
-      }
+      },
+      "modules": [
+        "P"
+      ]
     },
     "planning_processing_quality_costs": {
       "type": "object",
@@ -5708,30 +6354,41 @@
         },
         "db_last_modified": {
           "title": "Laatst aangepast in central database",
+          "description": "laatst aangepast in centrale database. Gebruikt voor synchronisatie",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "last_modified_at": {
           "title": "Laatst aangepast op",
+          "description": "datum waarop record laatst is aangepast",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "created_at": {
           "title": "Aangemaakt op",
+          "description": "datum waarop record is aangemaakt",
           "type": "string",
           "format": "date-time"
         },
         "accepted": {
           "title": "Geaccepteerd",
+          "description": "of deze kwaliteit wordt geaccepteerd bij deze verwerking, levert anders een waarschuwing op (maar rekent wel door)",
           "type": "boolean"
         },
         "costs": {
           "title": "Kosten",
+          "description": "kosten per kubieke meter voor deze kwaliteit bij deze verwerking",
+          "docFull": "kosten worden geïndexeerd",
+          "unit": "€/m3",
+          "precision": 2,
           "type": "number"
         }
-      }
+      },
+      "modules": [
+        "P"
+      ]
     },
     "dc": {
       "type": "object",
@@ -5780,22 +6437,26 @@
         },
         "db_last_modified": {
           "title": "Laatst aangepast in central database",
+          "description": "laatst aangepast in centrale database. Gebruikt voor synchronisatie",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "last_modified_at": {
           "title": "Laatst aangepast op",
+          "description": "datum waarop record laatst is aangepast",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "created_at": {
           "title": "Aangemaakt op",
+          "description": "datum waarop record is aangemaakt",
           "type": "string",
           "format": "date-time"
         },
         "poid": {
+          "description": "Unieke identificatie op basis van project, objecttype en uuid",
           "readOnly": true,
           "type": "string",
           "format": "uuid",
@@ -5809,6 +6470,7 @@
         },
         "ids": {
           "title": "Identificatie",
+          "description": "identificatie van het baggercluster",
           "type": "string",
           "maxLength": 25
         },
@@ -5825,6 +6487,10 @@
         },
         "planned_year": {
           "title": "Gepland jaar van baggeren",
+          "description": "jaar waarop alle watergangen binnen het baggercluster zijn ingepland om te worden gebaggerd",
+          "modules": [
+            "P"
+          ],
           "type": [
             "integer",
             "null"
@@ -5832,12 +6498,25 @@
         },
         "duration_cycle": {
           "title": "Duur baggercyclus",
+          "description": "aantal jaren tussen de baggerbeurten van dit cluster",
+          "docFull": "Deze waarde wordt gebruikt om jaren van watergangen met andere frequenties en bagger jaren in de toekomst te bepalen.",
+          "unit": "jaren",
+          "modules": [
+            "P"
+          ],
           "type": [
             "integer",
             "null"
           ]
+        },
+        "vw_dc_user": {
+          "$ref": "#/$defs/dc"
         }
-      }
+      },
+      "modules": [
+        "P",
+        "V"
+      ]
     },
     "dc_calc_status": {
       "type": "object",
@@ -5851,10 +6530,12 @@
         },
         "need_recalc": {
           "title": "Herberekening nodig",
+          "description": "herberekening nodig",
           "type": "boolean"
         },
         "dt_need_recalc": {
           "title": "Tijdstip herberekening nodig",
+          "description": "tijdstip waarop herberekening nodig is",
           "type": [
             "string",
             "null"
@@ -5863,6 +6544,7 @@
         },
         "dt_last_calc": {
           "title": "Tijdstip laatste berekening",
+          "description": "tijdstip waarop de laatste berekening is uitgevoerd",
           "type": [
             "string",
             "null"
@@ -5871,6 +6553,7 @@
         },
         "c_messages": {
           "title": "Berekeningsmeldingen",
+          "description": "codes van berekeningsfouten en waarschuwingen",
           "readOnly": true,
           "type": "array",
           "items": {
@@ -5879,7 +6562,11 @@
             "type": "integer"
           }
         }
-      }
+      },
+      "modules": [
+        "P",
+        "V"
+      ]
     },
     "dc_variant_calc": {
       "type": "object",
@@ -5893,6 +6580,9 @@
         },
         "c_length": {
           "title": "C length",
+          "description": "lengte van de watergangen in het cluster",
+          "unit": "m",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -5901,6 +6591,12 @@
         },
         "c_meas_strategy_m3": {
           "title": "Slib in profiel op meetdatum",
+          "description": "baggerspecie in het profiel in m3 op meetdatum",
+          "unit": "m3",
+          "precision": 2,
+          "modules": [
+            "V"
+          ],
           "readOnly": true,
           "type": [
             "number",
@@ -5909,14 +6605,19 @@
         },
         "c_geometry": {
           "title": "C geometry",
+          "description": "gebied rond de inliggende watergangen",
+          "docFull": "berekend met een convexhull van de inliggende watergangen",
           "readOnly": true,
           "type": [
             "object",
             "null"
-          ],
-          "description": "GeoJSON geometrie object."
+          ]
         }
-      }
+      },
+      "modules": [
+        "P",
+        "V"
+      ]
     },
     "dc_frequency_calc": {
       "type": "object",
@@ -5930,6 +6631,9 @@
         },
         "frequency": {
           "title": "Frequentie in procenten",
+          "description": "Frequentie tov gepland jaar van baggeren van cluster (100% = het geplande jaar van baggeren van het cluster).",
+          "docFull": "moment waarvoor deze berekening geld, uitgedrukt in cycli. Kan ook in de toekomst doorgaan.",
+          "unit": "%",
           "readOnly": true,
           "type": [
             "integer",
@@ -5938,6 +6642,7 @@
         },
         "year": {
           "title": "Gepland jaar",
+          "description": "jaar van geplande bagger werkzaamheden",
           "readOnly": true,
           "type": [
             "integer",
@@ -5946,6 +6651,9 @@
         },
         "c_length": {
           "title": "C length",
+          "description": "Lengte van de watergangen in het cluster voor deze frequentie",
+          "unit": "m",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -5954,6 +6662,7 @@
         },
         "c_calc_dredging_year": {
           "title": "Berekend jaar van baggeren",
+          "description": "Jaar van geplande bagger werkzaamheden",
           "readOnly": true,
           "type": [
             "integer",
@@ -5962,6 +6671,7 @@
         },
         "c_criteria_dredging_year": {
           "title": "Leidend criteria",
+          "description": "dominant criterium voor berekend jaar van baggeren",
           "readOnly": true,
           "type": [
             "integer",
@@ -5970,6 +6680,9 @@
         },
         "c_calc_strategy_m3": {
           "title": "Slib in profiel op berekend jaar van baggeren",
+          "description": "baggerspecie in het profiel in m3 op geplande datum van baggeren",
+          "unit": "m3",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -5978,6 +6691,10 @@
         },
         "c_plan_strategy_m3": {
           "title": "Slib op geplande datum volgens strategie",
+          "description": "baggerspecie in m3 binnen gekozen strategie (gehele/ legger/ onderhouds-profiel) op geplande datum van baggeren",
+          "docFull": "deze hoeveelheid wordt gebruikt voor de baggermethode.",
+          "unit": "m3",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -5986,6 +6703,10 @@
         },
         "c_processed_planned_m3": {
           "title": "C processed planned m3",
+          "description": "totaal te verwerken slib in m3 op geplande datum van baggeren",
+          "docFull": "deze hoeveelheid wordt gebruikt voor de verwerkingsmethode. houdt rekening met hoeveelheid die wordt afgevoerd.",
+          "unit": "m3",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -5994,6 +6715,9 @@
         },
         "c_costs_method": {
           "title": "C costs method",
+          "description": "kosten voor de baggermethode.",
+          "unit": "€",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -6002,13 +6726,19 @@
         },
         "c_costs_processing": {
           "title": "C costs processing",
+          "description": "kosten voor de verwerkingsmethode.",
+          "unit": "€",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
             "null"
           ]
         }
-      }
+      },
+      "modules": [
+        "P"
+      ]
     },
     "ss": {
       "type": "object",
@@ -6033,18 +6763,21 @@
         },
         "db_last_modified": {
           "title": "Laatst aangepast in central database",
+          "description": "laatst aangepast in centrale database. Gebruikt voor synchronisatie",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "last_modified_at": {
           "title": "Laatst aangepast op",
+          "description": "datum waarop record laatst is aangepast",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "created_at": {
           "title": "Aangemaakt op",
+          "description": "datum waarop record is aangemaakt",
           "type": "string",
           "format": "date-time"
         },
@@ -6065,27 +6798,33 @@
           "format": "date"
         },
         "poid": {
+          "description": "Unieke identificatie op basis van project, objecttype en uuid",
           "readOnly": true,
           "type": "string",
           "format": "uuid",
           "maxLength": 32
         },
         "uuid": {
+          "description": "unieke identificatie voor dit monstervak",
+          "docFull": "Als monstervak wordt gekopieerd, moet de uuid worden meegenomen. Hiermee kunnen later dan gegevens worden ge-update of worden teruggeleverd.",
           "readOnly": true,
           "type": "string",
           "format": "uuid",
           "maxLength": 32
         },
         "ids": {
+          "description": "identificatie/ code binnen WIT",
           "type": "string",
           "maxLength": 50
         },
         "code": {
+          "description": "identificatie/ code in het (externe) bronsysteem",
           "type": "string",
           "maxLength": 50
         },
         "remarks": {
           "title": "Opmerkingen",
+          "description": "Algemene opmerkingen",
           "type": [
             "string",
             "null"
@@ -6093,6 +6832,8 @@
         },
         "location_info": {
           "title": "Locatie omschrijving",
+          "description": "extra benaming, kan gebruikt worden in bepaalde exports",
+          "docFull": "bijvoorbeeld naam water, naam straat of gebied waartoe watergang behoort",
           "type": [
             "string",
             "null"
@@ -6100,18 +6841,23 @@
         },
         "geometry": {
           "title": "Geometrie",
+          "description": "geometrie van het monstervak",
           "type": [
             "object",
             "null"
-          ],
-          "description": "GeoJSON geometrie object."
+          ]
         },
         "extra": {
+          "description": "extra informatie over de watergang",
+          "docFull": "instellingen voor deze extra velden onder de project configuratie",
           "type": [
             "object",
             "null"
           ],
           "additionalProperties": true
+        },
+        "vw_ss_user": {
+          "$ref": "#/$defs/ss"
         }
       }
     },
@@ -6127,24 +6873,32 @@
         },
         "db_last_modified": {
           "title": "Laatst aangepast in central database",
+          "description": "laatst aangepast in centrale database. Gebruikt voor synchronisatie",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "last_modified_at": {
           "title": "Laatst aangepast op",
+          "description": "datum waarop record laatst is aangepast",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "created_at": {
           "title": "Aangemaakt op",
+          "description": "datum waarop record is aangemaakt",
           "type": "string",
           "format": "date-time"
         },
         "value": {
           "title": "Waarde",
+          "description": "waarde van de classificatie waarde",
+          "docFull": "Meer gegevens van deze waarde zijn te vinden in de EnumQualityClassificationValue tabel",
           "type": "integer"
+        },
+        "vw_ss_classification_user": {
+          "$ref": "#/$defs/ss_classification"
         }
       }
     },
@@ -6219,23 +6973,27 @@
         },
         "db_last_modified": {
           "title": "Laatst aangepast in central database",
+          "description": "laatst aangepast in centrale database. Gebruikt voor synchronisatie",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "last_modified_at": {
           "title": "Laatst aangepast op",
+          "description": "datum waarop record laatst is aangepast",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "created_at": {
           "title": "Aangemaakt op",
+          "description": "datum waarop record is aangemaakt",
           "type": "string",
           "format": "date-time"
         },
         "source_ref": {
           "title": "Bron referentie",
+          "description": "nummer binnen de bron (bijvoorbeeld regelnummer)",
           "type": [
             "string",
             "null"
@@ -6258,22 +7016,27 @@
           "format": "date"
         },
         "poid": {
+          "description": "Unieke identificatie op basis van project, objecttype en uuid",
           "readOnly": true,
           "type": "string",
           "format": "uuid",
           "maxLength": 32
         },
         "uuid": {
+          "description": "unieke identificatie voor deze watergang",
+          "docFull": "Als watergang wordt gekopieerd, moet de uuid worden meegenomen. Hiermee kunnen later dan gegevens worden ge-update of worden teruggeleverd.",
           "readOnly": true,
           "type": "string",
           "format": "uuid",
           "maxLength": 32
         },
         "ids": {
+          "description": "identificatie/ code binnen WIT, is de unieke identifier voor de gebruikers",
           "type": "string",
           "maxLength": 50
         },
         "code": {
+          "description": "identificatie/ code in het (externe) bronsysteem",
           "type": [
             "string",
             "null"
@@ -6282,6 +7045,10 @@
         },
         "length": {
           "title": "Lengte",
+          "description": "lengte van de watergang",
+          "docFull": "Lengte van de bron kan afwijken van de werkelijke lengte van de watergang, bijvoorbeeld doorduikers of de breedte van de aansluitende watergangen. Als dit veld leeg is, dan wordt deze berekend op basis van de geometrie van de watergang.",
+          "unit": "m",
+          "precision": 2,
           "type": [
             "number",
             "null"
@@ -6289,6 +7056,8 @@
         },
         "length_source": {
           "title": "Lengte bron",
+          "description": "bron van de 'lengte' van de watergang",
+          "docFull": "als de waarde automatisch berekend is, dan staat hier 'berekening'",
           "type": [
             "string",
             "null"
@@ -6297,11 +7066,14 @@
         },
         "geometry": {
           "title": "Geometrie",
+          "description": "geometrie van de watergang",
           "type": [
             "object",
             "null"
-          ],
-          "description": "GeoJSON geometrie object."
+          ]
+        },
+        "vw_ww_user": {
+          "$ref": "#/$defs/ww"
         }
       }
     },
@@ -6317,23 +7089,30 @@
         },
         "db_last_modified": {
           "title": "Laatst aangepast in central database",
+          "description": "laatst aangepast in centrale database. Gebruikt voor synchronisatie",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "last_modified_at": {
           "title": "Laatst aangepast op",
+          "description": "datum waarop record laatst is aangepast",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "created_at": {
           "title": "Aangemaakt op",
+          "description": "datum waarop record is aangemaakt",
           "type": "string",
           "format": "date-time"
         },
         "min_width": {
           "title": "Breedte",
+          "description": "Als 'maximale breedte' is ingevuld, dan is dit de minimale breedte.",
+          "docFull": "zie bron in 'breedte bron'",
+          "unit": "m",
+          "precision": 2,
           "type": [
             "number",
             "null"
@@ -6341,6 +7120,9 @@
         },
         "max_width": {
           "title": "Maximale breedte",
+          "description": "maximale breedte van de watergang",
+          "unit": "m",
+          "precision": 2,
           "type": [
             "number",
             "null"
@@ -6348,6 +7130,7 @@
         },
         "width_source": {
           "title": "Breedte bron",
+          "description": "bron van de 'breedte' van de watergang",
           "type": [
             "string",
             "null"
@@ -6356,6 +7139,9 @@
         },
         "area": {
           "title": "Oppervlakte",
+          "description": "oppervlakte van de watergang",
+          "unit": "m2",
+          "precision": 2,
           "type": [
             "number",
             "null"
@@ -6363,6 +7149,7 @@
         },
         "area_source": {
           "title": "Oppervlakte bron",
+          "description": "bron van de 'oppervlakte' van de watergang",
           "type": [
             "string",
             "null"
@@ -6371,6 +7158,8 @@
         },
         "location_info": {
           "title": "Locatie omschrijving",
+          "description": "extra benaming, kan gebruikt worden in bepaalde exports",
+          "docFull": "bijvoorbeeld naam water, naam straat of gebied waartoe watergang behoort",
           "type": [
             "string",
             "null"
@@ -6378,6 +7167,11 @@
         },
         "strategy_solid": {
           "title": "Meenemen vaste bodem",
+          "description": "meenemen van vaste bodem binnen legger/ onderhoudsprofiel bij baggeren",
+          "modules": [
+            "P",
+            "V"
+          ],
           "type": [
             "boolean",
             "null"
@@ -6385,6 +7179,10 @@
         },
         "need_dredging": {
           "title": "Baggeren nodig",
+          "description": "Baggeren nodig voor deze watergang",
+          "modules": [
+            "V"
+          ],
           "type": [
             "boolean",
             "null"
@@ -6392,6 +7190,11 @@
         },
         "assessment_config": {
           "title": "Configuratie toetsing",
+          "description": "parameters voor de watergang voor maken van de toetsing",
+          "modules": [
+            "P",
+            "V"
+          ],
           "type": [
             "object",
             "null"
@@ -6400,6 +7203,8 @@
         },
         "category": {
           "title": "Categorie",
+          "description": "categorie watergang",
+          "docFull": "1=primair, 2=secundair, 3=tertiair, 4=overig",
           "type": [
             "integer",
             "null"
@@ -6407,17 +7212,23 @@
         },
         "remarks": {
           "title": "Opmerkingen",
+          "description": "algemene opmerkingen over watergang.",
           "type": [
             "string",
             "null"
           ]
         },
         "extra": {
+          "description": "extra informatie over de watergang.",
+          "docFull": "instellingen voor deze extra velden onder de project configuratie",
           "type": [
             "object",
             "null"
           ],
           "additionalProperties": true
+        },
+        "vw_ww_data_user": {
+          "$ref": "#/$defs/ww_data"
         }
       }
     },
@@ -6433,23 +7244,27 @@
         },
         "db_last_modified": {
           "title": "Laatst aangepast in central database",
+          "description": "laatst aangepast in centrale database. Gebruikt voor synchronisatie",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "last_modified_at": {
           "title": "Laatst aangepast op",
+          "description": "datum waarop record laatst is aangepast",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "created_at": {
           "title": "Aangemaakt op",
+          "description": "datum waarop record is aangemaakt",
           "type": "string",
           "format": "date-time"
         },
         "source_ref": {
           "title": "Bron referentie",
+          "description": "nummer binnen de bron (bijvoorbeeld regelnummer)",
           "type": [
             "string",
             "null"
@@ -6457,6 +7272,7 @@
         },
         "legger_level": {
           "title": "Legger_peil",
+          "precision": 3,
           "type": [
             "number",
             "null"
@@ -6464,6 +7280,8 @@
         },
         "bottom_width": {
           "title": "Bodembreedte opgegeven",
+          "unit": "m",
+          "precision": 3,
           "type": [
             "number",
             "null"
@@ -6471,6 +7289,8 @@
         },
         "water_width": {
           "title": "Waterbreedte opgegeven",
+          "unit": "m",
+          "precision": 3,
           "type": [
             "number",
             "null"
@@ -6478,6 +7298,8 @@
         },
         "bottom_level": {
           "title": "Legger niveau",
+          "unit": "mNAP",
+          "precision": 3,
           "type": [
             "number",
             "null"
@@ -6485,6 +7307,8 @@
         },
         "fairway_level": {
           "title": "Vaarweg niveau",
+          "unit": "mNAP",
+          "precision": 3,
           "type": [
             "number",
             "null"
@@ -6492,6 +7316,8 @@
         },
         "fairway_norm_width": {
           "title": "Leggerbreedte",
+          "unit": "m",
+          "precision": 3,
           "type": [
             "number",
             "null"
@@ -6499,6 +7325,8 @@
         },
         "maintenance_depth_min": {
           "title": "Onderhoudsniveau",
+          "unit": "mNAP",
+          "precision": 3,
           "type": [
             "number",
             "null"
@@ -6506,6 +7334,8 @@
         },
         "talud_left": {
           "title": "Talud links",
+          "unit": "b/h",
+          "precision": 3,
           "type": [
             "number",
             "null"
@@ -6513,6 +7343,8 @@
         },
         "talud_right": {
           "title": "Talud rechts",
+          "unit": "b/h",
+          "precision": 3,
           "type": [
             "number",
             "null"
@@ -6520,6 +7352,9 @@
         },
         "start_depth": {
           "title": "Startdiepte",
+          "description": "diepte tov waterpeil waar talud begint",
+          "unit": "m tov waterpeil",
+          "precision": 3,
           "type": [
             "number",
             "null"
@@ -6527,6 +7362,9 @@
         },
         "offset": {
           "title": "Verschuiving",
+          "description": "verschuiving van de legger tov de waterlijn/ midden",
+          "unit": "m",
+          "precision": 3,
           "type": [
             "number",
             "null"
@@ -6534,6 +7372,9 @@
         },
         "shore_distance": {
           "title": "Start van de kant",
+          "description": "afstand van de kant",
+          "unit": "m",
+          "precision": 3,
           "type": [
             "number",
             "null"
@@ -6541,6 +7382,7 @@
         },
         "points_legger": {
           "title": "Punten legger",
+          "description": "punten legger",
           "type": "array",
           "items": {
             "title": "Points legger",
@@ -6553,6 +7395,7 @@
         },
         "points_maintenance": {
           "title": "Punten onderhoud",
+          "description": "punten onderhoud",
           "type": "array",
           "items": {
             "title": "Points maintenance",
@@ -6562,8 +7405,14 @@
               "type": "number"
             }
           }
+        },
+        "vw_ww_legger_user": {
+          "$ref": "#/$defs/ww_legger"
         }
-      }
+      },
+      "modules": [
+        "P"
+      ]
     },
     "ww_planning": {
       "type": "object",
@@ -6577,23 +7426,27 @@
         },
         "db_last_modified": {
           "title": "Laatst aangepast in central database",
+          "description": "laatst aangepast in centrale database. Gebruikt voor synchronisatie",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "last_modified_at": {
           "title": "Laatst aangepast op",
+          "description": "datum waarop record laatst is aangepast",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "created_at": {
           "title": "Aangemaakt op",
+          "description": "datum waarop record is aangemaakt",
           "type": "string",
           "format": "date-time"
         },
         "frequency": {
           "title": "Frequentie",
+          "description": "frequentie tov gepland jaar van baggeren van cluster. Als niks ingevuld, dan 1",
           "type": [
             "integer",
             "null"
@@ -6601,12 +7454,21 @@
         },
         "slib_growth": {
           "title": "Slibgroei",
+          "description": "jaarlijkse slibgroei",
+          "unit": "m/jaar",
+          "precision": 2,
           "type": [
             "number",
             "null"
           ]
+        },
+        "vw_ww_planning_user": {
+          "$ref": "#/$defs/ww_planning"
         }
-      }
+      },
+      "modules": [
+        "P"
+      ]
     },
     "ww_planning_calc_status": {
       "type": "object",
@@ -6620,10 +7482,12 @@
         },
         "need_recalc": {
           "title": "Herberekening nodig",
+          "description": "herberekening nodig",
           "type": "boolean"
         },
         "dt_need_recalc": {
           "title": "Tijdstip herberekening nodig",
+          "description": "tijdstip waarop herberekening nodig is",
           "type": [
             "string",
             "null"
@@ -6632,6 +7496,7 @@
         },
         "dt_last_calc": {
           "title": "Tijdstip laatste berekening",
+          "description": "tijdstip waarop de laatste berekening is uitgevoerd",
           "type": [
             "string",
             "null"
@@ -6640,6 +7505,7 @@
         },
         "c_messages": {
           "title": "Berekeningsmeldingen",
+          "description": "codes van berekeningsfouten en waarschuwingen",
           "readOnly": true,
           "type": "array",
           "items": {
@@ -6648,7 +7514,10 @@
             "type": "integer"
           }
         }
-      }
+      },
+      "modules": [
+        "P"
+      ]
     },
     "ww_planning_calc": {
       "type": "object",
@@ -6662,23 +7531,27 @@
         },
         "db_last_modified": {
           "title": "Laatst aangepast in central database",
+          "description": "laatst aangepast in centrale database. Gebruikt voor synchronisatie",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "last_modified_at": {
           "title": "Laatst aangepast op",
+          "description": "datum waarop record laatst is aangepast",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "created_at": {
           "title": "Aangemaakt op",
+          "description": "datum waarop record is aangemaakt",
           "type": "string",
           "format": "date-time"
         },
         "c_calc_dredging_year": {
           "title": "Berekend jaar van baggeren",
+          "description": "jaar van geplande baggering",
           "readOnly": true,
           "type": [
             "integer",
@@ -6687,6 +7560,7 @@
         },
         "c_criteria_dredging_year": {
           "title": "Leidend criteria",
+          "description": "dominant criterium voor berekend jaar van baggeren",
           "readOnly": true,
           "type": [
             "integer",
@@ -6695,6 +7569,12 @@
         },
         "c_meas_strategy_m3": {
           "title": "Slib in profiel op meetdatum",
+          "description": "baggerspecie in het profiel in m3 op meetdatum",
+          "unit": "m3",
+          "precision": 2,
+          "modules": [
+            "V"
+          ],
           "readOnly": true,
           "type": [
             "number",
@@ -6703,6 +7583,9 @@
         },
         "c_calc_strategy_m3": {
           "title": "Slib in profiel op berekend jaar van baggeren",
+          "description": "baggerspecie in het profiel in m3 op geplande datum van baggeren",
+          "unit": "m3",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -6711,6 +7594,10 @@
         },
         "c_plan_strategy_m3": {
           "title": "Slib op geplande datum volgens strategie",
+          "description": "baggerspecie in m3 binnen gekozen strategie (gehele/ legger/ onderhouds-profiel) op geplande datum van baggeren",
+          "docFull": "deze hoeveelheid wordt gebruikt voor de baggermethode",
+          "unit": "m3",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -6719,6 +7606,10 @@
         },
         "c_processed_planned_m3": {
           "title": "C processed planned m3",
+          "description": "totaal te verwerken slib in m3 op geplande datum van baggeren",
+          "docFull": "deze hoeveelheid wordt gebruikt voor de verwerkingsmethode, houdt rekening met hoeveelheid die wordt afgevoerd",
+          "unit": "m3",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -6727,6 +7618,9 @@
         },
         "c_costs_method": {
           "title": "C costs method",
+          "description": "kosten voor de baggermethode",
+          "unit": "€",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -6735,13 +7629,22 @@
         },
         "c_costs_processing": {
           "title": "C costs processing",
+          "description": "kosten voor de verwerkingsmethode",
+          "unit": "€",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
             "null"
           ]
+        },
+        "vw_ww_planning_calc_user": {
+          "$ref": "#/$defs/ww_planning_calc"
         }
-      }
+      },
+      "modules": [
+        "P"
+      ]
     },
     "ww_assessment_calc_status": {
       "type": "object",
@@ -6755,10 +7658,12 @@
         },
         "need_recalc": {
           "title": "Herberekening nodig",
+          "description": "herberekening nodig",
           "type": "boolean"
         },
         "dt_need_recalc": {
           "title": "Tijdstip herberekening nodig",
+          "description": "tijdstip waarop herberekening nodig is",
           "type": [
             "string",
             "null"
@@ -6767,6 +7672,7 @@
         },
         "dt_last_calc": {
           "title": "Tijdstip laatste berekening",
+          "description": "tijdstip waarop de laatste berekening is uitgevoerd",
           "type": [
             "string",
             "null"
@@ -6775,6 +7681,7 @@
         },
         "c_messages": {
           "title": "Berekeningsmeldingen",
+          "description": "codes van berekeningsfouten en waarschuwingen",
           "readOnly": true,
           "type": "array",
           "items": {
@@ -6783,7 +7690,11 @@
             "type": "integer"
           }
         }
-      }
+      },
+      "modules": [
+        "P",
+        "V"
+      ]
     },
     "ww_assessment_calc": {
       "type": "object",
@@ -6797,6 +7708,7 @@
         },
         "c_score": {
           "title": "C score",
+          "description": "score van de toets",
           "readOnly": true,
           "type": [
             "number",
@@ -6805,13 +7717,19 @@
         },
         "c_class": {
           "title": "Classificatie",
+          "description": "geschaalde toetsscore (0 = slecht, 100=goed)",
+          "docFull": "wordt gebruikt voor tonen van de toetsscore in de kaart",
           "readOnly": true,
           "type": [
             "integer",
             "null"
           ]
         }
-      }
+      },
+      "modules": [
+        "P",
+        "V"
+      ]
     },
     "pl": {
       "type": "object",
@@ -6876,50 +7794,60 @@
         },
         "db_last_modified": {
           "title": "Laatst aangepast in central database",
+          "description": "laatst aangepast in centrale database. Gebruikt voor synchronisatie",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "last_modified_at": {
           "title": "Laatst aangepast op",
+          "description": "datum waarop record laatst is aangepast",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "created_at": {
           "title": "Aangemaakt op",
+          "description": "datum waarop record is aangemaakt",
           "type": "string",
           "format": "date-time"
         },
         "source_ref": {
           "title": "Bron referentie",
+          "description": "nummer binnen de bron (bijvoorbeeld regelnummer)",
           "type": [
             "string",
             "null"
           ]
         },
         "poid": {
+          "description": "Unieke identificatie op basis van project, objecttype en uuid",
           "readOnly": true,
           "type": "string",
           "format": "uuid",
           "maxLength": 32
         },
         "uuid": {
+          "description": "Unieke identificatie voor dit profiel",
+          "docFull": "Als profiel wordt gekopieerd, moet de uuid worden meegenomen. Hiermee kunnen later dan gegevens worden ge-update of worden teruggeleverd.",
           "readOnly": true,
           "type": "string",
           "format": "uuid",
           "maxLength": 32
         },
         "ids": {
+          "description": "identificatie/ code binnen WIT",
           "type": "string",
           "maxLength": 50
         },
         "code": {
+          "description": "identificatie/ code in het (externe) bronsysteem",
           "type": "string",
           "maxLength": 100
         },
         "order": {
           "title": "Volgorde",
+          "description": "volgorde veld, gebruikt voor sortering van laag naar hoog",
           "type": [
             "integer",
             "null"
@@ -6927,33 +7855,37 @@
         },
         "c_geometry": {
           "title": "Geometrie profiel",
+          "description": "geometrie (22L naar 22R)",
+          "docFull": "Deze lijn wordt gebruikt voor het tonen van het profiel. Deze waarde kan niet worden bewerkt,voeg daarvoor of een profielmeting toe of zet de geplande geometrie.",
           "readOnly": true,
           "type": [
             "object",
             "null"
-          ],
-          "description": "GeoJSON geometrie object."
+          ]
         },
         "c_mid_point": {
           "title": "Geometrie punt",
+          "description": "Punt geometrie van het profiel. Snijpunt tussen profielgeometrie en watergang geometrie of alsdeze niet aanwezig is het midden van de profielgeometrie.",
           "readOnly": true,
           "type": [
             "object",
             "null"
-          ],
-          "description": "GeoJSON geometrie object."
+          ]
         },
         "c_start_point": {
           "title": "Startpunt",
+          "description": "Startpunt van de geometrie (22L)",
           "readOnly": true,
           "type": [
             "object",
             "null"
-          ],
-          "description": "GeoJSON geometrie object."
+          ]
         },
         "c_location_on_waterway": {
           "title": "C location on waterway",
+          "description": "afstand van profiel tot begin van de watergang",
+          "unit": "m",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -6962,10 +7894,18 @@
         },
         "current": {
           "title": "Actueel",
+          "description": "ss dit profiel actueel?",
+          "modules": [
+            "D"
+          ],
           "type": "boolean"
         },
         "pre_length": {
           "title": "Representatieve voor-lengte",
+          "description": "lengte van stuk watergang waarvoor het profiel representatief is (in richting van watergang)",
+          "docFull": "Kan worden ingevoerd of geïmporteerd. Kan worden gezet met de handmatige bewerking 'xxx'. Als dewaarde niet aanwezig is wordt met de automatisch berekende waarde gerekend (na lengte berekend).",
+          "unit": "m",
+          "precision": 2,
           "type": [
             "number",
             "null"
@@ -6973,10 +7913,17 @@
         },
         "post_length": {
           "title": "Representatieve na-lengte",
+          "description": "lengte van stuk watergang waarvoor het profiel representatief is (in richting van watergang)",
+          "docFull": "Kan worden ingevoerd of geïmporteerd. Kan worden gezet met de handmatige bewerking 'xxx'. Als dewaarde niet aanwezig is wordt met de automatisch berekende waarde gerekend (na lengte berekend).",
+          "unit": "m",
+          "precision": 2,
           "type": [
             "number",
             "null"
           ]
+        },
+        "vw_pl_user": {
+          "$ref": "#/$defs/pl"
         }
       }
     },
@@ -6992,23 +7939,27 @@
         },
         "db_last_modified": {
           "title": "Laatst aangepast in central database",
+          "description": "laatst aangepast in centrale database. Gebruikt voor synchronisatie",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "last_modified_at": {
           "title": "Laatst aangepast op",
+          "description": "datum waarop record laatst is aangepast",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "created_at": {
           "title": "Aangemaakt op",
+          "description": "datum waarop record is aangemaakt",
           "type": "string",
           "format": "date-time"
         },
         "source_ref": {
           "title": "Bron referentie",
+          "description": "nummer binnen de bron (bijvoorbeeld regelnummer)",
           "type": [
             "string",
             "null"
@@ -7016,6 +7967,7 @@
         },
         "legger_level": {
           "title": "Legger_peil",
+          "precision": 3,
           "type": [
             "number",
             "null"
@@ -7023,6 +7975,8 @@
         },
         "bottom_width": {
           "title": "Bodembreedte opgegeven",
+          "unit": "m",
+          "precision": 3,
           "type": [
             "number",
             "null"
@@ -7030,6 +7984,8 @@
         },
         "water_width": {
           "title": "Waterbreedte opgegeven",
+          "unit": "m",
+          "precision": 3,
           "type": [
             "number",
             "null"
@@ -7037,6 +7993,8 @@
         },
         "bottom_level": {
           "title": "Legger niveau",
+          "unit": "mNAP",
+          "precision": 3,
           "type": [
             "number",
             "null"
@@ -7044,6 +8002,8 @@
         },
         "fairway_level": {
           "title": "Vaarweg niveau",
+          "unit": "mNAP",
+          "precision": 3,
           "type": [
             "number",
             "null"
@@ -7051,6 +8011,8 @@
         },
         "fairway_norm_width": {
           "title": "Leggerbreedte",
+          "unit": "m",
+          "precision": 3,
           "type": [
             "number",
             "null"
@@ -7058,6 +8020,8 @@
         },
         "maintenance_depth_min": {
           "title": "Onderhoudsniveau",
+          "unit": "mNAP",
+          "precision": 3,
           "type": [
             "number",
             "null"
@@ -7065,6 +8029,8 @@
         },
         "talud_left": {
           "title": "Talud links",
+          "unit": "b/h",
+          "precision": 3,
           "type": [
             "number",
             "null"
@@ -7072,6 +8038,8 @@
         },
         "talud_right": {
           "title": "Talud rechts",
+          "unit": "b/h",
+          "precision": 3,
           "type": [
             "number",
             "null"
@@ -7079,6 +8047,9 @@
         },
         "start_depth": {
           "title": "Startdiepte",
+          "description": "diepte tov waterpeil waar talud begint",
+          "unit": "m tov waterpeil",
+          "precision": 3,
           "type": [
             "number",
             "null"
@@ -7086,6 +8057,9 @@
         },
         "offset": {
           "title": "Verschuiving",
+          "description": "verschuiving van de legger tov de waterlijn/ midden",
+          "unit": "m",
+          "precision": 3,
           "type": [
             "number",
             "null"
@@ -7093,6 +8067,9 @@
         },
         "shore_distance": {
           "title": "Start van de kant",
+          "description": "afstand van de kant",
+          "unit": "m",
+          "precision": 3,
           "type": [
             "number",
             "null"
@@ -7100,6 +8077,7 @@
         },
         "points_legger": {
           "title": "Punten legger",
+          "description": "punten legger",
           "type": "array",
           "items": {
             "title": "Points legger",
@@ -7112,6 +8090,7 @@
         },
         "points_maintenance": {
           "title": "Punten onderhoud",
+          "description": "punten onderhoud",
           "type": "array",
           "items": {
             "title": "Points maintenance",
@@ -7121,6 +8100,9 @@
               "type": "number"
             }
           }
+        },
+        "vw_pl_legger_user": {
+          "$ref": "#/$defs/pl_legger"
         }
       }
     },
@@ -7136,31 +8118,35 @@
         },
         "db_last_modified": {
           "title": "Laatst aangepast in central database",
+          "description": "laatst aangepast in centrale database. Gebruikt voor synchronisatie",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "last_modified_at": {
           "title": "Laatst aangepast op",
+          "description": "datum waarop record laatst is aangepast",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "created_at": {
           "title": "Aangemaakt op",
+          "description": "datum waarop record is aangemaakt",
           "type": "string",
           "format": "date-time"
         },
         "planned_geometry": {
           "title": "Geometrie gepland",
+          "description": "Geplande geometrie voor een profielmeting. Kan ook worden gebruikt als profielmetingen niet aanwezig is.",
           "type": [
             "object",
             "null"
-          ],
-          "description": "GeoJSON geometrie object."
+          ]
         },
         "remarks": {
           "title": "Opmerkingen algemeen",
+          "description": "Algemene opmerkingen relevant voor alle modules.",
           "type": [
             "string",
             "null"
@@ -7168,6 +8154,10 @@
         },
         "width_indication": {
           "title": "Width indication",
+          "description": "breedte van de watergang op waterniveau",
+          "docFull": "Zie source voor de bron van deze waarde. ",
+          "unit": "m",
+          "precision": 2,
           "type": [
             "number",
             "null"
@@ -7175,6 +8165,7 @@
         },
         "width_indication_source": {
           "title": "Width indication source",
+          "description": "Bron van de breedte indicatie",
           "type": [
             "string",
             "null"
@@ -7182,11 +8173,15 @@
           "maxLength": 50
         },
         "extra": {
+          "description": "extra velden, configureerbaar bij 'extra veld configuratie' onder projecten",
           "type": [
             "object",
             "null"
           ],
           "additionalProperties": true
+        },
+        "vw_pl_data_user": {
+          "$ref": "#/$defs/pl_data"
         }
       }
     },
@@ -7202,10 +8197,12 @@
         },
         "need_recalc": {
           "title": "Herberekening nodig",
+          "description": "herberekening nodig",
           "type": "boolean"
         },
         "dt_need_recalc": {
           "title": "Tijdstip herberekening nodig",
+          "description": "tijdstip waarop herberekening nodig is",
           "type": [
             "string",
             "null"
@@ -7214,6 +8211,7 @@
         },
         "dt_last_calc": {
           "title": "Tijdstip laatste berekening",
+          "description": "tijdstip waarop de laatste berekening is uitgevoerd",
           "type": [
             "string",
             "null"
@@ -7222,6 +8220,7 @@
         },
         "c_messages": {
           "title": "Berekeningsmeldingen",
+          "description": "codes van berekeningsfouten en waarschuwingen",
           "readOnly": true,
           "type": "array",
           "items": {
@@ -7244,24 +8243,27 @@
         },
         "c_full_geom": {
           "title": "Geometrie inclusief oevers",
+          "description": "Geometrie inclusief oevers",
           "readOnly": true,
           "type": [
             "object",
             "null"
-          ],
-          "description": "GeoJSON geometrie object."
+          ]
         },
         "c_ww_traject_geom": {
           "title": "Geometrie representatief stuk watergang",
+          "description": "representatief stuk watergang voor dit profiel",
           "readOnly": true,
           "type": [
             "object",
             "null"
-          ],
-          "description": "GeoJSON geometrie object."
+          ]
         },
         "c_pre_length": {
           "title": "Representatieve voor-lengte berekend",
+          "description": "berekende lengte van het representatieve stuk watergang",
+          "unit": "m",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -7270,6 +8272,9 @@
         },
         "c_post_length": {
           "title": "Representatieve na-lengte berekend",
+          "description": "berekende lengte van het representatieve stuk watergang",
+          "unit": "m",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -7290,10 +8295,12 @@
         },
         "need_recalc": {
           "title": "Herberekening nodig",
+          "description": "herberekening nodig",
           "type": "boolean"
         },
         "dt_need_recalc": {
           "title": "Tijdstip herberekening nodig",
+          "description": "tijdstip waarop herberekening nodig is",
           "type": [
             "string",
             "null"
@@ -7302,6 +8309,7 @@
         },
         "dt_last_calc": {
           "title": "Tijdstip laatste berekening",
+          "description": "tijdstip waarop de laatste berekening is uitgevoerd",
           "type": [
             "string",
             "null"
@@ -7310,6 +8318,7 @@
         },
         "c_messages": {
           "title": "Berekeningsmeldingen",
+          "description": "codes van berekeningsfouten en waarschuwingen",
           "readOnly": true,
           "type": "array",
           "items": {
@@ -7332,6 +8341,7 @@
         },
         "c_score": {
           "title": "C score",
+          "description": "score van de toets",
           "readOnly": true,
           "type": [
             "number",
@@ -7340,13 +8350,19 @@
         },
         "c_class": {
           "title": "Classificatie",
+          "description": "geschaalde toetsscore (0 = slecht, 100=goed)",
+          "docFull": "wordt gebruikt voor tonen van de toetsscore in de kaart",
           "readOnly": true,
           "type": [
             "integer",
             "null"
           ]
         }
-      }
+      },
+      "modules": [
+        "P",
+        "V"
+      ]
     },
     "pm": {
       "type": "object",
@@ -7411,35 +8427,42 @@
         },
         "db_last_modified": {
           "title": "Laatst aangepast in central database",
+          "description": "laatst aangepast in centrale database. Gebruikt voor synchronisatie",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "last_modified_at": {
           "title": "Laatst aangepast op",
+          "description": "datum waarop record laatst is aangepast",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "created_at": {
           "title": "Aangemaakt op",
+          "description": "datum waarop record is aangemaakt",
           "type": "string",
           "format": "date-time"
         },
         "source_ref": {
           "title": "Bron referentie",
+          "description": "nummer binnen de bron (bijvoorbeeld regelnummer)",
           "type": [
             "string",
             "null"
           ]
         },
         "poid": {
+          "description": "Unieke identificatie op basis van project, objecttype en uuid",
           "readOnly": true,
           "type": "string",
           "format": "uuid",
           "maxLength": 32
         },
         "uuid": {
+          "description": "unieke identificatie voor deze watergang",
+          "docFull": "Als watergang wordt gekopieerd, moet de uuid worden meegenomen. Hiermee kunnen later dan gegevens worden ge-update of worden teruggeleverd.",
           "readOnly": true,
           "type": "string",
           "format": "uuid",
@@ -7447,11 +8470,13 @@
         },
         "measurement_date": {
           "title": "Meetdatum",
+          "description": "datum waarop de meting is uitgevoerd",
           "type": "string",
           "format": "date"
         },
         "measurement_datetime": {
           "title": "Meetdatumtijd",
+          "description": "datum en tijd waarop de meting is uitgevoerd",
           "type": [
             "string",
             "null"
@@ -7460,6 +8485,9 @@
         },
         "c_width": {
           "title": "Breedte",
+          "description": "afstand tussen 22L en 22R",
+          "unit": "m",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -7501,6 +8529,9 @@
             "null"
           ],
           "maxLength": 50
+        },
+        "vw_pm_user": {
+          "$ref": "#/$defs/pm"
         }
       }
     },
@@ -7516,23 +8547,27 @@
         },
         "db_last_modified": {
           "title": "Laatst aangepast in central database",
+          "description": "laatst aangepast in centrale database. Gebruikt voor synchronisatie",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "last_modified_at": {
           "title": "Laatst aangepast op",
+          "description": "datum waarop record laatst is aangepast",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "created_at": {
           "title": "Aangemaakt op",
+          "description": "datum waarop record is aangemaakt",
           "type": "string",
           "format": "date-time"
         },
         "remarks": {
           "title": "Opmerkingen",
+          "description": "opmerkingen bij de meting",
           "type": [
             "string",
             "null"
@@ -7540,19 +8575,31 @@
         },
         "water_level": {
           "title": "Waterpeil",
+          "description": "waterpeil bij meting",
+          "unit": "mNAP",
+          "precision": 2,
           "type": [
             "number",
             "null"
           ]
         },
         "offset": {
+          "description": "verschuiving van het middenpunt van het profiel tov watergang lijn",
+          "docFull": "of als er geen waterganglijn is of snijpunt hiermee, de relatieve verschuiving. Als leeg, danwordt de berekende offset gebruikt op basis van het snijpunt van de waterganglijn met het profiel.",
+          "unit": "m",
+          "precision": 2,
           "type": [
             "number",
             "null"
           ]
         },
         "flipped": {
+          "description": "is het profiel omgedraaid",
+          "docFull": "als het profiel is omgedraaid, dan is de offset van het middenpunt negatief",
           "type": "boolean"
+        },
+        "vw_pm_data_user": {
+          "$ref": "#/$defs/pm_data"
         }
       }
     },
@@ -7568,10 +8615,12 @@
         },
         "need_recalc": {
           "title": "Herberekening nodig",
+          "description": "herberekening nodig",
           "type": "boolean"
         },
         "dt_need_recalc": {
           "title": "Tijdstip herberekening nodig",
+          "description": "tijdstip waarop herberekening nodig is",
           "type": [
             "string",
             "null"
@@ -7580,6 +8629,7 @@
         },
         "dt_last_calc": {
           "title": "Tijdstip laatste berekening",
+          "description": "tijdstip waarop de laatste berekening is uitgevoerd",
           "type": [
             "string",
             "null"
@@ -7588,6 +8638,7 @@
         },
         "c_messages": {
           "title": "Berekeningsmeldingen",
+          "description": "codes van berekeningsfouten en waarschuwingen",
           "readOnly": true,
           "type": "array",
           "items": {
@@ -7610,6 +8661,8 @@
         },
         "c_points": {
           "title": "C points",
+          "description": "punten van het profiel",
+          "docFull": "punt: [punt_type, afstand tov midden (mm), bovenkant slib tov waterlijn (mm), bovenkant vast tov waterlijn (mm)]. Samenvatting van profielpoints",
           "readOnly": true,
           "type": "array",
           "items": {
@@ -7625,6 +8678,8 @@
         },
         "c_valid": {
           "title": "C valid",
+          "description": "Zijn allen gegevens ",
+          "docFull": "Of profiel genoeg informatie bevat om een geldig profiel te maken. Daarvoor zijn minimaal1 22L, 1 99 en 1 22R punt nodig.",
           "readOnly": true,
           "type": [
             "boolean",
@@ -7632,6 +8687,9 @@
           ]
         },
         "c_offset_wg": {
+          "description": "offset van profiel tov waterganglijn",
+          "unit": "m",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -7640,6 +8698,10 @@
         },
         "c_used_water_level": {
           "title": "Gebruikt waterpeil",
+          "description": "waterpeil voor de berekeningen",
+          "docFull": "is het maximum van het inmeetpeil of profielpeil van de default_legger",
+          "unit": "mNAP",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -7648,6 +8710,10 @@
         },
         "c_mid_offset": {
           "title": "Profiel midden",
+          "description": "midden van profiel, conform de afstand gebruikt bij de meetpunten",
+          "docFull": "wordt berekend door het gemiddelde te nemen van de afstand bij 22L en 22R punten",
+          "unit": "m",
+          "precision": 3,
           "readOnly": true,
           "type": [
             "number",
@@ -7656,6 +8722,9 @@
         },
         "c_profile_width": {
           "title": "Profielbreedte",
+          "description": "breedte van het profiel op basis van de meting",
+          "unit": "m",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -7664,6 +8733,10 @@
         },
         "c_measure_avg_sludge_level": {
           "title": "Gemiddeld niveau gemeten sliblaag",
+          "description": "gemiddeld niveau van de gemeten sliblaag",
+          "docFull": "gebruikt voor relatieve groei van de sliblaag",
+          "unit": "mNAP",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -7672,6 +8745,10 @@
         },
         "c_avg_solid_level": {
           "title": "Gemiddeld niveau vast",
+          "description": "gemiddeld niveau van de gemeten vaste laag",
+          "docFull": "gebruikt voor relatieve groei van de sliblaag",
+          "unit": "mNAP",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -7680,6 +8757,9 @@
         },
         "c_measure_sludge_area": {
           "title": "Slib in profiel bij meting",
+          "description": "oppervlakte van de sliblaag in het profiel bij meting",
+          "unit": "m2",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -7688,6 +8768,9 @@
         },
         "c_measure_water_area": {
           "title": "Doorstromend oppervlak bij meting",
+          "description": "oppervlakte van het water in het profiel bij meting",
+          "unit": "m2",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -7696,6 +8779,9 @@
         },
         "c_removed_sludge_area": {
           "title": "Verwijderd slib tov inpeiling",
+          "description": "verwijderde oppervlakte slib tov inpeiling",
+          "unit": "m2",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -7704,6 +8790,9 @@
         },
         "c_removed_solid_area": {
           "title": "Verwijderd vast bodem tov inpeiling",
+          "description": "verwijderde oppervlakte vast tov inpeiling",
+          "unit": "m2",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -7712,6 +8801,9 @@
         },
         "c_added_sludge_solid_area": {
           "title": "Toegevoegd slib en vast bodem tov inpeiling",
+          "description": "toegevoegde oppervlakte slib en vast tov inpeiling",
+          "unit": "m2",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -7720,6 +8812,8 @@
         },
         "c_errors": {
           "title": "C errors",
+          "description": "lijst van fouten in de data, waardoor de berekening niet kan worden uitgevoerd",
+          "docFull": "lijst van foutcodes, zie core/calculations/profile_measurement_from_points.py voor de codes",
           "readOnly": true,
           "type": "array",
           "items": {
@@ -7742,10 +8836,12 @@
         },
         "need_recalc": {
           "title": "Herberekening nodig",
+          "description": "herberekening nodig",
           "type": "boolean"
         },
         "dt_need_recalc": {
           "title": "Tijdstip herberekening nodig",
+          "description": "tijdstip waarop herberekening nodig is",
           "type": [
             "string",
             "null"
@@ -7754,6 +8850,7 @@
         },
         "dt_last_calc": {
           "title": "Tijdstip laatste berekening",
+          "description": "tijdstip waarop de laatste berekening is uitgevoerd",
           "type": [
             "string",
             "null"
@@ -7762,6 +8859,7 @@
         },
         "c_messages": {
           "title": "Berekeningsmeldingen",
+          "description": "codes van berekeningsfouten en waarschuwingen",
           "readOnly": true,
           "type": "array",
           "items": {
@@ -7784,6 +8882,9 @@
         },
         "c_avg_level_under_legger_bottom": {
           "title": "Gemiddeld niveau onder leggerbodem",
+          "description": "gemiddeld niveau onder de leggerbodem",
+          "unit": "mNAP",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -7792,6 +8893,9 @@
         },
         "c_avg_solid_under_legger_bottom": {
           "title": "Gemiddeld niveau vast onder leggerbodem",
+          "description": "gemiddeld niveau van de vaste bodem onder de leggerbodem",
+          "unit": "mNAP",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -7800,6 +8904,9 @@
         },
         "c_maint_sludge_area": {
           "title": "Onderhoud slib in profiel",
+          "description": "oppervlakte van het onderhoudsslib in het profiel",
+          "unit": "m2",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -7808,6 +8915,9 @@
         },
         "c_maint_solid_area": {
           "title": "Onderhoud vast bodem in profiel",
+          "description": "oppervlakte van de vaste bodem in het profiel",
+          "unit": "m2",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -7816,6 +8926,9 @@
         },
         "c_maint_water_area": {
           "title": "Doorstromend oppervlak in onderhoudsprofiel",
+          "description": "oppervlakte water in het onderhoudsprofiel",
+          "unit": "m2",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -7824,6 +8937,9 @@
         },
         "c_legger_sludge_area": {
           "title": "Legger slib in profiel",
+          "description": "oppervlakte van het leggerslib in het profiel",
+          "unit": "m2",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -7832,6 +8948,9 @@
         },
         "c_legger_solid_area": {
           "title": "Legger vast bodem in profiel",
+          "description": "oppervlakte van de vaste bodem in het profiel",
+          "unit": "m2",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -7840,6 +8959,9 @@
         },
         "c_legger_water_area": {
           "title": "Doorstromend oppervlak in leggerprofiel",
+          "description": "oppervlakte water in het leggerprofiel",
+          "unit": "m2",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -7848,6 +8970,8 @@
         },
         "c_maint_removed_sludge_area": {
           "title": "Verwijderd slib tov inpeiling in onderhoudsprofiel",
+          "unit": "m2",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -7856,6 +8980,8 @@
         },
         "c_maint_removed_solid_area": {
           "title": "Verwijderd vast bodem tov inpeiling in onderhoudsprofiel",
+          "unit": "m2",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -7864,6 +8990,8 @@
         },
         "c_maint_added_sludge_solid_area": {
           "title": "Toegevoegd slib en vast bodem tov inpeiling in onderhoudsprofiel",
+          "unit": "m2",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -7872,6 +9000,8 @@
         },
         "c_legger_removed_sludge_area": {
           "title": "Verwijderd slib tov inpeiling in leggerprofiel",
+          "unit": "m2",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -7880,6 +9010,8 @@
         },
         "c_legger_removed_solid_area": {
           "title": "Verwijderd vast bodem tov inpeiling in leggerprofiel",
+          "unit": "m2",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -7888,6 +9020,8 @@
         },
         "c_legger_added_sludge_solid_area": {
           "title": "Toegevoegd slib en vast bodem tov inpeiling in leggerprofiel",
+          "unit": "m2",
+          "precision": 2,
           "readOnly": true,
           "type": [
             "number",
@@ -7903,35 +9037,42 @@
       "properties": {
         "db_last_modified": {
           "title": "Laatst aangepast in central database",
+          "description": "laatst aangepast in centrale database. Gebruikt voor synchronisatie",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "last_modified_at": {
           "title": "Laatst aangepast op",
+          "description": "datum waarop record laatst is aangepast",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "created_at": {
           "title": "Aangemaakt op",
+          "description": "datum waarop record is aangemaakt",
           "type": "string",
           "format": "date-time"
         },
         "source_ref": {
           "title": "Bron referentie",
+          "description": "nummer binnen de bron (bijvoorbeeld regelnummer)",
           "type": [
             "string",
             "null"
           ]
         },
         "poid": {
+          "description": "Unieke identificatie op basis van project, objecttype en uuid",
           "readOnly": true,
           "type": "string",
           "format": "uuid",
           "maxLength": 32
         },
         "uuid": {
+          "description": "unieke identificatie voor dit profilepunt",
+          "docFull": "Als profilepunt wordt gekopieerd, moet de uuid worden meegenomen. Hiermee kunnen later dan gegevens worden ge-update of worden teruggeleverd.",
           "readOnly": true,
           "type": "string",
           "format": "uuid",
@@ -7939,6 +9080,7 @@
         },
         "sub_code": {
           "title": "Subcode",
+          "description": "subcode",
           "type": [
             "string",
             "null"
@@ -7947,6 +9089,7 @@
         },
         "drawing_code": {
           "title": "Tekencode",
+          "description": "tekencode",
           "type": [
             "string",
             "null"
@@ -7955,10 +9098,12 @@
         },
         "distance": {
           "title": "Afstand",
+          "description": "afstand",
           "type": "number"
         },
         "sludge_level": {
           "title": "Slibhoogte",
+          "description": "slibhoogte",
           "type": [
             "number",
             "null"
@@ -7966,19 +9111,27 @@
         },
         "solid_level": {
           "title": "Vastebodemhoogte",
+          "description": "vastebodemhoogte",
           "type": [
             "number",
             "null"
           ]
         },
         "geometry": {
+          "description": "locatie",
           "type": [
             "object",
             "null"
-          ],
-          "description": "GeoJSON geometrie object."
+          ]
+        },
+        "vw_pp_user": {
+          "$ref": "#/$defs/pp"
         }
-      }
+      },
+      "modules": [
+        "D",
+        "M"
+      ]
     },
     "selection": {
       "type": "object",
@@ -7987,28 +9140,33 @@
       "properties": {
         "db_last_modified": {
           "title": "Laatst aangepast in central database",
+          "description": "laatst aangepast in centrale database. Gebruikt voor synchronisatie",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "last_modified_at": {
           "title": "Laatst aangepast op",
+          "description": "datum waarop record laatst is aangepast",
           "readOnly": true,
           "type": "string",
           "format": "date-time"
         },
         "created_at": {
           "title": "Aangemaakt op",
+          "description": "datum waarop record is aangemaakt",
           "type": "string",
           "format": "date-time"
         },
         "poid": {
+          "description": "Unieke identificatie op basis van project, objecttype en uuid",
           "readOnly": true,
           "type": "string",
           "format": "uuid",
           "maxLength": 32
         },
         "name": {
+          "description": "Naam van de selectie, opgegeven door gebruiker",
           "type": [
             "string",
             "null"
@@ -8016,11 +9174,15 @@
           "maxLength": 100
         },
         "counts": {
+          "description": "Aantal objecten per objecttype",
           "type": [
             "object",
             "null"
           ],
           "additionalProperties": true
+        },
+        "vw_selection_user": {
+          "$ref": "#/$defs/selection"
         }
       }
     },
@@ -8030,20 +9192,331 @@
       "description": "",
       "properties": {
         "poid": {
+          "description": "Unieke identificatie op basis van project, objecttype en uuid",
           "readOnly": true,
           "type": "string",
           "format": "uuid",
           "maxLength": 32
         },
         "uuid": {
+          "description": "Unieke identificatie van bron.",
           "readOnly": true,
           "type": "string",
           "format": "uuid",
           "maxLength": 32
         },
         "name": {
+          "description": "Naam van het bron (document).",
           "type": "string",
           "maxLength": 100
+        }
+      }
+    },
+    "vw_auth_user_project_user": {
+      "type": "object",
+      "readOnly": true,
+      "properties": {
+        "alias": {
+          "type": "string",
+          "readOnly": true
+        },
+        "organization_name": {
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
+    "vw_workflow_user": {
+      "type": "object",
+      "readOnly": true,
+      "properties": {
+        "alias": {
+          "type": "string",
+          "readOnly": true
+        },
+        "organization_name": {
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
+    "vw_legger_type_user": {
+      "type": "object",
+      "readOnly": true,
+      "properties": {
+        "alias": {
+          "type": "string",
+          "readOnly": true
+        },
+        "organization_name": {
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
+    "vw_auth_upm_user": {
+      "type": "object",
+      "readOnly": true,
+      "properties": {
+        "alias": {
+          "type": "string",
+          "readOnly": true
+        },
+        "organization_name": {
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
+    "vw_core_recalctrigger_user": {
+      "type": "object",
+      "readOnly": true,
+      "properties": {
+        "alias": {
+          "type": "string",
+          "readOnly": true
+        },
+        "organization_name": {
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
+    "vw_planning_variant_user": {
+      "type": "object",
+      "readOnly": true,
+      "properties": {
+        "alias": {
+          "type": "string",
+          "readOnly": true
+        },
+        "organization_name": {
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
+    "vw_planning_processing_method_user": {
+      "type": "object",
+      "readOnly": true,
+      "properties": {
+        "alias": {
+          "type": "string",
+          "readOnly": true
+        },
+        "organization_name": {
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
+    "vw_dc_user": {
+      "type": "object",
+      "readOnly": true,
+      "properties": {
+        "alias": {
+          "type": "string",
+          "readOnly": true
+        },
+        "organization_name": {
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
+    "vw_ss_user": {
+      "type": "object",
+      "readOnly": true,
+      "properties": {
+        "alias": {
+          "type": "string",
+          "readOnly": true
+        },
+        "organization_name": {
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
+    "vw_ss_classification_user": {
+      "type": "object",
+      "readOnly": true,
+      "properties": {
+        "alias": {
+          "type": "string",
+          "readOnly": true
+        },
+        "organization_name": {
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
+    "vw_ww_user": {
+      "type": "object",
+      "readOnly": true,
+      "properties": {
+        "alias": {
+          "type": "string",
+          "readOnly": true
+        },
+        "organization_name": {
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
+    "vw_ww_data_user": {
+      "type": "object",
+      "readOnly": true,
+      "properties": {
+        "alias": {
+          "type": "string",
+          "readOnly": true
+        },
+        "organization_name": {
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
+    "vw_ww_legger_user": {
+      "type": "object",
+      "readOnly": true,
+      "properties": {
+        "alias": {
+          "type": "string",
+          "readOnly": true
+        },
+        "organization_name": {
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
+    "vw_ww_planning_user": {
+      "type": "object",
+      "readOnly": true,
+      "properties": {
+        "alias": {
+          "type": "string",
+          "readOnly": true
+        },
+        "organization_name": {
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
+    "vw_ww_planning_calc_user": {
+      "type": "object",
+      "readOnly": true,
+      "properties": {
+        "alias": {
+          "type": "string",
+          "readOnly": true
+        },
+        "organization_name": {
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
+    "vw_pl_user": {
+      "type": "object",
+      "readOnly": true,
+      "properties": {
+        "alias": {
+          "type": "string",
+          "readOnly": true
+        },
+        "organization_name": {
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
+    "vw_pl_legger_user": {
+      "type": "object",
+      "readOnly": true,
+      "properties": {
+        "alias": {
+          "type": "string",
+          "readOnly": true
+        },
+        "organization_name": {
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
+    "vw_pl_data_user": {
+      "type": "object",
+      "readOnly": true,
+      "properties": {
+        "alias": {
+          "type": "string",
+          "readOnly": true
+        },
+        "organization_name": {
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
+    "vw_pm_user": {
+      "type": "object",
+      "readOnly": true,
+      "properties": {
+        "alias": {
+          "type": "string",
+          "readOnly": true
+        },
+        "organization_name": {
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
+    "vw_pm_data_user": {
+      "type": "object",
+      "readOnly": true,
+      "properties": {
+        "alias": {
+          "type": "string",
+          "readOnly": true
+        },
+        "organization_name": {
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
+    "vw_pp_user": {
+      "type": "object",
+      "readOnly": true,
+      "properties": {
+        "alias": {
+          "type": "string",
+          "readOnly": true
+        },
+        "organization_name": {
+          "type": "string",
+          "readOnly": true
+        }
+      }
+    },
+    "vw_selection_user": {
+      "type": "object",
+      "readOnly": true,
+      "properties": {
+        "alias": {
+          "type": "string",
+          "readOnly": true
+        },
+        "organization_name": {
+          "type": "string",
+          "readOnly": true
         }
       }
     }

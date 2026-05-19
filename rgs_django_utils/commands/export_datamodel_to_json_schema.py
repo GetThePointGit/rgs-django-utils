@@ -12,6 +12,7 @@ if __name__ == "__main__":
 from django.apps import apps
 from django.conf import settings
 from django.db import models as dj_models
+from rgs_django_utils.models.views.abstract import HasuraTrackedView
 
 # Django field type name → JSON Schema "type"
 _TYPE_MAP: dict[str, str] = {
@@ -76,26 +77,6 @@ _GIS_FIELDS = frozenset(
 _AUTO_PK_TYPES = frozenset({"AutoField", "BigAutoField", "SmallAutoField"})
 
 
-_META_MODEL_BY_ROOT = {
-    "Waterway": frozenset({"ProfileLocation", "DredgingCluster"}),
-}
-
-# FK relations (forward and reverse) whose related model is a subclass of any of these
-# base classes are excluded from schema expansion.
-# Key: base class name (for documentation / lookup); Value: (module_path, class_name).
-_SKIP_FK_CLASSES: dict[str, tuple[str, str]] = {
-    "Waterway": [
-        "ProjectConfig",
-        "ProfileMeasurement",
-        "Project",
-        "Organization",
-        "User",
-        "Task",
-        "Job",
-        "WaterwayData",
-    ],
-}
-
 log = logging.getLogger(__name__)
 
 # ── Management command ────────────────────────────────────────────────────────
@@ -145,6 +126,22 @@ def export_datamodel_to_json_schema(export_path=None):
             table_def["modules"] = modules
         result["$defs"][model._meta.db_table] = table_def
 
+    for view_cls in HasuraTrackedView.all():
+        for view in view_cls.get_all_views():
+            view: HasuraTrackedView
+            parts = view.get_json_schema_parts()
+            definitions = parts["defs"]
+            referenced_by = parts["referenced_by"]
+            for defn in definitions:
+                # do not overwrite an existing definition, to prevent conflicts between views that reference the same model
+                if result["$defs"].get(defn) is None:
+                    result["$defs"][defn] = definitions[defn]
+                    result["oneOf"].append({"$ref": f"#/$defs/{defn}"})
+            for ref in referenced_by:
+                # do not overwrite an existing column
+                if result["$defs"][ref]["properties"].get(referenced_by[ref]) is None:
+                    result["$defs"][ref]["properties"][referenced_by[ref]] = {"$ref": f"#/$defs/{view._meta.db_table}"}
+
     with open(export_path, "w") as f:
         import json
 
@@ -165,15 +162,20 @@ class SchemaGenerator:
     Parameters
     ----------
     models : list of type[django.db.models.Model]
-        Models that should be considered in scope. Fields referencing a
-        model outside this list are either dropped (``_SKIP_FK_CLASSES``)
-        or left as a typed placeholder.
+        Models that should be considered in scope.
     """
 
     def __init__(self, models: list):
         self.models = models
         self.defs: dict[str, dict] = {}
         self._in_progress: set[str] = set()  # circular-reference guard
+
+        self.views_by_table: dict[str, dict] = {}
+        for hasuraTrackedView in HasuraTrackedView.all():
+            hasuraTrackedView: type[HasuraTrackedView]
+            for view in hasuraTrackedView.get_all_views():
+                if view._meta.db_table is not None:
+                    self.views_by_table[view._meta.db_table] = view
 
     # ── public API ────────────────────────────────────────────────────────────
 
@@ -298,6 +300,13 @@ class SchemaGenerator:
                 if desc:
                     prop["description"] = desc
                 props[rn] = prop
+                # if field.related_model._meta.db_table == 'auth_user' and self.views_by_table.get(model_class._meta.db_table):
+                #     # Special case: Tracked 
+                #     views = self.views_by_table.get(sub_model._meta.db_table)
+                #     for view in views:
+                #         ref = self._ensure_def(model_class=view, parent_model=model_class)
+                #         props[view.name] = prop
+                #         props[rn] = {"$ref": ref}
                 continue
 
             if isinstance(field, OneToOneRel):
@@ -309,6 +318,13 @@ class SchemaGenerator:
                 #     continue
                 ref = self._ensure_def(model_class=sub_model, parent_model=model_class)
                 props[rn] = {"$ref": ref}
+                # if field.related_model._meta.db_table == 'auth_user' and self.views_by_table.get(model_class._meta.db_table):
+                #     # Special case: Tracked 
+                #     views = self.views_by_table.get(sub_model._meta.db_table)
+                #     for view in views:
+                #         ref = self._ensure_def(model_class=view, parent_model=model_class)
+                #         props[view.name] = prop
+                #         props[rn] = {"$ref": ref}
                 continue
 
             # ── skip non-concrete fields (no DB column)
@@ -326,6 +342,7 @@ class SchemaGenerator:
             # ── skip meta models; they are emitted in simplified form when referenced, but not expanded inline
             is_foreign_key = isinstance(field, ForeignKey)
             if is_foreign_key and field.related_model._meta.db_table in self.models:
+                
                 continue
             if is_foreign_key and self._is_skipped_fk_target(model_class=field.related_model):
                 continue

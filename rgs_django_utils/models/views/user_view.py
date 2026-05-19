@@ -3,7 +3,7 @@ import os
 from typing import Generator
 
 from rgs_django_utils.database.dj_extended_models import Config, FPerm, TPerm
-from rgs_django_utils.models.views.abstract import HasuraTrackedView, ViewField
+from rgs_django_utils.models.views.abstract import HasuraTrackedView, SchemaJsonParts, ViewField
 
 log = logging.getLogger(__name__)
 
@@ -79,6 +79,21 @@ class UserView(HasuraTrackedView):
                         "select": {self.model._meta.db_table: perms[perm]},
                     }
         return TPerm(**new_perm)
+
+
+    def get_json_schema_parts(self) -> SchemaJsonParts:
+        return {
+            "defs": {
+                self.db_view_name: {
+                    "type": "object",
+                    "readOnly": True,
+                    "properties": {field.name: {"type": "string", "readOnly": True} for field in self._meta.get_fields()},
+                }
+            },
+            "referenced_by": {
+                self.db_table_name: f"vw_{self.model._meta.db_table}_user"
+            }
+        }
 
     def get_relations(self):
         fields = self._field_referencing_user()
