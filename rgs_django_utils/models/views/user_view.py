@@ -35,22 +35,22 @@ class UserView(HasuraTrackedView):
         @staticmethod
         def get_fields():
             return [
-                ViewField(
-                    name="project_id",
-                    verbose_name="project_id",
-                    column="project_id",
-                    config=Config(
-                        permissions=FPerm(org_mem="-s-", proj_read="-s-"),
-                    ),
-                ),
-                ViewField(
-                    name="id",
-                    verbose_name="id",
-                    column="id",
-                    config=Config(
-                        permissions=FPerm(org_mem="-s-", proj_read="-s-"),
-                    ),
-                ),
+                # ViewField(
+                #     name="project_id",
+                #     verbose_name="project_id",
+                #     column="project_id",
+                #     config=Config(
+                #         permissions=FPerm(org_mem="-s-", proj_read="-s-"),
+                #     ),
+                # ),
+                # ViewField(
+                #     name="id",
+                #     verbose_name="id",
+                #     column="id",
+                #     config=Config(
+                #         permissions=FPerm(org_mem="-s-", proj_read="-s-"),
+                #     ),
+                # ,
                 ViewField(
                     name="alias",
                     verbose_name="alias",
