@@ -548,7 +548,7 @@ def _enum_oneofs(model_class) -> list[dict]:
         data = records["data"]
         id_idx = fields.index("id")
         name_idx = fields.index("name")
-        return [{"const": row[id_idx], "title": row[name_idx]} for row in data]
+        return [{"const": row[id_idx], "title": row[name_idx]} if isinstance(row, tuple) else {"const": row["id"], "title": row["name"]} for row in data]
     except Exception:
         return []
 
