@@ -114,17 +114,21 @@ def export_datamodel_to_json_schema(export_path=None):
     }
 
     for model in app_models:
-        (props, required) = schema_generator.model_properties(model)
         result["oneOf"].append({"$ref": f"#/$defs/{model._meta.db_table}"})
-        table_def: dict = {
-            "type": "object",
-            "title": str(model._meta.verbose_name).capitalize(),
-            "description": _td_attr(model, "description", ""),
-            "properties": props,
-        }
-        if modules := _modules_to_list(_td_attr(model, "modules", None)):
-            table_def["modules"] = modules
-        result["$defs"][model._meta.db_table] = table_def
+        if _is_base_enum_extended(model):
+            result["$defs"][model._meta.db_table] = schema_generator._enum_def(model)
+        else:
+            (props, required) = schema_generator.model_properties(model)
+            table_def: dict = {
+                "type": "object",
+                "title": str(model._meta.verbose_name).capitalize(),
+                "description": _td_attr(model, "description", ""),
+                "properties": props,
+                "required": required,
+            }
+            if modules := _modules_to_list(_td_attr(model, "modules", None)):
+                table_def["modules"] = modules
+            result["$defs"][model._meta.db_table] = table_def
 
     for view_cls in HasuraTrackedView.all():
         for view in view_cls.get_all_views():
@@ -236,7 +240,7 @@ class SchemaGenerator:
         return f"#/$defs/{name}"
 
     def _metadata_def(self, model_class) -> dict:
-        """Rule 46 – Project / Organisation / User: id, ids, name only."""
+        """Project / Organisation / User: id, ids, name only."""
         meta = model_class._meta
         return {
             "type": "object",
@@ -251,7 +255,7 @@ class SchemaGenerator:
         }
 
     def _enum_def(self, model_class) -> dict:
-        """Rule 25 – BaseEnum subclasses: oneOf with const / title entries."""
+        """Rule 23 – BaseEnum subclasses: oneOf with entries consisting of objects containing const, type, readonly and title properties."""
         meta = model_class._meta
         title = str(meta.verbose_name).capitalize()
         desc = _td_attr(model_class, "description", "")
@@ -273,19 +277,17 @@ class SchemaGenerator:
         props: dict = {}
         required: list = []
 
-        # Mixin fields are grouped into sub-objects instead of being emitted flat.
-        mixin_groups = _get_mixin_groups(model_class)
-        mixin_field_names: frozenset[str] = frozenset(name for _, _, names in mixin_groups for name in names)
+        # # No longer need to mark mixin fields as readOnly, since we can do that in the form schema builder.
+        # # Mixin fields are grouped into sub-objects instead of being emitted flat.
+        # mixin_groups = _get_mixin_groups(model_class)
+        # mixin_field_names: frozenset[str] = frozenset(name for _, _, names in mixin_groups for name in names)
 
         for field in model_class._meta.get_fields():
             prop = {}
 
-            # ── reverse relations (rule 44: parent includes array, child skips back-FK)
+            # ── reverse relations
             if isinstance(field, (ManyToOneRel, ManyToManyRel)):
                 rn = getattr(field, "related_name", None)
-                # if not rn or rn.endswith("+"):
-                #     continue
-                # field.related_model == the model that declares the FK to us
                 sub_model = field.related_model
                 # if self._is_skipped_fk_target(model_class=sub_model):
                 #     continue
@@ -300,51 +302,31 @@ class SchemaGenerator:
                 if desc:
                     prop["description"] = desc
                 props[rn] = prop
-                # if field.related_model._meta.db_table == 'auth_user' and self.views_by_table.get(model_class._meta.db_table):
-                #     # Special case: Tracked 
-                #     views = self.views_by_table.get(sub_model._meta.db_table)
-                #     for view in views:
-                #         ref = self._ensure_def(model_class=view, parent_model=model_class)
-                #         props[view.name] = prop
-                #         props[rn] = {"$ref": ref}
                 continue
 
             if isinstance(field, OneToOneRel):
                 rn = getattr(field, "related_name", None)
-                # if not rn or rn.endswith("+"):
-                #     continue
                 sub_model = field.related_model
                 # if self._is_skipped_fk_target(model_class=sub_model):
                 #     continue
                 ref = self._ensure_def(model_class=sub_model, parent_model=model_class)
                 props[rn] = {"$ref": ref}
-                # if field.related_model._meta.db_table == 'auth_user' and self.views_by_table.get(model_class._meta.db_table):
-                #     # Special case: Tracked 
-                #     views = self.views_by_table.get(sub_model._meta.db_table)
-                #     for view in views:
-                #         ref = self._ensure_def(model_class=view, parent_model=model_class)
-                #         props[view.name] = prop
-                #         props[rn] = {"$ref": ref}
                 continue
 
             # ── skip non-concrete fields (no DB column)
             if not hasattr(field, "column"):
                 continue
 
-            # ── rule 44: skip the FK that points back to the parent model
-            # if parent_model and isinstance(field, (ForeignKey, OneToOneField)):
-            #     if field.related_model is parent_model:
-            #         continue
-
-            if field.name in mixin_field_names:
-                prop["readOnly"] = True  # rule 45: mixin fields are readOnly in root model
+            # # No longer need to mark mixin fields as readOnly, since we can do that in the form schema builder.
+            # if field.name in mixin_field_names:
+            #     prop["readOnly"] = True
 
             # ── skip meta models; they are emitted in simplified form when referenced, but not expanded inline
             is_foreign_key = isinstance(field, ForeignKey)
             if is_foreign_key and field.related_model._meta.db_table in self.models:
                 
                 continue
-            if is_foreign_key and self._is_skipped_fk_target(model_class=field.related_model):
+            if is_foreign_key and self._is_skipped_fk_target(model_class=field.related_model) and not _is_base_enum(field.related_model):
                 continue
 
             prop = self._field_to_property(field=field)
@@ -369,11 +351,11 @@ class SchemaGenerator:
 
         prop: dict = {}
 
-        # title (rule 24)
+        # title (rule 22)
         if title := _verbose_title(field):
             prop["title"] = title
 
-        # description from config.doc_short (rule 23)
+        # description from config.doc_short (rule 21)
         if doc := _config_attr(field, "doc_short"):
             prop["description"] = doc
 
@@ -393,28 +375,38 @@ class SchemaGenerator:
         if modules := _modules_to_list(_config_attr(field, "modules")):
             prop["modules"] = modules
 
-        # readOnly (rules 26-28)
+        # readOnly (rules 24-26)
         readonly = (
-            field_name.startswith("c_")  # rule 27: calculated fields
-            or getattr(field, "primary_key", False)  # rule 26
-            or field_type in _AUTO_PK_TYPES  # rule 26
-            or not getattr(field, "editable", True)  # rule 28
-            or getattr(field, "auto_now", False)  # rule 28
-            or getattr(field, "auto_now_add", False)  # rule 28
+            field_name.startswith("c_")  # rule 25: calculated fields
+            or getattr(field, "primary_key", False)  # rule 24
+            or field_type in _AUTO_PK_TYPES  # rule 24
+            or not getattr(field, "editable", True)  # rule 26
+            or getattr(field, "auto_now", False)  # rule 26
+            or getattr(field, "auto_now_add", False)  # rule 26
         )
         if readonly:
             prop["readOnly"] = True
 
-        # ── FK / OneToOne (rules 20, 21, 25) ──────────────────────────────────
+        # ── FK / OneToOne (rules 19, 23) ──────────────────────────────────
         if isinstance(field, (ForeignKey, OneToOneField)):
-            ref = self._ensure_def(model_class=field.related_model)
-            if nullable:
-                prop["anyOf"] = [{"$ref": ref}, {"type": "null"}]
+            if _is_base_enum(field.related_model):
+                enum_schema = self._enum_def(field.related_model)
+                enum_type_part: dict = {"type": enum_schema["type"]}
+                if "oneOf" in enum_schema:
+                    enum_type_part["oneOf"] = enum_schema["oneOf"]
+                if nullable:
+                    prop["anyOf"] = [enum_type_part, {"type": "null"}]
+                else:
+                    prop.update(enum_type_part)
             else:
-                prop["$ref"] = ref
+                ref = self._ensure_def(model_class=field.related_model)
+                if nullable:
+                    prop["anyOf"] = [{"$ref": ref}, {"type": "null"}]
+                else:
+                    prop["$ref"] = ref
             return prop
 
-        # ── ManyToMany (rule 22) ───────────────────────────────────────────────
+        # ── ManyToMany (rule 20) ───────────────────────────────────────────────
         if isinstance(field, ManyToManyField):
             ref = self._ensure_def(model_class=field.related_model)
             prop["type"] = "array"
@@ -428,7 +420,7 @@ class SchemaGenerator:
                 prop["description"] = "GeoJSON geometrie object."
             return prop
 
-        # ── ArrayField (rule 36) ──────────────────────────────────────────────
+        # ── ArrayField (rule 34) ──────────────────────────────────────────────
         if field_type == "ArrayField":
             prop["type"] = "array"
             base = getattr(field, "base_field", None)
@@ -438,7 +430,7 @@ class SchemaGenerator:
                     prop["items"] = inner
             return prop
 
-        # ── JSONField (rule 39) ───────────────────────────────────────────────
+        # ── JSONField (rule 38) ───────────────────────────────────────────────
         if field_type == "JSONField":
             prop["type"] = ["object", "null"] if nullable else "object"
             prop["additionalProperties"] = True
@@ -460,12 +452,12 @@ class SchemaGenerator:
         if fmt := _FORMAT_MAP.get(field_type):
             prop["format"] = fmt
 
-        # maxLength for string fields (rule 33)
+        # maxLength for string fields (rule 31)
         if json_type == "string":
             if ml := getattr(field, "max_length", None):
                 prop["maxLength"] = ml
 
-        # minimum for positive integer fields (rule 32)
+        # minimum for positive integer fields (rule 30)
         if json_type in ("integer", "number") and "Positive" in field_type:
             prop["minimum"] = 0
 
@@ -473,54 +465,55 @@ class SchemaGenerator:
 
     def _is_skipped_fk_target(self, model_class) -> bool:
         """Return True if *model_class* not in models."""
-        return model_class._meta.db_table not in self.models
+        return model_class not in self.models
 
 
-# ── Mixin grouping ────────────────────────────────────────────────────────────
+# # ── Mixin grouping ────────────────────────────────────────────────────────────
+# # No longer need to mark mixin fields as readOnly, since we can do that in the form schema builder.
 
-# Each entry: (mixin_import_path, mixin_name, property_name, title)
-# Ordered from most specific to least specific so issubclass short-circuits correctly.
-_MIXIN_GROUP_DEFS = [
-    (
-        "rgs_django_utils.database.base_models.modification_mixin",
-        ("ModificationSourceMixin", "ModificationMetaMixin"),
-        "modification_source",
-        "Bron metadata",
-    ),
-    (
-        "rgs_django_utils.database.base_models.validity_period",
-        ("ValidityPeriodMixin",),
-        "validity_period",
-        "Geldigheidsperiode",
-    ),
-]
+# # Each entry: (mixin_import_path, mixin_name, property_name, title)
+# # Ordered from most specific to least specific so issubclass short-circuits correctly.
+# _MIXIN_GROUP_DEFS = [
+#     (
+#         "rgs_django_utils.database.base_models.modification_mixin",
+#         ("ModificationSourceMixin", "ModificationMetaMixin"),
+#         "modification_source",
+#         "Bron metadata",
+#     ),
+#     (
+#         "rgs_django_utils.database.base_models.validity_period",
+#         ("ValidityPeriodMixin",),
+#         "validity_period",
+#         "Geldigheidsperiode",
+#     ),
+# ]
 
+# # No longer need to mark mixin fields as readOnly, since we can do that in the form schema builder.
+# def _get_mixin_groups(model_class) -> list[tuple[str, str, frozenset[str]]]:
+#     """Return [(property_name, title, field_names), …] for each mixin that *model_class* inherits."""
+#     groups: list[tuple[str, str, frozenset[str]]] = []
+#     for module_path, class_names, prop_name, title in _MIXIN_GROUP_DEFS:
+#         try:
+#             import importlib
 
-def _get_mixin_groups(model_class) -> list[tuple[str, str, frozenset[str]]]:
-    """Return [(property_name, title, field_names), …] for each mixin that *model_class* inherits."""
-    groups: list[tuple[str, str, frozenset[str]]] = []
-    for module_path, class_names, prop_name, title in _MIXIN_GROUP_DEFS:
-        try:
-            import importlib
+#             mod = importlib.import_module(module_path)
+#             mixin_classes = [getattr(mod, n) for n in class_names if hasattr(mod, n)]
+#         except ImportError:
+#             continue
 
-            mod = importlib.import_module(module_path)
-            mixin_classes = [getattr(mod, n) for n in class_names if hasattr(mod, n)]
-        except ImportError:
-            continue
+#         primary = mixin_classes[0]
+#         if not (isinstance(model_class, type) and issubclass(model_class, primary)):
+#             continue
 
-        primary = mixin_classes[0]
-        if not (isinstance(model_class, type) and issubclass(model_class, primary)):
-            continue
+#         field_names: set[str] = set()
+#         for cls in mixin_classes:
+#             for f in cls._meta.local_fields:
+#                 field_names.add(f.name)
+#             for f in cls._meta.local_many_to_many:
+#                 field_names.add(f.name)
+#         groups.append((prop_name, title, frozenset(field_names)))
 
-        field_names: set[str] = set()
-        for cls in mixin_classes:
-            for f in cls._meta.local_fields:
-                field_names.add(f.name)
-            for f in cls._meta.local_many_to_many:
-                field_names.add(f.name)
-        groups.append((prop_name, title, frozenset(field_names)))
-
-    return groups
+#     return groups
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -534,6 +527,20 @@ def _is_base_enum(model_class) -> bool:
         return (
             isinstance(model_class, type)
             and issubclass(model_class, BaseEnum)
+            and not getattr(model_class._meta, "abstract", True)
+        )
+    except ImportError:
+        return False
+
+
+def _is_base_enum_extended(model_class) -> bool:
+    """Return True if *model_class* is a concrete subclass of BaseEnumExtended (base or _ext table)."""
+    try:
+        from rgs_django_utils.database.base_models.enums import BaseEnumExtended
+
+        return (
+            isinstance(model_class, type)
+            and issubclass(model_class, BaseEnumExtended)
             and not getattr(model_class._meta, "abstract", True)
         )
     except ImportError:
