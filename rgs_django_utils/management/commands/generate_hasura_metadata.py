@@ -94,13 +94,12 @@ class Command(BaseCommand):
     def _send_metadata_to_hasura(self, metadata):
         from django.conf import settings
 
-        s = getattr(settings, "SettingsGetter", None)
-        if s is None:
+        if settings is None:
             hasura_url = os.environ.get("HASURA_GRAPHQL_URL")
             admin_secret = os.environ.get("HASURA_GRAPHQL_ADMIN_SECRET")
         else:
-            hasura_url = s.get("HASURA_GRAPHQL_URL")
-            admin_secret = s.get("HASURA_GRAPHQL_ADMIN_SECRET")
+            hasura_url = getattr(settings, "HASURA_GRAPHQL_URL")
+            admin_secret = getattr(settings, "HASURA_GRAPHQL_ADMIN_SECRET")
 
         if not hasura_url:
             self.stderr.write(
