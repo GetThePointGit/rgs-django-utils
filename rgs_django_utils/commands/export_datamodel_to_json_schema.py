@@ -131,7 +131,7 @@ def export_datamodel_to_json_schema(export_path=None):
             result["$defs"][model._meta.db_table] = table_def
 
     for view_cls in HasuraTrackedView.all():
-        for view in view_cls.get_all_views():
+        for view in view_cls.get_all_views(app_models=app_models):
             view: HasuraTrackedView
             parts = view.get_json_schema_parts()
             definitions = parts["defs"]
@@ -177,7 +177,7 @@ class SchemaGenerator:
         self.views_by_table: dict[str, dict] = {}
         for hasuraTrackedView in HasuraTrackedView.all():
             hasuraTrackedView: type[HasuraTrackedView]
-            for view in hasuraTrackedView.get_all_views():
+            for view in hasuraTrackedView.get_all_views(app_models=self.models):
                 if view._meta.db_table is not None:
                     self.views_by_table[view._meta.db_table] = view
 

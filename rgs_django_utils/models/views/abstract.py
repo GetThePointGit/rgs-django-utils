@@ -1,8 +1,21 @@
+import logging
+import os
 from abc import ABC, abstractmethod
 from typing import Self, Type, TypedDict
 
-all = []
+log = logging.getLogger(__name__)
 
+if __name__ == "__main__":
+    from rgs_django_utils.setup_django import setup_django
+
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "thissite.settings")
+    setup_django(log=log)
+
+from django.apps import apps  # noqa: E402
+from django.db import models as dj_models  # noqa: E402
+
+
+all = []
 
 SchemaJsonParts = TypedDict("SchemaJsonParts", {"defs": dict[str, dict], "referenced_by": dict[str, str]})
 
@@ -92,9 +105,13 @@ class HasuraTrackedView(ABC):
 
     @classmethod
     @abstractmethod
-    def get_all_views(cls) -> list[Self]:
+    def get_all_views(cls, app_models=[model for model in apps.get_models() if callable(model) and issubclass(model, dj_models.Model)]) -> list[Self]:
         """
         Return all views of the class. Used for auto generation of views in postgresql.
+
+        Arguments
+        ---------
+            app_models: list of all models in the app, used to find the models that are referenced by the view. Default is all models in the app.
 
         Example
         -------

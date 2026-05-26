@@ -52,7 +52,37 @@
                 "PYTHONPATH": "${workspaceFolder}"
             },
                 "justMyCode": false
-        }
+        },
+        {
+            "name": "Python: Django test file",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/tests/manage.py",
+            "args": [
+                "test",
+                "${fileDirname}",
+                "-k",
+                "${input:pickTest}",
+                "--noinput"
+            ],
+            "django": true,
+            "windows": {
+                "console": "integratedTerminal"
+            },
+            "linux": {
+                "console": "internalConsole"
+            },
+            "osx": {
+                "console": "internalConsole" // "integratedTerminal does not work on MacOS with debugpy"
+            },
+            "cwd": "${workspaceFolder}",
+            "python": "${workspaceFolder}/.pixi/envs/default/bin/python",
+            "env": {
+                "PIXIE_ACTIVE": "1",
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "justMyCode": false
+        },
     ],
 
     "inputs": [

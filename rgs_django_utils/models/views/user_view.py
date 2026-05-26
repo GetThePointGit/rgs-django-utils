@@ -214,8 +214,7 @@ class UserView(HasuraTrackedView):
         return model
 
     @classmethod
-    def get_all_views(cls) -> Generator[HasuraTrackedView, None, None]:
-        app_models = [model for model in apps.get_models() if callable(model) and issubclass(model, dj_models.Model)]
+    def get_all_views(cls, app_models=[model for model in apps.get_models() if callable(model) and issubclass(model, dj_models.Model)]) -> Generator[HasuraTrackedView, None, None]:
         for model in app_models:
             # skip if abstract model
             if model._meta.abstract:

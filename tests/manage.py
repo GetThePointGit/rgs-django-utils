@@ -11,8 +11,8 @@ sys.path.append(root_dir)
 
 def main():
     """Run administrative tasks."""
-    if os.path.isfile(os.path.join(root_dir, "local_settings_test.py")):
-        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "local_settings_test")
+    if os.path.isfile(os.path.join(root_dir, "tests", "testapp", "local_settings_test.py")):
+        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "testapp.local_settings_test")
     else:
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", "testapp.settings_test")
     try:

@@ -522,7 +522,7 @@ class HasuraPermissions(object):
 
         for hasuraTrackedViews in HasuraTrackedView.all():
             hasuraTrackedViews: list[Type[HasuraTrackedView]]
-            for view in hasuraTrackedViews.get_all_views():
+            for view in hasuraTrackedViews.get_all_views(app_models=app_models):
                 view: HasuraTrackedView
                 perm_helper = PermissionHelper()
                 permissions = perm_helper.get_hasura_model_permissions(view)
