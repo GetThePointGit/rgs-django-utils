@@ -158,7 +158,7 @@ class TestFieldToPropertyMetadata(UnitTestCase):
         from tests.testapp.models import EnumTestModel
 
         field = _bare_field(ForeignKey, to=EnumTestModel, on_delete=dj_models.CASCADE)
-        field.config = Config(doc_unit="m")
+        field.config = Config()
         prop = self._gen()._field_to_property(field=field)
         self.assertIn("oneOf", prop, "oneOf moet aanwezig zijn in JSON Schema voor FK naar enum-model")
         self.assertEqual(len(prop["oneOf"]), 4, "oneOf moet 4 elementen bevatten in JSON Schema voor FK naar enum-model")
@@ -166,3 +166,16 @@ class TestFieldToPropertyMetadata(UnitTestCase):
         self.assertEqual(prop["oneOf"][1], {'const': 'A_11', 'title': 'test enum 1'}, "Het tweede element van oneOf moet {'const': 'A_11', 'title': 'test enum 1'} zijn in JSON Schema")
         self.assertEqual(prop["oneOf"][2], {'const': 'A_12', 'title': 'test enum 2'}, "Het derde element van oneOf moet {'const': 'A_12', 'title': 'test enum 2'} zijn in JSON Schema")
         self.assertEqual(prop["oneOf"][3], {'const': 'A_13', 'title': 'test enum 3'}, "Het vierde element van oneOf moet {'const': 'A_13', 'title': 'test enum 3'} zijn in JSON Schema")
+
+        field = _bare_field(ForeignKey, to=EnumTestModel, on_delete=dj_models.CASCADE, null=True)
+        field.config = Config()
+        prop = self._gen()._field_to_property(field=field)
+        self.assertIn("anyOf", prop, "anyOf moet aanwezig zijn in JSON Schema voor FK naar enum-model")
+        self.assertEqual(len(prop["anyOf"]), 2, "anyOf moet 2 elementen bevatten in JSON Schema voor FK naar nullable enum-model")
+        self.assertEqual(len(prop["anyOf"][0]["oneOf"]), 4, "Het eerste element van anyOf moet een oneOf bevatten met 4 elementen in JSON Schema voor FK naar nullable enum-model")
+        self.assertEqual(prop["anyOf"][0]["oneOf"][0], {'const': 'A_10', 'title': 'test enum 0'}, "Het eerste element van oneOf binnen anyOf moet {'const': 'A_10', 'title': 'test enum 0'} zijn in JSON Schema")
+        self.assertEqual(prop["anyOf"][0]["oneOf"][1], {'const': 'A_11', 'title': 'test enum 1'}, "Het tweede element van oneOf binnen anyOf moet {'const': 'A_11', 'title': 'test enum 1'} zijn in JSON Schema")
+        self.assertEqual(prop["anyOf"][0]["oneOf"][2], {'const': 'A_12', 'title': 'test enum 2'}, "Het derde element van oneOf binnen anyOf moet {'const': 'A_12', 'title': 'test enum 2'} zijn in JSON Schema")
+        self.assertEqual(prop["anyOf"][0]["oneOf"][3], {'const': 'A_13', 'title': 'test enum 3'}, "Het vierde element van oneOf binnen anyOf moet {'const': 'A_13', 'title': 'test enum 3'} zijn in JSON Schema")
+        self.assertEqual(prop["anyOf"][1], {'type': 'null'}, "Het tweede element van anyOf moet {'type': 'null'} zijn in JSON Schema")
+
