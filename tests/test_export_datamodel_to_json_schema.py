@@ -193,6 +193,20 @@ class TestFieldToPropertyMetadata(UnitTestCase):
         self.assertEqual(prop["anyOf"][0]["oneOf"][3], {'const': 'A_13', 'title': 'test enum 3'}, "Het vierde element van oneOf binnen anyOf moet {'const': 'A_13', 'title': 'test enum 3'} zijn in JSON Schema")
         self.assertEqual(prop["anyOf"][1], {'type': 'null'}, "Het tweede element van anyOf moet {'type': 'null'} zijn in JSON Schema")
 
+    def test_foreign_key_to_extended_enum_emits_ref(self):
+        """FK naar extended enum-model moet een $ref naar het enum-schema opleveren, niet een oneOf."""
+        from tests.testapp.models import EnumExtendedTestModel
+
+        field = _bare_field(ForeignKey, to=EnumExtendedTestModel, on_delete=dj_models.CASCADE)
+        field.config = Config()
+        prop = self._gen()._field_to_property(field=field)
+        self.assertIn("oneOf", prop, "oneOf moet aanwezig zijn in JSON Schema voor FK naar enum-model")
+        self.assertEqual(len(prop["oneOf"]), 4, "oneOf moet 4 elementen bevatten in JSON Schema voor FK naar enum-model")
+        self.assertEqual(prop["oneOf"][0], {'const': 'A_0', 'title': 'test0'}, "Het eerste element van oneOf moet {'const': 'A_0', 'title': 'test0'} zijn in JSON Schema")
+        self.assertEqual(prop["oneOf"][1], {'const': 'A_1', 'title': 'test1'}, "Het tweede element van oneOf moet {'const': 'A_1', 'title': 'test1'} zijn in JSON Schema")
+        self.assertEqual(prop["oneOf"][2], {'const': 'A_2', 'title': 'test2'}, "Het derde element van oneOf moet {'const': 'A_2', 'title': 'test2'} zijn in JSON Schema")
+        self.assertEqual(prop["oneOf"][3], {'const': 'A_3', 'title': 'test3'}, "Het vierde element van oneOf moet {'const': 'A_3', 'title': 'test3'} zijn in JSON Schema")
+
     def test_1_to_1_foreign_key_emits_ref(self):
         """1-to-1 FK moet een $ref naar het gerelateerde model opleveren, niet een oneOf."""
         from tests.testapp.models import MiddleModel

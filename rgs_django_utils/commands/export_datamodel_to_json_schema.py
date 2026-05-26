@@ -115,7 +115,7 @@ def export_datamodel_to_json_schema(export_path=None):
 
     for model in app_models:
         result["oneOf"].append({"$ref": f"#/$defs/{model._meta.db_table}"})
-        if _is_base_enum_extended(model):
+        if _is_base_enum(model) and not _is_base_enum_extended(model):
             result["$defs"][model._meta.db_table] = schema_generator._enum_def(model)
         else:
             (props, required) = schema_generator.model_properties(model)
@@ -218,7 +218,7 @@ class SchemaGenerator:
 
         if name in self.models:
             self.defs[name] = self._metadata_def(model_class)
-        elif _is_base_enum(model_class):
+        elif _is_base_enum(model_class) and not _is_base_enum_extended(model_class):
             self.defs[name] = self._enum_def(model_class)
         else:
             props, required = self.model_properties(model_class=model_class, parent_model=parent_model)
@@ -324,9 +324,19 @@ class SchemaGenerator:
             # ── skip meta models; they are emitted in simplified form when referenced, but not expanded inline
             is_foreign_key = isinstance(field, ForeignKey)
             if is_foreign_key and field.related_model._meta.db_table in self.models:
-                
                 continue
             if is_foreign_key and self._is_skipped_fk_target(model_class=field.related_model) and not _is_base_enum(field.related_model):
+                continue
+
+            if _is_base_enum(field.related_model):
+                field_name = field.name
+                prop = self._enum_def(field.related_model)  # ensure enum is in $defs so the $ref is valid, even if not directly referenced by a field
+                props[f"{field_name}_id"] = prop
+                if not hasattr(field.related_model, "extended") or not _is_base_enum_extended(field.related_model.extended.related.model):
+                    continue
+                extended_model = field.related_model.extended.related.related_model  # ExtendedEnum
+                ref = self._ensure_def(model_class=extended_model)
+                props[field_name] = {"$ref": ref}
                 continue
 
             prop = self._field_to_property(field=field)
@@ -338,6 +348,7 @@ class SchemaGenerator:
                 required.append(field.name)
 
         return props, required
+
 
     # ── field → property ──────────────────────────────────────────────────────
 
