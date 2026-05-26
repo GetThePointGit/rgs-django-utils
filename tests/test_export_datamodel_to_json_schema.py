@@ -13,7 +13,8 @@ from rgs_django_utils.commands.export_datamodel_to_json_schema import (
     SchemaGenerator,
     _modules_to_list,
 )
-from rgs_django_utils.database.dj_extended_models import Config, ForeignKey
+from rgs_django_utils.database.dj_extended_models import Config, ForeignKey, ManyToManyField, OneToOneField
+from django.contrib.gis.db import models as base_models
 
 
 class TestModulesToList(UnitTestCase):
@@ -59,6 +60,19 @@ def _bare_field(field_cls, name: str = "depth", **kwargs):
     field.column = name
     return field
 
+
+class OneToManyRelatedField(dj_models.ForeignKey):
+    """Simuleert een 1-to-n relatie, waar Django zelf geen veld voor heeft.
+
+    De exporter moet nog steeds herkennen dat dit een FK is en er een oneOf van maken.
+    """
+    def __init__(self, to, on_delete):
+        super().__init__(to=to, on_delete=on_delete)
+    
+    one_to_many = True
+    one_to_one = False
+    many_to_one = False
+    many_to_many = False
 
 class TestFieldToPropertyMetadata(UnitTestCase):
     """Verify that the new Config metadata reaches the JSON Schema property."""
@@ -179,3 +193,113 @@ class TestFieldToPropertyMetadata(UnitTestCase):
         self.assertEqual(prop["anyOf"][0]["oneOf"][3], {'const': 'A_13', 'title': 'test enum 3'}, "Het vierde element van oneOf binnen anyOf moet {'const': 'A_13', 'title': 'test enum 3'} zijn in JSON Schema")
         self.assertEqual(prop["anyOf"][1], {'type': 'null'}, "Het tweede element van anyOf moet {'type': 'null'} zijn in JSON Schema")
 
+    def test_1_to_1_foreign_key_emits_ref(self):
+        """1-to-1 FK moet een $ref naar het gerelateerde model opleveren, niet een oneOf."""
+        from tests.testapp.models import MiddleModel
+
+        field = _bare_field(OneToOneField, to=MiddleModel, on_delete=dj_models.CASCADE)
+        field.config = Config()
+        prop = self._gen()._field_to_property(field=field)
+        self.assertIn("$ref", prop, "$ref moet aanwezig zijn in JSON Schema voor 1-to-1 FK")
+        self.assertEqual(prop["$ref"], "#/$defs/testapp_middlemodel", "$ref moet '#/$defs/testapp_middlemodel' zijn in JSON Schema voor 1-to-1 FK")
+
+    def test_n_to_1_foreign_key_emits_ref(self):
+        """n-to-1 FK moet een $ref naar het gerelateerde model opleveren, niet een oneOf."""
+        from tests.testapp.models import MiddleModel
+
+        field = _bare_field(ForeignKey, to=MiddleModel, on_delete=dj_models.CASCADE)
+        field.config = Config()
+        prop = self._gen()._field_to_property(field=field)
+        self.assertIn("$ref", prop, "$ref moet aanwezig zijn in JSON Schema voor n-to-1 FK")
+        self.assertEqual(prop["$ref"], "#/$defs/testapp_middlemodel", "$ref moet '#/$defs/testapp_middlemodel' zijn in JSON Schema voor n-to-1 FK")
+
+    def test_n_to_m_foreign_key_emits_array(self):
+        """n-to-m FK moet een array met $ref naar het gerelateerde model opleveren."""
+        from tests.testapp.models import MiddleModel
+
+        field = _bare_field(ManyToManyField, to=MiddleModel)
+        field.config = Config()
+        prop = self._gen()._field_to_property(field=field)
+        self.assertIn("type", prop, "type moet aanwezig zijn in JSON Schema voor n-to-m FK")
+        self.assertEqual(prop["type"], "array", "type moet 'array' zijn in JSON Schema voor n-to-m FK")
+        self.assertIn("items", prop, "items moet aanwezig zijn in JSON Schema voor n-to-m FK")
+        self.assertIn("$ref", prop["items"], "$ref moet aanwezig zijn in items van JSON Schema voor n-to-m FK")
+        self.assertEqual(prop["items"]["$ref"], "#/$defs/testapp_middlemodel", "$ref in items moet '#/$defs/testapp_middlemodel' zijn in JSON Schema voor n-to-m FK")
+
+    def test_guid(self):
+        """UUIDField moet type 'string' en format 'uuid' hebben in JSON Schema."""
+
+        field = _bare_field(base_models.UUIDField)
+        field.config = Config()
+        prop = self._gen()._field_to_property(field=field)
+        self.assertEqual(prop["type"], "string", "type moet 'string' zijn in JSON Schema voor UUIDField")
+        self.assertEqual(prop["format"], "uuid", "format moet 'uuid' zijn in JSON Schema voor UUIDField")
+
+    def test_geometry(self):
+        """GeometryField moet type 'object' en format 'geometry' hebben in JSON Schema."""
+
+        field = _bare_field(base_models.GeometryField)
+        field.config = Config()
+        prop = self._gen()._field_to_property(field=field)
+        self.assertEqual(prop["type"], "object", "type moet 'object' zijn in JSON Schema voor GeometryField")
+
+    def test_integer_with_precision(self):
+        """IntegerField met precision moet type 'integer' en het juiste precision attribuut hebben in JSON Schema."""
+
+        field = _bare_field(dj_models.IntegerField)
+        field.config = Config(precision=5)
+        prop = self._gen()._field_to_property(field=field)
+        self.assertEqual(prop["type"], "integer", "type moet 'integer' zijn in JSON Schema voor IntegerField")
+        self.assertEqual(prop["precision"], 5, "precision moet 5 zijn in JSON Schema voor IntegerField met precision=5")
+
+    def test_float_with_precision(self):
+        """FloatField met precision moet type 'number' en het juiste precision attribuut hebben in JSON Schema."""
+
+        field = _bare_field(dj_models.FloatField)
+        field.config = Config(precision=3)
+        prop = self._gen()._field_to_property(field=field)
+        self.assertEqual(prop["type"], "number", "type moet 'number' zijn in JSON Schema voor FloatField")
+        self.assertEqual(prop["precision"], 3, "precision moet 3 zijn in JSON Schema voor FloatField met precision=3")
+
+    def test_date(self):
+        """DateField moet type 'string' en format 'date' hebben in JSON Schema."""
+
+        field = _bare_field(dj_models.DateField)
+        field.config = Config()
+        prop = self._gen()._field_to_property(field=field)
+        self.assertEqual(prop["type"], "string", "type moet 'string' zijn in JSON Schema voor DateField")
+        self.assertEqual(prop["format"], "date", "format moet 'date' zijn in JSON Schema voor DateField")
+
+    def test_datetime(self):
+        """DateTimeField moet type 'string' en format 'date-time' hebben in JSON Schema."""
+
+        field = _bare_field(dj_models.DateTimeField)
+        field.config = Config()
+        prop = self._gen()._field_to_property(field=field)
+        self.assertEqual(prop["type"], "string", "type moet 'string' zijn in JSON Schema voor DateTimeField")
+        self.assertEqual(prop["format"], "date-time", "format moet 'date-time' zijn in JSON Schema voor DateTimeField")
+
+    def test_time(self):
+        """TimeField moet type 'string' en format 'time' hebben in JSON Schema."""
+
+        field = _bare_field(dj_models.TimeField)
+        field.config = Config()
+        prop = self._gen()._field_to_property(field=field)
+        self.assertEqual(prop["type"], "string", "type moet 'string' zijn in JSON Schema voor TimeField")
+        self.assertEqual(prop["format"], "time", "format moet 'time' zijn in JSON Schema voor TimeField")
+
+    def test_boolean(self):
+        """BooleanField moet type 'boolean' hebben in JSON Schema."""
+
+        field = _bare_field(dj_models.BooleanField)
+        field.config = Config()
+        prop = self._gen()._field_to_property(field=field)
+        self.assertEqual(prop["type"], "boolean", "type moet 'boolean' zijn in JSON Schema voor BooleanField")
+
+    def test_nullable_boolean(self):
+        """NullBooleanField moet type ['boolean', 'null'] hebben in JSON Schema."""
+
+        field = _bare_field(dj_models.NullBooleanField)
+        field.config = Config()
+        prop = self._gen()._field_to_property(field=field)
+        self.assertEqual(prop["type"], ["boolean", "null"], "type moet ['boolean', 'null'] zijn in JSON Schema voor NullBooleanField")
