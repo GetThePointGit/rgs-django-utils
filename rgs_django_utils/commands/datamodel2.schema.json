@@ -15448,11 +15448,13 @@
       "properties": {
         "alias": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "alias"
         },
         "organization_name": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "organisatie"
         }
       }
     },
@@ -15462,11 +15464,13 @@
       "properties": {
         "alias": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "alias"
         },
         "organization_name": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "organisatie"
         }
       }
     },
@@ -15476,11 +15480,13 @@
       "properties": {
         "alias": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "alias"
         },
         "organization_name": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "organisatie"
         }
       }
     },
@@ -15490,11 +15496,13 @@
       "properties": {
         "alias": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "alias"
         },
         "organization_name": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "organisatie"
         }
       }
     },
@@ -15504,11 +15512,13 @@
       "properties": {
         "alias": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "alias"
         },
         "organization_name": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "organisatie"
         }
       }
     },
@@ -15518,11 +15528,13 @@
       "properties": {
         "alias": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "alias"
         },
         "organization_name": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "organisatie"
         }
       }
     },
@@ -15532,11 +15544,13 @@
       "properties": {
         "alias": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "alias"
         },
         "organization_name": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "organisatie"
         }
       }
     },
@@ -15546,11 +15560,13 @@
       "properties": {
         "alias": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "alias"
         },
         "organization_name": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "organisatie"
         }
       }
     },
@@ -15560,11 +15576,13 @@
       "properties": {
         "alias": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "alias"
         },
         "organization_name": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "organisatie"
         }
       }
     },
@@ -15574,11 +15592,13 @@
       "properties": {
         "alias": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "alias"
         },
         "organization_name": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "organisatie"
         }
       }
     },
@@ -15588,11 +15608,13 @@
       "properties": {
         "alias": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "alias"
         },
         "organization_name": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "organisatie"
         }
       }
     },
@@ -15602,11 +15624,13 @@
       "properties": {
         "alias": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "alias"
         },
         "organization_name": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "organisatie"
         }
       }
     },
@@ -15616,11 +15640,13 @@
       "properties": {
         "alias": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "alias"
         },
         "organization_name": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "organisatie"
         }
       }
     },
@@ -15630,11 +15656,13 @@
       "properties": {
         "alias": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "alias"
         },
         "organization_name": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "organisatie"
         }
       }
     },
@@ -15644,11 +15672,13 @@
       "properties": {
         "alias": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "alias"
         },
         "organization_name": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "organisatie"
         }
       }
     },
@@ -15658,11 +15688,13 @@
       "properties": {
         "alias": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "alias"
         },
         "organization_name": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "organisatie"
         }
       }
     },
@@ -15672,11 +15704,13 @@
       "properties": {
         "alias": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "alias"
         },
         "organization_name": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "organisatie"
         }
       }
     },
@@ -15686,11 +15720,13 @@
       "properties": {
         "alias": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "alias"
         },
         "organization_name": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "organisatie"
         }
       }
     },
@@ -15700,11 +15736,13 @@
       "properties": {
         "alias": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "alias"
         },
         "organization_name": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "organisatie"
         }
       }
     },
@@ -15714,11 +15752,13 @@
       "properties": {
         "alias": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "alias"
         },
         "organization_name": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "organisatie"
         }
       }
     },
@@ -15728,11 +15768,13 @@
       "properties": {
         "alias": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "alias"
         },
         "organization_name": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "organisatie"
         }
       }
     },
@@ -15742,11 +15784,13 @@
       "properties": {
         "alias": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "alias"
         },
         "organization_name": {
           "type": "string",
-          "readOnly": true
+          "readOnly": true,
+          "title": "organisatie"
         }
       }
     }
