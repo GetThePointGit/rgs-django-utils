@@ -140,8 +140,8 @@ class HasuraTrackedView(ABC):
         ...
 
     @property
-    def original_referencing_fields(self):
-        raise NotImplementedError("original_referencing_fields is not implemented for this view. It should return the original fields that the model references.")
+    def fields_referencing_original_table(self):
+        raise NotImplementedError("fields_referencing_original_table is not implemented for this view. It should return the original fields that the model references.")
     
     class Meta:
         def __init__(self, db_view):

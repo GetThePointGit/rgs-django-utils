@@ -135,7 +135,7 @@ def export_datamodel_to_json_schema(export_path=None):
         for view in view_cls.get_all_views(app_models=app_models):
             view: HasuraTrackedView
             parts = view.get_json_schema_parts()
-            fields = view.original_referencing_fields
+            fields = view.fields_referencing_original_table
             definitions = parts["defs"]
             referenced_by = parts["referenced_by"]
             for defn in definitions:
