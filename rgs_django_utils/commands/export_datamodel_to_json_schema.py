@@ -135,6 +135,7 @@ def export_datamodel_to_json_schema(export_path=None):
         for view in view_cls.get_all_views(app_models=app_models):
             view: HasuraTrackedView
             parts = view.get_json_schema_parts()
+            fields = view.original_referencing_fields
             definitions = parts["defs"]
             referenced_by = parts["referenced_by"]
             for defn in definitions:
@@ -144,8 +145,9 @@ def export_datamodel_to_json_schema(export_path=None):
                     result["oneOf"].append({"$ref": f"#/$defs/{defn}"})
             for ref in referenced_by:
                 # do not overwrite an existing column
-                if result["$defs"][ref]["properties"].get(referenced_by[ref]) is None:
-                    result["$defs"][ref]["properties"][referenced_by[ref]] = {"$ref": f"#/$defs/{view._meta.db_table}"}
+                for field in fields:
+                    if result["$defs"][ref]["properties"].get(f'{field.name}_short') is None:
+                        result["$defs"][ref]["properties"][f'{field.name}_short'] = {"$ref": f"#/$defs/{referenced_by[ref]}"}
 
     with open(export_path, "w") as f:
         import json

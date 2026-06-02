@@ -6995,8 +6995,8 @@
         "role": {
           "$ref": "#/$defs/enum_project_role_ext"
         },
-        "vw_auth_user_project_user": {
-          "$ref": "#/$defs/auth_user_project"
+        "user_short": {
+          "$ref": "#/$defs/vw_auth_user_project_user"
         }
       },
       "required": [
@@ -8140,8 +8140,11 @@
           ],
           "additionalProperties": true
         },
-        "vw_workflow_user": {
-          "$ref": "#/$defs/workflow"
+        "last_modified_by_short": {
+          "$ref": "#/$defs/vw_workflow_user"
+        },
+        "created_by_short": {
+          "$ref": "#/$defs/vw_workflow_user"
         }
       },
       "required": [
@@ -9254,8 +9257,11 @@
             }
           ]
         },
-        "vw_legger_type_user": {
-          "$ref": "#/$defs/legger_type"
+        "last_modified_by_short": {
+          "$ref": "#/$defs/vw_legger_type_user"
+        },
+        "created_by_short": {
+          "$ref": "#/$defs/vw_legger_type_user"
         }
       },
       "required": [
@@ -9564,8 +9570,8 @@
         "role": {
           "type": "integer"
         },
-        "vw_auth_upm_user": {
-          "$ref": "#/$defs/auth_upm"
+        "user_short": {
+          "$ref": "#/$defs/vw_auth_upm_user"
         }
       },
       "required": [
@@ -9765,8 +9771,8 @@
           "type": "object",
           "additionalProperties": true
         },
-        "vw_core_recalctrigger_user": {
-          "$ref": "#/$defs/core_recalctrigger"
+        "user_short": {
+          "$ref": "#/$defs/vw_core_recalctrigger_user"
         }
       },
       "required": [
@@ -9892,8 +9898,11 @@
           "description": "standaard of actuele variant voor het project, die standaard wordt geladen voor gebruikers",
           "type": "boolean"
         },
-        "vw_planning_variant_user": {
-          "$ref": "#/$defs/planning_variant"
+        "last_modified_by_short": {
+          "$ref": "#/$defs/vw_planning_variant_user"
+        },
+        "created_by_short": {
+          "$ref": "#/$defs/vw_planning_variant_user"
         }
       },
       "required": [
@@ -10194,8 +10203,11 @@
           "precision": 2,
           "type": "number"
         },
-        "vw_planning_processing_method_user": {
-          "$ref": "#/$defs/planning_processing_method"
+        "last_modified_by_short": {
+          "$ref": "#/$defs/vw_planning_processing_method_user"
+        },
+        "created_by_short": {
+          "$ref": "#/$defs/vw_planning_processing_method_user"
         }
       },
       "required": [
@@ -11060,8 +11072,11 @@
             "null"
           ]
         },
-        "vw_dc_user": {
-          "$ref": "#/$defs/dc"
+        "last_modified_by_short": {
+          "$ref": "#/$defs/vw_dc_user"
+        },
+        "created_by_short": {
+          "$ref": "#/$defs/vw_dc_user"
         }
       },
       "required": [
@@ -11456,8 +11471,11 @@
           ],
           "additionalProperties": true
         },
-        "vw_ss_user": {
-          "$ref": "#/$defs/ss"
+        "last_modified_by_short": {
+          "$ref": "#/$defs/vw_ss_user"
+        },
+        "created_by_short": {
+          "$ref": "#/$defs/vw_ss_user"
         }
       },
       "required": [
@@ -12173,8 +12191,11 @@
         "c_value": {
           "$ref": "#/$defs/enum_quality_classification_value_ext"
         },
-        "vw_ss_classification_user": {
-          "$ref": "#/$defs/ss_classification"
+        "last_modified_by_short": {
+          "$ref": "#/$defs/vw_ss_classification_user"
+        },
+        "created_by_short": {
+          "$ref": "#/$defs/vw_ss_classification_user"
         }
       },
       "required": [
@@ -12374,8 +12395,11 @@
             "null"
           ]
         },
-        "vw_ww_user": {
-          "$ref": "#/$defs/ww"
+        "last_modified_by_short": {
+          "$ref": "#/$defs/vw_ww_user"
+        },
+        "created_by_short": {
+          "$ref": "#/$defs/vw_ww_user"
         }
       },
       "required": [
@@ -12611,8 +12635,11 @@
           ],
           "additionalProperties": true
         },
-        "vw_ww_data_user": {
-          "$ref": "#/$defs/ww_data"
+        "last_modified_by_short": {
+          "$ref": "#/$defs/vw_ww_data_user"
+        },
+        "created_by_short": {
+          "$ref": "#/$defs/vw_ww_data_user"
         }
       },
       "required": [
@@ -12868,8 +12895,11 @@
           "readOnly": true,
           "$ref": "#/$defs/legger_type"
         },
-        "vw_ww_legger_user": {
-          "$ref": "#/$defs/ww_legger"
+        "last_modified_by_short": {
+          "$ref": "#/$defs/vw_ww_legger_user"
+        },
+        "created_by_short": {
+          "$ref": "#/$defs/vw_ww_legger_user"
         }
       },
       "required": [
@@ -12983,8 +13013,11 @@
             "null"
           ]
         },
-        "vw_ww_planning_user": {
-          "$ref": "#/$defs/ww_planning"
+        "last_modified_by_short": {
+          "$ref": "#/$defs/vw_ww_planning_user"
+        },
+        "created_by_short": {
+          "$ref": "#/$defs/vw_ww_planning_user"
         }
       },
       "required": [
@@ -13197,8 +13230,11 @@
             "null"
           ]
         },
-        "vw_ww_planning_calc_user": {
-          "$ref": "#/$defs/ww_planning_calc"
+        "last_modified_by_short": {
+          "$ref": "#/$defs/vw_ww_planning_calc_user"
+        },
+        "created_by_short": {
+          "$ref": "#/$defs/vw_ww_planning_calc_user"
         }
       },
       "required": [
@@ -13557,8 +13593,11 @@
             "null"
           ]
         },
-        "vw_pl_user": {
-          "$ref": "#/$defs/pl"
+        "last_modified_by_short": {
+          "$ref": "#/$defs/vw_pl_user"
+        },
+        "created_by_short": {
+          "$ref": "#/$defs/vw_pl_user"
         }
       },
       "required": [
@@ -13820,8 +13859,11 @@
         "shape": {
           "$ref": "#/$defs/enum_legger_shape_ext"
         },
-        "vw_pl_legger_user": {
-          "$ref": "#/$defs/pl_legger"
+        "last_modified_by_short": {
+          "$ref": "#/$defs/vw_pl_legger_user"
+        },
+        "created_by_short": {
+          "$ref": "#/$defs/vw_pl_legger_user"
         }
       },
       "required": [
@@ -13921,8 +13963,11 @@
           ],
           "additionalProperties": true
         },
-        "vw_pl_data_user": {
-          "$ref": "#/$defs/pl_data"
+        "last_modified_by_short": {
+          "$ref": "#/$defs/vw_pl_data_user"
+        },
+        "created_by_short": {
+          "$ref": "#/$defs/vw_pl_data_user"
         }
       },
       "required": [
@@ -14406,8 +14451,11 @@
           ],
           "maxLength": 50
         },
-        "vw_pm_user": {
-          "$ref": "#/$defs/pm"
+        "last_modified_by_short": {
+          "$ref": "#/$defs/vw_pm_user"
+        },
+        "created_by_short": {
+          "$ref": "#/$defs/vw_pm_user"
         }
       },
       "required": [
@@ -14501,8 +14549,11 @@
           "docFull": "als het profiel is omgedraaid, dan is de offset van het middenpunt negatief",
           "type": "boolean"
         },
-        "vw_pm_data_user": {
-          "$ref": "#/$defs/pm_data"
+        "last_modified_by_short": {
+          "$ref": "#/$defs/vw_pm_data_user"
+        },
+        "created_by_short": {
+          "$ref": "#/$defs/vw_pm_data_user"
         }
       },
       "required": [
@@ -15177,8 +15228,11 @@
             "null"
           ]
         },
-        "vw_pp_user": {
-          "$ref": "#/$defs/pp"
+        "last_modified_by_short": {
+          "$ref": "#/$defs/vw_pp_user"
+        },
+        "created_by_short": {
+          "$ref": "#/$defs/vw_pp_user"
         }
       },
       "required": [
@@ -15259,8 +15313,11 @@
           ],
           "additionalProperties": true
         },
-        "vw_selection_user": {
-          "$ref": "#/$defs/selection"
+        "last_modified_by_short": {
+          "$ref": "#/$defs/vw_selection_user"
+        },
+        "created_by_short": {
+          "$ref": "#/$defs/vw_selection_user"
         }
       },
       "required": [
