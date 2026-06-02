@@ -7,6 +7,7 @@ werken op losse veld-instanties met handmatig geprikte Config.
 
 from unittest import TestCase as UnitTestCase
 
+from django.contrib.gis.db import models as base_models
 from django.db import models as dj_models
 
 from rgs_django_utils.commands.export_datamodel_to_json_schema import (
@@ -14,7 +15,6 @@ from rgs_django_utils.commands.export_datamodel_to_json_schema import (
     _modules_to_list,
 )
 from rgs_django_utils.database.dj_extended_models import Config, ForeignKey, ManyToManyField, OneToOneField
-from django.contrib.gis.db import models as base_models
 
 
 class TestModulesToList(UnitTestCase):
@@ -30,7 +30,9 @@ class TestModulesToList(UnitTestCase):
         self.assertEqual(_modules_to_list("mod_a"), ["mod_a"], "String moet singleton list worden")
 
     def test_list_of_strings_passthrough(self):
-        self.assertEqual(_modules_to_list(["mod_a", "mod_b"]), ["mod_a", "mod_b"], "List of strings moet onveranderd blijven")
+        self.assertEqual(
+            _modules_to_list(["mod_a", "mod_b"]), ["mod_a", "mod_b"], "List of strings moet onveranderd blijven"
+        )
 
     def test_tuple_of_strings_returns_list(self):
         self.assertEqual(_modules_to_list(("a", "b")), ["a", "b"], "Tuple of strings moet list worden")
@@ -46,7 +48,11 @@ class TestModulesToList(UnitTestCase):
             def __str__(self):
                 return "module_x"
 
-        self.assertEqual(_modules_to_list([_M(), _M()]), ["module_x", "module_x"], "Niet-string items moeten worden omgezet naar string")
+        self.assertEqual(
+            _modules_to_list([_M(), _M()]),
+            ["module_x", "module_x"],
+            "Niet-string items moeten worden omgezet naar string",
+        )
 
 
 def _bare_field(field_cls, name: str = "depth", **kwargs):
@@ -66,13 +72,15 @@ class OneToManyRelatedField(dj_models.ForeignKey):
 
     De exporter moet nog steeds herkennen dat dit een FK is en er een oneOf van maken.
     """
+
     def __init__(self, to, on_delete):
         super().__init__(to=to, on_delete=on_delete)
-    
+
     one_to_many = True
     one_to_one = False
     many_to_one = False
     many_to_many = False
+
 
 class TestFieldToPropertyMetadata(UnitTestCase):
     """Verify that the new Config metadata reaches the JSON Schema property."""
@@ -96,7 +104,11 @@ class TestFieldToPropertyMetadata(UnitTestCase):
         field = _bare_field(dj_models.FloatField)
         field.config = Config(doc_full="Uitgebreide uitleg over diepte.")
         prop = self._gen()._field_to_property(field=field)
-        self.assertEqual(prop["docFull"], "Uitgebreide uitleg over diepte.", "doc_full moet worden omgezet naar docFull in JSON Schema")
+        self.assertEqual(
+            prop["docFull"],
+            "Uitgebreide uitleg over diepte.",
+            "doc_full moet worden omgezet naar docFull in JSON Schema",
+        )
 
     def test_modules_list_emitted(self):
         field = _bare_field(dj_models.IntegerField)
@@ -126,7 +138,9 @@ class TestFieldToPropertyMetadata(UnitTestCase):
             doc_full="lange uitleg",
         )
         prop = self._gen()._field_to_property(field=field)
-        self.assertEqual(prop["description"], "diepte", "doc_short moet worden omgezet naar description in JSON Schema")
+        self.assertEqual(
+            prop["description"], "diepte", "doc_short moet worden omgezet naar description in JSON Schema"
+        )
         self.assertEqual(prop["unit"], "m", "doc_unit moet worden omgezet naar unit in JSON Schema")
         self.assertEqual(prop["precision"], 2, "precision moet worden omgezet naar JSON Schema")
         self.assertEqual(prop["docFull"], "lange uitleg", "doc_full moet worden omgezet naar docFull in JSON Schema")
@@ -145,7 +159,9 @@ class TestFieldToPropertyMetadata(UnitTestCase):
         prop = self._gen()._field_to_property(field=field)
         self.assertEqual(prop["unit"], "m", "doc_unit moet worden omgezet naar unit in JSON Schema")
         self.assertEqual(prop["precision"], 2, "precision moet worden omgezet naar JSON Schema")
-        self.assertEqual(prop["description"], "diepte", "doc_short moet worden omgezet naar description in JSON Schema")
+        self.assertEqual(
+            prop["description"], "diepte", "doc_short moet worden omgezet naar description in JSON Schema"
+        )
 
     def test_r_config_takes_precedence_over_config(self):
         """Wanneer beide bestaan, wint r_config (rgs-django-utils convention)."""
@@ -153,13 +169,19 @@ class TestFieldToPropertyMetadata(UnitTestCase):
         field.r_config = Config(doc_unit="m")
         field.config = Config(doc_unit="kg")
         prop = self._gen()._field_to_property(field=field)
-        self.assertEqual(prop["unit"], "m", "doc_unit in r_config moet voorrang hebben boven doc_unit in config bij omzetting naar JSON Schema")
+        self.assertEqual(
+            prop["unit"],
+            "m",
+            "doc_unit in r_config moet voorrang hebben boven doc_unit in config bij omzetting naar JSON Schema",
+        )
 
     def test_nullable_emitted(self):
         """required is een apart veld in JSON Schema, niet een attribuut van de property."""  # noqa: D403
         field = _bare_field(dj_models.FloatField, null=True)
         prop = self._gen()._field_to_property(field=field)
-        self.assertEqual(prop["type"], ["number", "null"], "type moet ['number', 'null'] zijn voor FloatField in JSON Schema")
+        self.assertEqual(
+            prop["type"], ["number", "null"], "type moet ['number', 'null'] zijn voor FloatField in JSON Schema"
+        )
 
         field = _bare_field(dj_models.FloatField, null=False)
         prop = self._gen()._field_to_property(field=field)
@@ -175,23 +197,67 @@ class TestFieldToPropertyMetadata(UnitTestCase):
         field.config = Config()
         prop = self._gen()._field_to_property(field=field)
         self.assertIn("oneOf", prop, "oneOf moet aanwezig zijn in JSON Schema voor FK naar enum-model")
-        self.assertEqual(len(prop["oneOf"]), 4, "oneOf moet 4 elementen bevatten in JSON Schema voor FK naar enum-model")
-        self.assertEqual(prop["oneOf"][0], {'const': 'A_10', 'title': 'test enum 0'}, "Het eerste element van oneOf moet {'const': 'A_10', 'title': 'test enum 0'} zijn in JSON Schema")
-        self.assertEqual(prop["oneOf"][1], {'const': 'A_11', 'title': 'test enum 1'}, "Het tweede element van oneOf moet {'const': 'A_11', 'title': 'test enum 1'} zijn in JSON Schema")
-        self.assertEqual(prop["oneOf"][2], {'const': 'A_12', 'title': 'test enum 2'}, "Het derde element van oneOf moet {'const': 'A_12', 'title': 'test enum 2'} zijn in JSON Schema")
-        self.assertEqual(prop["oneOf"][3], {'const': 'A_13', 'title': 'test enum 3'}, "Het vierde element van oneOf moet {'const': 'A_13', 'title': 'test enum 3'} zijn in JSON Schema")
+        self.assertEqual(
+            len(prop["oneOf"]), 4, "oneOf moet 4 elementen bevatten in JSON Schema voor FK naar enum-model"
+        )
+        self.assertEqual(
+            prop["oneOf"][0],
+            {"const": "A_10", "title": "test enum 0"},
+            "Het eerste element van oneOf moet {'const': 'A_10', 'title': 'test enum 0'} zijn in JSON Schema",
+        )
+        self.assertEqual(
+            prop["oneOf"][1],
+            {"const": "A_11", "title": "test enum 1"},
+            "Het tweede element van oneOf moet {'const': 'A_11', 'title': 'test enum 1'} zijn in JSON Schema",
+        )
+        self.assertEqual(
+            prop["oneOf"][2],
+            {"const": "A_12", "title": "test enum 2"},
+            "Het derde element van oneOf moet {'const': 'A_12', 'title': 'test enum 2'} zijn in JSON Schema",
+        )
+        self.assertEqual(
+            prop["oneOf"][3],
+            {"const": "A_13", "title": "test enum 3"},
+            "Het vierde element van oneOf moet {'const': 'A_13', 'title': 'test enum 3'} zijn in JSON Schema",
+        )
 
         field = _bare_field(ForeignKey, to=EnumTestModel, on_delete=dj_models.CASCADE, null=True)
         field.config = Config()
         prop = self._gen()._field_to_property(field=field)
         self.assertIn("anyOf", prop, "anyOf moet aanwezig zijn in JSON Schema voor FK naar enum-model")
-        self.assertEqual(len(prop["anyOf"]), 2, "anyOf moet 2 elementen bevatten in JSON Schema voor FK naar nullable enum-model")
-        self.assertEqual(len(prop["anyOf"][0]["oneOf"]), 4, "Het eerste element van anyOf moet een oneOf bevatten met 4 elementen in JSON Schema voor FK naar nullable enum-model")
-        self.assertEqual(prop["anyOf"][0]["oneOf"][0], {'const': 'A_10', 'title': 'test enum 0'}, "Het eerste element van oneOf binnen anyOf moet {'const': 'A_10', 'title': 'test enum 0'} zijn in JSON Schema")
-        self.assertEqual(prop["anyOf"][0]["oneOf"][1], {'const': 'A_11', 'title': 'test enum 1'}, "Het tweede element van oneOf binnen anyOf moet {'const': 'A_11', 'title': 'test enum 1'} zijn in JSON Schema")
-        self.assertEqual(prop["anyOf"][0]["oneOf"][2], {'const': 'A_12', 'title': 'test enum 2'}, "Het derde element van oneOf binnen anyOf moet {'const': 'A_12', 'title': 'test enum 2'} zijn in JSON Schema")
-        self.assertEqual(prop["anyOf"][0]["oneOf"][3], {'const': 'A_13', 'title': 'test enum 3'}, "Het vierde element van oneOf binnen anyOf moet {'const': 'A_13', 'title': 'test enum 3'} zijn in JSON Schema")
-        self.assertEqual(prop["anyOf"][1], {'type': 'null'}, "Het tweede element van anyOf moet {'type': 'null'} zijn in JSON Schema")
+        self.assertEqual(
+            len(prop["anyOf"]), 2, "anyOf moet 2 elementen bevatten in JSON Schema voor FK naar nullable enum-model"
+        )
+        self.assertEqual(
+            len(prop["anyOf"][0]["oneOf"]),
+            4,
+            "Het eerste element van anyOf moet een oneOf bevatten met 4 elementen in JSON Schema voor FK naar nullable enum-model",
+        )
+        self.assertEqual(
+            prop["anyOf"][0]["oneOf"][0],
+            {"const": "A_10", "title": "test enum 0"},
+            "Het eerste element van oneOf binnen anyOf moet {'const': 'A_10', 'title': 'test enum 0'} zijn in JSON Schema",
+        )
+        self.assertEqual(
+            prop["anyOf"][0]["oneOf"][1],
+            {"const": "A_11", "title": "test enum 1"},
+            "Het tweede element van oneOf binnen anyOf moet {'const': 'A_11', 'title': 'test enum 1'} zijn in JSON Schema",
+        )
+        self.assertEqual(
+            prop["anyOf"][0]["oneOf"][2],
+            {"const": "A_12", "title": "test enum 2"},
+            "Het derde element van oneOf binnen anyOf moet {'const': 'A_12', 'title': 'test enum 2'} zijn in JSON Schema",
+        )
+        self.assertEqual(
+            prop["anyOf"][0]["oneOf"][3],
+            {"const": "A_13", "title": "test enum 3"},
+            "Het vierde element van oneOf binnen anyOf moet {'const': 'A_13', 'title': 'test enum 3'} zijn in JSON Schema",
+        )
+        self.assertEqual(
+            prop["anyOf"][1],
+            {"type": "null"},
+            "Het tweede element van anyOf moet {'type': 'null'} zijn in JSON Schema",
+        )
 
     def test_foreign_key_to_extended_enum_emits_ref(self):
         """FK naar extended enum-model moet een $ref naar het enum-schema opleveren, niet een oneOf."""
@@ -201,11 +267,29 @@ class TestFieldToPropertyMetadata(UnitTestCase):
         field.config = Config()
         prop = self._gen()._field_to_property(field=field)
         self.assertIn("oneOf", prop, "oneOf moet aanwezig zijn in JSON Schema voor FK naar enum-model")
-        self.assertEqual(len(prop["oneOf"]), 4, "oneOf moet 4 elementen bevatten in JSON Schema voor FK naar enum-model")
-        self.assertEqual(prop["oneOf"][0], {'const': 'A_0', 'title': 'test0'}, "Het eerste element van oneOf moet {'const': 'A_0', 'title': 'test0'} zijn in JSON Schema")
-        self.assertEqual(prop["oneOf"][1], {'const': 'A_1', 'title': 'test1'}, "Het tweede element van oneOf moet {'const': 'A_1', 'title': 'test1'} zijn in JSON Schema")
-        self.assertEqual(prop["oneOf"][2], {'const': 'A_2', 'title': 'test2'}, "Het derde element van oneOf moet {'const': 'A_2', 'title': 'test2'} zijn in JSON Schema")
-        self.assertEqual(prop["oneOf"][3], {'const': 'A_3', 'title': 'test3'}, "Het vierde element van oneOf moet {'const': 'A_3', 'title': 'test3'} zijn in JSON Schema")
+        self.assertEqual(
+            len(prop["oneOf"]), 4, "oneOf moet 4 elementen bevatten in JSON Schema voor FK naar enum-model"
+        )
+        self.assertEqual(
+            prop["oneOf"][0],
+            {"const": "A_0", "title": "test0"},
+            "Het eerste element van oneOf moet {'const': 'A_0', 'title': 'test0'} zijn in JSON Schema",
+        )
+        self.assertEqual(
+            prop["oneOf"][1],
+            {"const": "A_1", "title": "test1"},
+            "Het tweede element van oneOf moet {'const': 'A_1', 'title': 'test1'} zijn in JSON Schema",
+        )
+        self.assertEqual(
+            prop["oneOf"][2],
+            {"const": "A_2", "title": "test2"},
+            "Het derde element van oneOf moet {'const': 'A_2', 'title': 'test2'} zijn in JSON Schema",
+        )
+        self.assertEqual(
+            prop["oneOf"][3],
+            {"const": "A_3", "title": "test3"},
+            "Het vierde element van oneOf moet {'const': 'A_3', 'title': 'test3'} zijn in JSON Schema",
+        )
 
     def test_1_to_1_foreign_key_emits_ref(self):
         """1-to-1 FK moet een $ref naar het gerelateerde model opleveren, niet een oneOf."""
@@ -215,7 +299,11 @@ class TestFieldToPropertyMetadata(UnitTestCase):
         field.config = Config()
         prop = self._gen()._field_to_property(field=field)
         self.assertIn("$ref", prop, "$ref moet aanwezig zijn in JSON Schema voor 1-to-1 FK")
-        self.assertEqual(prop["$ref"], "#/$defs/testapp_middlemodel", "$ref moet '#/$defs/testapp_middlemodel' zijn in JSON Schema voor 1-to-1 FK")
+        self.assertEqual(
+            prop["$ref"],
+            "#/$defs/testapp_middlemodel",
+            "$ref moet '#/$defs/testapp_middlemodel' zijn in JSON Schema voor 1-to-1 FK",
+        )
 
     def test_n_to_1_foreign_key_emits_ref(self):
         """n-to-1 FK moet een $ref naar het gerelateerde model opleveren, niet een oneOf."""
@@ -225,7 +313,11 @@ class TestFieldToPropertyMetadata(UnitTestCase):
         field.config = Config()
         prop = self._gen()._field_to_property(field=field)
         self.assertIn("$ref", prop, "$ref moet aanwezig zijn in JSON Schema voor n-to-1 FK")
-        self.assertEqual(prop["$ref"], "#/$defs/testapp_middlemodel", "$ref moet '#/$defs/testapp_middlemodel' zijn in JSON Schema voor n-to-1 FK")
+        self.assertEqual(
+            prop["$ref"],
+            "#/$defs/testapp_middlemodel",
+            "$ref moet '#/$defs/testapp_middlemodel' zijn in JSON Schema voor n-to-1 FK",
+        )
 
     def test_n_to_m_foreign_key_emits_array(self):
         """n-to-m FK moet een array met $ref naar het gerelateerde model opleveren."""
@@ -238,7 +330,11 @@ class TestFieldToPropertyMetadata(UnitTestCase):
         self.assertEqual(prop["type"], "array", "type moet 'array' zijn in JSON Schema voor n-to-m FK")
         self.assertIn("items", prop, "items moet aanwezig zijn in JSON Schema voor n-to-m FK")
         self.assertIn("$ref", prop["items"], "$ref moet aanwezig zijn in items van JSON Schema voor n-to-m FK")
-        self.assertEqual(prop["items"]["$ref"], "#/$defs/testapp_middlemodel", "$ref in items moet '#/$defs/testapp_middlemodel' zijn in JSON Schema voor n-to-m FK")
+        self.assertEqual(
+            prop["items"]["$ref"],
+            "#/$defs/testapp_middlemodel",
+            "$ref in items moet '#/$defs/testapp_middlemodel' zijn in JSON Schema voor n-to-m FK",
+        )
 
     def test_guid(self):
         """UUIDField moet type 'string' en format 'uuid' hebben in JSON Schema."""
@@ -264,7 +360,9 @@ class TestFieldToPropertyMetadata(UnitTestCase):
         field.config = Config(precision=5)
         prop = self._gen()._field_to_property(field=field)
         self.assertEqual(prop["type"], "integer", "type moet 'integer' zijn in JSON Schema voor IntegerField")
-        self.assertEqual(prop["precision"], 5, "precision moet 5 zijn in JSON Schema voor IntegerField met precision=5")
+        self.assertEqual(
+            prop["precision"], 5, "precision moet 5 zijn in JSON Schema voor IntegerField met precision=5"
+        )
 
     def test_float_with_precision(self):
         """FloatField met precision moet type 'number' en het juiste precision attribuut hebben in JSON Schema."""
@@ -316,4 +414,8 @@ class TestFieldToPropertyMetadata(UnitTestCase):
         field = _bare_field(dj_models.NullBooleanField)
         field.config = Config()
         prop = self._gen()._field_to_property(field=field)
-        self.assertEqual(prop["type"], ["boolean", "null"], "type moet ['boolean', 'null'] zijn in JSON Schema voor NullBooleanField")
+        self.assertEqual(
+            prop["type"],
+            ["boolean", "null"],
+            "type moet ['boolean', 'null'] zijn in JSON Schema voor NullBooleanField",
+        )

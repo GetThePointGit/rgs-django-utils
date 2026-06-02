@@ -12,6 +12,7 @@ if __name__ == "__main__":
 from django.apps import apps
 from django.conf import settings
 from django.db import models as dj_models
+
 from rgs_django_utils.models.views.abstract import HasuraTrackedView
 
 # Django field type name → JSON Schema "type"
@@ -325,14 +326,22 @@ class SchemaGenerator:
             is_foreign_key = isinstance(field, ForeignKey)
             if is_foreign_key and field.related_model._meta.db_table in self.models:
                 continue
-            if is_foreign_key and self._is_skipped_fk_target(model_class=field.related_model) and not _is_base_enum(field.related_model):
+            if (
+                is_foreign_key
+                and self._is_skipped_fk_target(model_class=field.related_model)
+                and not _is_base_enum(field.related_model)
+            ):
                 continue
 
             if _is_base_enum(field.related_model):
                 field_name = field.name
-                prop = self._enum_def(field.related_model)  # ensure enum is in $defs so the $ref is valid, even if not directly referenced by a field
+                prop = self._enum_def(
+                    field.related_model
+                )  # ensure enum is in $defs so the $ref is valid, even if not directly referenced by a field
                 props[f"{field_name}_id"] = prop
-                if not hasattr(field.related_model, "extended") or not _is_base_enum_extended(field.related_model.extended.related.model):
+                if not hasattr(field.related_model, "extended") or not _is_base_enum_extended(
+                    field.related_model.extended.related.model
+                ):
                     continue
                 extended_model = field.related_model.extended.related.related_model  # ExtendedEnum
                 ref = self._ensure_def(model_class=extended_model)
@@ -348,7 +357,6 @@ class SchemaGenerator:
                 required.append(field.name)
 
         return props, required
-
 
     # ── field → property ──────────────────────────────────────────────────────
 
@@ -566,7 +574,12 @@ def _enum_oneofs(model_class) -> list[dict]:
         data = records["data"]
         id_idx = fields.index("id")
         name_idx = fields.index("name")
-        return [{"const": row[id_idx], "title": row[name_idx]} if isinstance(row, tuple) else {"const": row["id"], "title": row["name"]} for row in data]
+        return [
+            {"const": row[id_idx], "title": row[name_idx]}
+            if isinstance(row, tuple)
+            else {"const": row["id"], "title": row["name"]}
+            for row in data
+        ]
     except Exception:
         return []
 
