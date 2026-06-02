@@ -147,7 +147,7 @@ def export_datamodel_to_json_schema(export_path=None):
                 # do not overwrite an existing column
                 for field in fields:
                     if result["$defs"][ref]["properties"].get(f'{field.name}_short') is None:
-                        result["$defs"][ref]["properties"][f'{field.name}_short'] = {"$ref": f"#/$defs/{referenced_by[ref]}"}
+                        result["$defs"][ref]["properties"][f'{field.name}_short'] = {"title": str(field.verbose_name).capitalize(), "$ref": f"#/$defs/{referenced_by[ref]}"}
 
     with open(export_path, "w") as f:
         import json

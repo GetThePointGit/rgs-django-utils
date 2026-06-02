@@ -6996,6 +6996,7 @@
           "$ref": "#/$defs/enum_project_role_ext"
         },
         "user_short": {
+          "title": "Gebruiker",
           "$ref": "#/$defs/vw_auth_user_project_user"
         }
       },
@@ -8141,9 +8142,11 @@
           "additionalProperties": true
         },
         "last_modified_by_short": {
+          "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_workflow_user"
         },
         "created_by_short": {
+          "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_workflow_user"
         }
       },
@@ -9258,9 +9261,11 @@
           ]
         },
         "last_modified_by_short": {
+          "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_legger_type_user"
         },
         "created_by_short": {
+          "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_legger_type_user"
         }
       },
@@ -9571,6 +9576,7 @@
           "type": "integer"
         },
         "user_short": {
+          "title": "User",
           "$ref": "#/$defs/vw_auth_upm_user"
         }
       },
@@ -9772,6 +9778,7 @@
           "additionalProperties": true
         },
         "user_short": {
+          "title": "Gebruiker",
           "$ref": "#/$defs/vw_core_recalctrigger_user"
         }
       },
@@ -9899,9 +9906,11 @@
           "type": "boolean"
         },
         "last_modified_by_short": {
+          "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_planning_variant_user"
         },
         "created_by_short": {
+          "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_planning_variant_user"
         }
       },
@@ -10204,9 +10213,11 @@
           "type": "number"
         },
         "last_modified_by_short": {
+          "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_planning_processing_method_user"
         },
         "created_by_short": {
+          "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_planning_processing_method_user"
         }
       },
@@ -11073,9 +11084,11 @@
           ]
         },
         "last_modified_by_short": {
+          "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_dc_user"
         },
         "created_by_short": {
+          "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_dc_user"
         }
       },
@@ -11472,9 +11485,11 @@
           "additionalProperties": true
         },
         "last_modified_by_short": {
+          "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_ss_user"
         },
         "created_by_short": {
+          "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_ss_user"
         }
       },
@@ -12192,9 +12207,11 @@
           "$ref": "#/$defs/enum_quality_classification_value_ext"
         },
         "last_modified_by_short": {
+          "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_ss_classification_user"
         },
         "created_by_short": {
+          "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_ss_classification_user"
         }
       },
@@ -12396,9 +12413,11 @@
           ]
         },
         "last_modified_by_short": {
+          "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_ww_user"
         },
         "created_by_short": {
+          "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_ww_user"
         }
       },
@@ -12636,9 +12655,11 @@
           "additionalProperties": true
         },
         "last_modified_by_short": {
+          "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_ww_data_user"
         },
         "created_by_short": {
+          "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_ww_data_user"
         }
       },
@@ -12896,9 +12917,11 @@
           "$ref": "#/$defs/legger_type"
         },
         "last_modified_by_short": {
+          "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_ww_legger_user"
         },
         "created_by_short": {
+          "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_ww_legger_user"
         }
       },
@@ -13014,9 +13037,11 @@
           ]
         },
         "last_modified_by_short": {
+          "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_ww_planning_user"
         },
         "created_by_short": {
+          "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_ww_planning_user"
         }
       },
@@ -13231,9 +13256,11 @@
           ]
         },
         "last_modified_by_short": {
+          "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_ww_planning_calc_user"
         },
         "created_by_short": {
+          "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_ww_planning_calc_user"
         }
       },
@@ -13594,9 +13621,11 @@
           ]
         },
         "last_modified_by_short": {
+          "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_pl_user"
         },
         "created_by_short": {
+          "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_pl_user"
         }
       },
@@ -13860,9 +13889,11 @@
           "$ref": "#/$defs/enum_legger_shape_ext"
         },
         "last_modified_by_short": {
+          "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_pl_legger_user"
         },
         "created_by_short": {
+          "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_pl_legger_user"
         }
       },
@@ -13964,9 +13995,11 @@
           "additionalProperties": true
         },
         "last_modified_by_short": {
+          "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_pl_data_user"
         },
         "created_by_short": {
+          "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_pl_data_user"
         }
       },
@@ -14452,9 +14485,11 @@
           "maxLength": 50
         },
         "last_modified_by_short": {
+          "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_pm_user"
         },
         "created_by_short": {
+          "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_pm_user"
         }
       },
@@ -14550,9 +14585,11 @@
           "type": "boolean"
         },
         "last_modified_by_short": {
+          "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_pm_data_user"
         },
         "created_by_short": {
+          "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_pm_data_user"
         }
       },
@@ -15229,9 +15266,11 @@
           ]
         },
         "last_modified_by_short": {
+          "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_pp_user"
         },
         "created_by_short": {
+          "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_pp_user"
         }
       },
@@ -15314,9 +15353,11 @@
           "additionalProperties": true
         },
         "last_modified_by_short": {
+          "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_selection_user"
         },
         "created_by_short": {
+          "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_selection_user"
         }
       },
