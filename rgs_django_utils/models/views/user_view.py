@@ -14,7 +14,18 @@ if __name__ == "__main__":
     setup_django(log=log)
 
 from django.apps import apps  # noqa: E402
+from django.conf import settings  # noqa: E402
 from django.db import models as dj_models  # noqa: E402
+
+
+def _user_app_label():
+    """Django app label holding the User and Project models.
+
+    Defaults to ``"core"`` for backwards compatibility (e.g. waterworks).
+    Apps whose user/project models live in a differently-named app (e.g.
+    urbanworks' ``aanvraag``) set ``RGS_USER_APP_LABEL`` in settings.
+    """
+    return getattr(settings, "RGS_USER_APP_LABEL", "core")
 
 
 class UserView(HasuraTrackedView):
@@ -80,19 +91,18 @@ class UserView(HasuraTrackedView):
                     }
         return TPerm(**new_perm)
 
-
     def get_json_schema_parts(self) -> SchemaJsonParts:
         return {
             "defs": {
                 self.db_view_name: {
                     "type": "object",
                     "readOnly": True,
-                    "properties": {field.name: {"type": "string", "readOnly": True} for field in self._meta.get_fields()},
+                    "properties": {
+                        field.name: {"type": "string", "readOnly": True} for field in self._meta.get_fields()
+                    },
                 }
             },
-            "referenced_by": {
-                self.db_table_name: f"vw_{self.model._meta.db_table}_user"
-            }
+            "referenced_by": {self.db_table_name: f"vw_{self.model._meta.db_table}_user"},
         }
 
     def get_relations(self):
@@ -154,7 +164,7 @@ class UserView(HasuraTrackedView):
             field
             for field in fields
             if field.is_relation
-            and field.related_model == apps.get_model("core", "User")
+            and field.related_model == apps.get_model(_user_app_label(), "User")
             and isinstance(field, dj_models.ForeignKey)
         ]
 
@@ -214,7 +224,10 @@ class UserView(HasuraTrackedView):
         return model
 
     @classmethod
-    def get_all_views(cls, app_models=[model for model in apps.get_models() if callable(model) and issubclass(model, dj_models.Model)]) -> Generator[HasuraTrackedView, None, None]:
+    def get_all_views(
+        cls,
+        app_models=[model for model in apps.get_models() if callable(model) and issubclass(model, dj_models.Model)],
+    ) -> Generator[HasuraTrackedView, None, None]:
         for model in app_models:
             # skip if abstract model
             if model._meta.abstract:
@@ -223,7 +236,7 @@ class UserView(HasuraTrackedView):
             # skip if no reference to user
             if not any(
                 field.is_relation
-                and field.related_model == apps.get_model("core", "User")
+                and field.related_model == apps.get_model(_user_app_label(), "User")
                 and isinstance(field, dj_models.ForeignKey)
                 for field in fields
             ):
@@ -233,7 +246,7 @@ class UserView(HasuraTrackedView):
             # skip if no reference to project in through model, because we need project_id in the view for permissions in hasura.
             if not any(
                 field.is_relation
-                and field.related_model == apps.get_model("core", "Project")
+                and field.related_model == apps.get_model(_user_app_label(), "Project")
                 and isinstance(field, dj_models.ForeignKey)
                 and field.column == "project_id"
                 for field in through_model_fields
