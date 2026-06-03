@@ -1,1 +1,1 @@
-from .abstract import HasuraTrackedView
+from .abstract import *
