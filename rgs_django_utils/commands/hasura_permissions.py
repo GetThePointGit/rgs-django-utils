@@ -551,7 +551,7 @@ class HasuraPermissions(object):
                         table = next(table for table in tables if table["table"]["name"] == tableName)
                     except StopIteration:
                         log.error(
-                            f"Table {tableName} is not included in tables. Skipping relationships for view {view.db_table_name}"
+                            f"Table {tableName} is not included in tables. Skipping relationships for view {view.db_view_name}"
                         )
                     else:
                         table.get("object_relationships", []).extend(

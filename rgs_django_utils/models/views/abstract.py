@@ -11,8 +11,6 @@ if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "thissite.settings")
     setup_django(log=log)
 
-from django.apps import apps  # noqa: E402
-from django.db import models as dj_models  # noqa: E402
 
 all = []
 
@@ -106,7 +104,7 @@ class HasuraTrackedView(ABC):
     @abstractmethod
     def get_all_views(
         cls,
-        app_models=[model for model in apps.get_models() if callable(model) and issubclass(model, dj_models.Model)],
+        app_models=None, # Note: We cannot set default to all models in the app. Because default are eveluated at import time, and at that time not all models are imported yet.
     ) -> list[Self]:
         """
         Return all views of the class. Used for auto generation of views in postgresql.
