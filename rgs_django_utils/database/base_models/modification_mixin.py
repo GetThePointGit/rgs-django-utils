@@ -43,7 +43,7 @@ class ModificationMetaMixin(models.Model):
             doc_short="id van de gebruiker die record laatst heeft aangepast",
             doc_development="'Lazy link' - veld wordt gezet door hasura of import",
             presets=FPresets(("-u", {"last_modified_by_id": "x-hasura-user-id"})),
-            permissions=models.FPerm(org_mem="-s-", proj_read="-s-"),
+            permissions=models.FPerm(org_mem="-s-", project_read="-s-"),
         ),
     )
     last_modified_at = models.DateTimeField(
@@ -53,7 +53,7 @@ class ModificationMetaMixin(models.Model):
             section=section,
             doc_short="datum waarop record laatst is aangepast",
             doc_development="wordt gezet door hasura of import",
-            permissions=models.FPerm(org_mem="-s-", proj_read="-s-"),
+            permissions=models.FPerm(org_mem="-s-", project_read="-s-"),
             # X-Hasura-Now cannot be read from header. So we are going to pass it from frontend as a custom variable.
             # presets=FPresets(("-u", {"last_modified_at": "x-hasura-now"})),
         ),
@@ -68,7 +68,7 @@ class ModificationMetaMixin(models.Model):
             doc_short="id van de gebruiker die record heeft aangemaakt",
             doc_development="'Lazy link' - wordt gezet op basis van 'last_modified_by' bij aanmaken van record",
             presets=FPresets(("i-", {"created_by_id": "x-hasura-user-id"})),
-            permissions=models.FPerm(org_mem="-s-", proj_read="-s-"),
+            permissions=models.FPerm(org_mem="-s-", project_read="-s-"),
         ),
     )
     created_at = models.DateTimeField(
@@ -78,7 +78,7 @@ class ModificationMetaMixin(models.Model):
             section=section,
             doc_short="datum waarop record is aangemaakt",
             doc_development="wordt gezet op basis van 'last_modified_at' bij aanmaken van record",
-            permissions=models.FPerm(org_mem="-s-", proj_read="-s-"),
+            permissions=models.FPerm(org_mem="-s-", project_read="-s-"),
             # X-Hasura-Now cannot be read from header. So we are going to pass it from frontend as a custom variable.
             # presets=FPresets(("i-", {"created_at": "x-hasura-now"})),
         ),
@@ -108,7 +108,7 @@ class ModificationSourceMixin(ModificationMetaMixin):
             section=section,
             doc_short="bron van de data (import bestand, edit sessie of interface)",
             doc_development="wordt gezet door hasura of import",
-            permissions=models.FPerm(org_mem="-s-", proj_read="-s-"),
+            permissions=models.FPerm(org_mem="-s-", project_read="-s-"),
         ),
     )
     source_ref = models.TextStringField(
@@ -118,7 +118,7 @@ class ModificationSourceMixin(ModificationMetaMixin):
         config=models.Config(
             section=section,
             doc_short="nummer binnen de bron (bijvoorbeeld regelnummer)",
-            permissions=models.FPerm(org_mem="-s-", proj_read="-s-"),
+            permissions=models.FPerm(org_mem="-s-", project_read="-s-"),
         ),
     )
 

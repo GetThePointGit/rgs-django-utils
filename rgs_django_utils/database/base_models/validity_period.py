@@ -10,8 +10,8 @@ class ValidityPeriodMixin(models.Model):
     or application-level guard on ``start_date <= end_date`` where needed.
     """
 
-    start_date = models.DateField(null=True, blank=True)
-    end_date = models.DateField(null=True, blank=True)
+    start_date = models.DateField(null=True, blank=True, config=models.Config(permissions=models.FPerm(org_mem="-s-", project_read="-s-")))
+    end_date = models.DateField(null=True, blank=True, config=models.Config(permissions=models.FPerm(org_mem="-s-", project_read="-s-")))
 
     class Meta:
         abstract = True
