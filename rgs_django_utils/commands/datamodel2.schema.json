@@ -6998,6 +6998,11 @@
         "user_short": {
           "title": "Gebruiker",
           "$ref": "#/$defs/vw_auth_user_project_user"
+        },
+        "user_id": {
+          "type": "integer",
+          "title": "Gebruiker",
+          "description": "Gebruiker"
         }
       },
       "required": [
@@ -8145,9 +8150,19 @@
           "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_workflow_user"
         },
+        "last_modified_by_id": {
+          "type": "integer",
+          "title": "Laatst aangepast door",
+          "description": "id van de gebruiker die record laatst heeft aangepast"
+        },
         "created_by_short": {
           "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_workflow_user"
+        },
+        "created_by_id": {
+          "type": "integer",
+          "title": "Aangemaakt door",
+          "description": "id van de gebruiker die record heeft aangemaakt"
         }
       },
       "required": [
@@ -9264,9 +9279,19 @@
           "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_legger_type_user"
         },
+        "last_modified_by_id": {
+          "type": "integer",
+          "title": "Laatst aangepast door",
+          "description": "id van de gebruiker die record laatst heeft aangepast"
+        },
         "created_by_short": {
           "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_legger_type_user"
+        },
+        "created_by_id": {
+          "type": "integer",
+          "title": "Aangemaakt door",
+          "description": "id van de gebruiker die record heeft aangemaakt"
         }
       },
       "required": [
@@ -9578,6 +9603,10 @@
         "user_short": {
           "title": "User",
           "$ref": "#/$defs/vw_auth_upm_user"
+        },
+        "user_id": {
+          "type": "integer",
+          "title": "User"
         }
       },
       "required": [
@@ -9780,6 +9809,10 @@
         "user_short": {
           "title": "Gebruiker",
           "$ref": "#/$defs/vw_core_recalctrigger_user"
+        },
+        "user_id": {
+          "type": "integer",
+          "title": "Gebruiker"
         }
       },
       "required": [
@@ -9909,9 +9942,19 @@
           "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_planning_variant_user"
         },
+        "last_modified_by_id": {
+          "type": "integer",
+          "title": "Laatst aangepast door",
+          "description": "id van de gebruiker die record laatst heeft aangepast"
+        },
         "created_by_short": {
           "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_planning_variant_user"
+        },
+        "created_by_id": {
+          "type": "integer",
+          "title": "Aangemaakt door",
+          "description": "id van de gebruiker die record heeft aangemaakt"
         }
       },
       "required": [
@@ -10216,9 +10259,19 @@
           "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_planning_processing_method_user"
         },
+        "last_modified_by_id": {
+          "type": "integer",
+          "title": "Laatst aangepast door",
+          "description": "id van de gebruiker die record laatst heeft aangepast"
+        },
         "created_by_short": {
           "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_planning_processing_method_user"
+        },
+        "created_by_id": {
+          "type": "integer",
+          "title": "Aangemaakt door",
+          "description": "id van de gebruiker die record heeft aangemaakt"
         }
       },
       "required": [
@@ -11087,9 +11140,19 @@
           "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_dc_user"
         },
+        "last_modified_by_id": {
+          "type": "integer",
+          "title": "Laatst aangepast door",
+          "description": "id van de gebruiker die record laatst heeft aangepast"
+        },
         "created_by_short": {
           "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_dc_user"
+        },
+        "created_by_id": {
+          "type": "integer",
+          "title": "Aangemaakt door",
+          "description": "id van de gebruiker die record heeft aangemaakt"
         }
       },
       "required": [
@@ -11488,9 +11551,19 @@
           "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_ss_user"
         },
+        "last_modified_by_id": {
+          "type": "integer",
+          "title": "Laatst aangepast door",
+          "description": "id van de gebruiker die record laatst heeft aangepast"
+        },
         "created_by_short": {
           "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_ss_user"
+        },
+        "created_by_id": {
+          "type": "integer",
+          "title": "Aangemaakt door",
+          "description": "id van de gebruiker die record heeft aangemaakt"
         }
       },
       "required": [
@@ -12210,9 +12283,19 @@
           "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_ss_classification_user"
         },
+        "last_modified_by_id": {
+          "type": "integer",
+          "title": "Laatst aangepast door",
+          "description": "id van de gebruiker die record laatst heeft aangepast"
+        },
         "created_by_short": {
           "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_ss_classification_user"
+        },
+        "created_by_id": {
+          "type": "integer",
+          "title": "Aangemaakt door",
+          "description": "id van de gebruiker die record heeft aangemaakt"
         }
       },
       "required": [
@@ -12416,9 +12499,19 @@
           "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_ww_user"
         },
+        "last_modified_by_id": {
+          "type": "integer",
+          "title": "Laatst aangepast door",
+          "description": "id van de gebruiker die record laatst heeft aangepast"
+        },
         "created_by_short": {
           "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_ww_user"
+        },
+        "created_by_id": {
+          "type": "integer",
+          "title": "Aangemaakt door",
+          "description": "id van de gebruiker die record heeft aangemaakt"
         }
       },
       "required": [
@@ -12658,9 +12751,19 @@
           "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_ww_data_user"
         },
+        "last_modified_by_id": {
+          "type": "integer",
+          "title": "Laatst aangepast door",
+          "description": "id van de gebruiker die record laatst heeft aangepast"
+        },
         "created_by_short": {
           "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_ww_data_user"
+        },
+        "created_by_id": {
+          "type": "integer",
+          "title": "Aangemaakt door",
+          "description": "id van de gebruiker die record heeft aangemaakt"
         }
       },
       "required": [
@@ -12920,9 +13023,19 @@
           "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_ww_legger_user"
         },
+        "last_modified_by_id": {
+          "type": "integer",
+          "title": "Laatst aangepast door",
+          "description": "id van de gebruiker die record laatst heeft aangepast"
+        },
         "created_by_short": {
           "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_ww_legger_user"
+        },
+        "created_by_id": {
+          "type": "integer",
+          "title": "Aangemaakt door",
+          "description": "id van de gebruiker die record heeft aangemaakt"
         }
       },
       "required": [
@@ -13040,9 +13153,19 @@
           "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_ww_planning_user"
         },
+        "last_modified_by_id": {
+          "type": "integer",
+          "title": "Laatst aangepast door",
+          "description": "id van de gebruiker die record laatst heeft aangepast"
+        },
         "created_by_short": {
           "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_ww_planning_user"
+        },
+        "created_by_id": {
+          "type": "integer",
+          "title": "Aangemaakt door",
+          "description": "id van de gebruiker die record heeft aangemaakt"
         }
       },
       "required": [
@@ -13259,9 +13382,19 @@
           "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_ww_planning_calc_user"
         },
+        "last_modified_by_id": {
+          "type": "integer",
+          "title": "Laatst aangepast door",
+          "description": "id van de gebruiker die record laatst heeft aangepast"
+        },
         "created_by_short": {
           "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_ww_planning_calc_user"
+        },
+        "created_by_id": {
+          "type": "integer",
+          "title": "Aangemaakt door",
+          "description": "id van de gebruiker die record heeft aangemaakt"
         }
       },
       "required": [
@@ -13624,9 +13757,19 @@
           "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_pl_user"
         },
+        "last_modified_by_id": {
+          "type": "integer",
+          "title": "Laatst aangepast door",
+          "description": "id van de gebruiker die record laatst heeft aangepast"
+        },
         "created_by_short": {
           "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_pl_user"
+        },
+        "created_by_id": {
+          "type": "integer",
+          "title": "Aangemaakt door",
+          "description": "id van de gebruiker die record heeft aangemaakt"
         }
       },
       "required": [
@@ -13892,9 +14035,19 @@
           "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_pl_legger_user"
         },
+        "last_modified_by_id": {
+          "type": "integer",
+          "title": "Laatst aangepast door",
+          "description": "id van de gebruiker die record laatst heeft aangepast"
+        },
         "created_by_short": {
           "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_pl_legger_user"
+        },
+        "created_by_id": {
+          "type": "integer",
+          "title": "Aangemaakt door",
+          "description": "id van de gebruiker die record heeft aangemaakt"
         }
       },
       "required": [
@@ -13998,9 +14151,19 @@
           "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_pl_data_user"
         },
+        "last_modified_by_id": {
+          "type": "integer",
+          "title": "Laatst aangepast door",
+          "description": "id van de gebruiker die record laatst heeft aangepast"
+        },
         "created_by_short": {
           "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_pl_data_user"
+        },
+        "created_by_id": {
+          "type": "integer",
+          "title": "Aangemaakt door",
+          "description": "id van de gebruiker die record heeft aangemaakt"
         }
       },
       "required": [
@@ -14488,9 +14651,19 @@
           "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_pm_user"
         },
+        "last_modified_by_id": {
+          "type": "integer",
+          "title": "Laatst aangepast door",
+          "description": "id van de gebruiker die record laatst heeft aangepast"
+        },
         "created_by_short": {
           "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_pm_user"
+        },
+        "created_by_id": {
+          "type": "integer",
+          "title": "Aangemaakt door",
+          "description": "id van de gebruiker die record heeft aangemaakt"
         }
       },
       "required": [
@@ -14588,9 +14761,19 @@
           "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_pm_data_user"
         },
+        "last_modified_by_id": {
+          "type": "integer",
+          "title": "Laatst aangepast door",
+          "description": "id van de gebruiker die record laatst heeft aangepast"
+        },
         "created_by_short": {
           "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_pm_data_user"
+        },
+        "created_by_id": {
+          "type": "integer",
+          "title": "Aangemaakt door",
+          "description": "id van de gebruiker die record heeft aangemaakt"
         }
       },
       "required": [
@@ -15269,9 +15452,19 @@
           "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_pp_user"
         },
+        "last_modified_by_id": {
+          "type": "integer",
+          "title": "Laatst aangepast door",
+          "description": "id van de gebruiker die record laatst heeft aangepast"
+        },
         "created_by_short": {
           "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_pp_user"
+        },
+        "created_by_id": {
+          "type": "integer",
+          "title": "Aangemaakt door",
+          "description": "id van de gebruiker die record heeft aangemaakt"
         }
       },
       "required": [
@@ -15356,9 +15549,19 @@
           "title": "Laatst aangepast door",
           "$ref": "#/$defs/vw_selection_user"
         },
+        "last_modified_by_id": {
+          "type": "integer",
+          "title": "Laatst aangepast door",
+          "description": "id van de gebruiker die record laatst heeft aangepast"
+        },
         "created_by_short": {
           "title": "Aangemaakt door",
           "$ref": "#/$defs/vw_selection_user"
+        },
+        "created_by_id": {
+          "type": "integer",
+          "title": "Aangemaakt door",
+          "description": "id van de gebruiker die record heeft aangemaakt"
         }
       },
       "required": [
