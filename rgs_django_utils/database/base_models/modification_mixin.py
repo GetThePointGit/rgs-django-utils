@@ -53,7 +53,7 @@ class ModificationMetaMixin(models.Model):
             section=section,
             doc_short="datum waarop record laatst is aangepast",
             doc_development="wordt gezet door hasura of import",
-            permissions=models.FPerm(org_mem="-s-", project_read="-s-"),
+            permissions=models.FPerm(org_mem="-s-", project_read="-s-", project_edit="isu"),
             # X-Hasura-Now cannot be read from header. So we are going to pass it from frontend as a custom variable.
             # presets=FPresets(("-u", {"last_modified_at": "x-hasura-now"})),
         ),
@@ -78,7 +78,7 @@ class ModificationMetaMixin(models.Model):
             section=section,
             doc_short="datum waarop record is aangemaakt",
             doc_development="wordt gezet op basis van 'last_modified_at' bij aanmaken van record",
-            permissions=models.FPerm(org_mem="-s-", project_read="-s-"),
+            permissions=models.FPerm(org_mem="-s-", project_read="-s-", project_edit="is-"),
             # X-Hasura-Now cannot be read from header. So we are going to pass it from frontend as a custom variable.
             # presets=FPresets(("i-", {"created_at": "x-hasura-now"})),
         ),
