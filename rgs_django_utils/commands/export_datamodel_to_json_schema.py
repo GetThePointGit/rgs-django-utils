@@ -366,6 +366,19 @@ class SchemaGenerator:
             if _is_required(field):
                 required.append(field.name)
 
+            # For FK fields, also emit the scalar attname column (e.g. project_id).
+            # The relation field (e.g. project) gives the $ref, but Hasura mutations
+            # accept the raw integer FK column, so the form schema needs it too.
+            if isinstance(field, ForeignKey) and field.attname != field.name:
+                attname = field.attname
+                if attname not in props:
+                    attname_prop: dict = {"type": "integer"}
+                    if not getattr(field, "editable", True) or getattr(field, "primary_key", False):
+                        attname_prop["readOnly"] = True
+                    if doc := _config_attr(field, "doc_short"):
+                        attname_prop["description"] = doc
+                    props[attname] = attname_prop
+
         return props, required
 
     # ── field → property ──────────────────────────────────────────────────────
