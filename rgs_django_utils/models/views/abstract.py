@@ -3,6 +3,8 @@ import os
 from abc import ABC, abstractmethod
 from typing import Self, Type, TypedDict
 
+from rgs_django_utils.database.dj_extended_models import TPerm
+
 log = logging.getLogger(__name__)
 
 if __name__ == "__main__":
@@ -57,48 +59,93 @@ class HasuraTrackedView(ABC):
         return set(all)
 
     def get_json_schema_parts(self) -> SchemaJsonParts:
-        """Get the JSON schema parts for the view. Used for auto generation of JSON schema.
+        return {
+            "defs": {
+                self.db_view_name: {
+                    "type": "object",
+                    "readOnly": True,
+                    "properties": {
+                        field.name: {"type": "string", "readOnly": True, "title": field.verbose_name or field.name or field.column} for field in self._meta.get_fields()
+                    },
+                }
+            },
+            "referenced_by": {self.db_table_name: self.db_view_name},
+        }
 
-        Returns
-        -------
-            SchemaJsonParts: JSON schema parts for the view.
-
-        Example
-        -------
-        ```python
-        view = SomeView()
-        view.get_json_schema_parts()
-        ```
-        """
-        ...
-
-    @classmethod
-    @abstractmethod
-    def get_permissions(cls):
-        """
-        Permissions for the view. Used for auto generation of permissions in hasura.
-
-        Example
-        -------
-        ```python
-        view = SomeView()
-        view.get_permissions()
-        ```
-        """
-        ...
-
-    @abstractmethod
     def get_relations(self):
-        """Get the relations for the view. Used for auto generation of permissions in hasura.
+        fields = self.fields_referencing_original_table
+        object_relationships = []
+        for field in fields:
+            # relationship from the original table to the view for querying
+            object_relationships.append(
+                {
+                    "table": self.original_model,
+                    "object_relationship": {
+                        "name": f"{field.name}_short",
+                        "using": {
+                            "manual_configuration": {
+                                "column_mapping": {field.db_column or field.column: "id"},
+                                "insertion_order": "before_parent",
+                                "remote_table": {"name": self.db_view_name, "schema": "public"},
+                            },
+                        },
+                    },
+                }
+            )
+        # reverse relationship from the view to the original table for permissions in hasura
+        object_relationships.append(
+            {
+                "table": self.db_view_name,
+                "object_relationship": {
+                    "name": self.original_model,
+                    "using": {
+                        "manual_configuration": {
+                            "column_mapping": {"id": fields[0].db_column or fields[0].column},
+                            "insertion_order": "before_parent",
+                            "remote_table": {"name": self.original_model, "schema": "public"},
+                        },
+                    },
+                },
+            }
+        )
+        # group permission by table
+        relationshipsByTable = []
+        for relationship in object_relationships:
+            tableName = relationship["table"]
+            if tableName not in [r["table"] for r in relationshipsByTable]:
+                relationshipsByTable.append(
+                    {
+                        "table": tableName,
+                        "object_relationships": [],
+                    }
+                )
+            for r in relationshipsByTable:
+                if r["table"] == tableName:
+                    r["object_relationships"].append(relationship["object_relationship"])
+                    break
+        return relationshipsByTable
 
-        Example
-        -------
-        ```python
-        view = SomeView()
-        view.get_relations()
-        ```
-        """
+    def get_permissions(self):
+        new_perm = {}
+        model_permissions = self.model.get_permissions() if hasattr(self.model, "get_permissions") else {}
+        for role, perms in model_permissions.items():
+            for perm in perms:
+                if perm == "select":
+                    new_perm[role] = {
+                        "select": {self.original_model: perms[perm]},
+                    }
+        return TPerm(**new_perm)
+
+    @property
+    @abstractmethod
+    def fields_referencing_original_table(self):
+        """Return the fields that reference the original model."""
         ...
+
+    @property
+    def original_model(self):
+        """The original model that the view is based on. Used for auto generation of permissions in hasura."""
+        return self.model._meta.db_table
 
     @classmethod
     @abstractmethod
@@ -137,10 +184,6 @@ class HasuraTrackedView(ABC):
         """
         ...
 
-    @property
-    def fields_referencing_original_table(self):
-        raise NotImplementedError("fields_referencing_original_table is not implemented for this view. It should return the original fields that the model references.")
-    
     class Meta:
         def __init__(self, db_view):
             self.db_table = db_view
