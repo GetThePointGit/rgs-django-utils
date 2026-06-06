@@ -103,8 +103,14 @@ class Command(BaseCommand):
                 )
 
         sync_db_meta_tables()
-        export_datamodel_to_excel()
-        export_datamodel_to_json_schema()
+        # Datamodel exports (excel + json-schema) are developer conveniences, not
+        # required for the app to run. They write to <BASE_DIR>/../var and depend
+        # on every HasuraTrackedView implementing get_json_schema_parts, which can
+        # break the post-migrate hook in minimal/CI/bootstrap environments. Gate
+        # them behind a setting (default True for backwards compatibility).
+        if getattr(settings, "RGS_EXPORT_DATAMODEL", True):
+            export_datamodel_to_excel()
+            export_datamodel_to_json_schema()
 
         self.stdout.write(self.style.WARNING("Don't forget to update the hasura metadata"))
         self.stdout.write(self.style.SUCCESS("Successfully ran migrate_and_update"))
