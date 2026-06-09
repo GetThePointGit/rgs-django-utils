@@ -65,7 +65,12 @@ class HasuraTrackedView(ABC):
                     "type": "object",
                     "readOnly": True,
                     "properties": {
-                        field.name: {"type": "string", "readOnly": True, "title": field.verbose_name or field.name or field.column} for field in self._meta.get_fields()
+                        field.name: {
+                            "type": "string",
+                            "readOnly": True,
+                            "title": field.verbose_name or field.name or field.column,
+                        }
+                        for field in self._meta.get_fields()
                     },
                 }
             },
@@ -151,7 +156,7 @@ class HasuraTrackedView(ABC):
     @abstractmethod
     def get_all_views(
         cls,
-        app_models=None, # Note: We cannot set default to all models in the app. Because default are eveluated at import time, and at that time not all models are imported yet.
+        app_models=None,  # Note: We cannot set default to all models in the app. Because default are eveluated at import time, and at that time not all models are imported yet.
     ) -> list[Self]:
         """
         Return all views of the class. Used for auto generation of views in postgresql.
