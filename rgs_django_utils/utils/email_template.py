@@ -86,6 +86,16 @@ class EmailTemplate:
         """Return the ``From:`` address used for this template."""
         return settings.DEFAULT_FROM_EMAIL
 
+    @staticmethod
+    def reply_to():
+        """Return the ``Reply-To`` address, or ``None`` to omit the header.
+
+        Reads ``settings.DEFAULT_REPLY_TO`` zodat het ``From`` een ``noreply@``
+        adres kan blijven terwijl antwoorden naar een gemonitorde mailbox gaan.
+        Default ``None`` laat de header weg (backward compatible).
+        """
+        return getattr(settings, "DEFAULT_REPLY_TO", None)
+
     @classmethod
     def construct(cls, context: dict, **kwargs) -> None | EmailMultiAlternatives:
         """Build the ``EmailMultiAlternatives`` message, or ``None`` when denied.
@@ -121,7 +131,14 @@ class EmailTemplate:
         text_content = cls._template_text.format(**context)
         html_content = cls._template_html.format(**context)
 
-        msg = EmailMultiAlternatives(subject, text_content, cls.from_email(), (context.get("to"),))
+        reply_to = cls.reply_to()
+        msg = EmailMultiAlternatives(
+            subject,
+            text_content,
+            cls.from_email(),
+            (context.get("to"),),
+            reply_to=[reply_to] if reply_to else None,
+        )
         msg.attach_alternative(html_content, "text/html")
         return msg
 
