@@ -157,7 +157,12 @@ class PermissionHelper:
                         pass
 
                     if set(rol_table_permissions.keys()).issubset(permission_keys):
-                        out[k].update(rol_table_permissions)
+                        # First match wins: role_list loopt van de rol zelf naar de
+                        # voorouders; een al gezette actie niet meer overschrijven
+                        # (zelfde semantiek als de filter-vorm in de else-tak).
+                        for action, action_filter in rol_table_permissions.items():
+                            if out[k][action] is None:
+                                out[k][action] = action_filter
                     else:
                         if out[k]["insert"] is None:
                             out[k]["insert"] = rol_table_permissions
