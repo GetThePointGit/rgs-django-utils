@@ -31,7 +31,7 @@ class ModelWithExplicitOverride:
                 "select": {"active": {"_eq": True}},
                 "update": {"id": {"_eq": "x-hasura-org-id"}},
             },
-            sys_adm={"select": {}, "update": {}},
+            sys_adm={"select": {}, "update": {}, "delete": {}},
         )
 
 
@@ -52,6 +52,9 @@ class TestGetRolTablePermissionsFirstMatchWins(SimpleTestCase):
         perms = PermissionHelper().get_rol_table_permissions(ModelWithExplicitOverride)
         self.assertEqual(perms["sys_adm"]["select"], {}, "sys_adm select: eigen {} moet winnen van auth")
         self.assertEqual(perms["sys_adm"]["update"], {}, "sys_adm update: eigen {} moet winnen van org_adm")
+        self.assertEqual(
+            perms["sys_adm"]["delete"], {}, "sys_adm delete: actie-dict-vorm moet ook delete kunnen zetten"
+        )
 
     def test_role_without_own_entry_inherits_nearest(self):
         perms = PermissionHelper().get_rol_table_permissions(ModelWithExplicitOverride)
