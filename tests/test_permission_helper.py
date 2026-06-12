@@ -46,6 +46,57 @@ class ModelMixedForms:
         )
 
 
+class _FakeCompositePk:
+    """Stub voor Django 5.2's CompositePrimaryKey-veld.
+
+    get_rol_field_permissions leest: __class__.__name__, is_relation,
+    primary_key, name.  Een attname-attribuut is er niet op CompositePrimaryKey
+    (is_relation=False), dus dat hoeft de stub niet te bieden.
+    """
+
+    __class__ = type("CompositePrimaryKey", (), {"__name__": "CompositePrimaryKey"})()
+    is_relation = False
+    primary_key = True
+    name = "pk"
+
+
+class _FakePlainField:
+    """Gewoon IntegerField-achtig veld zonder r_config (wordt overgeslagen)."""
+
+    __class__ = type("IntegerField", (), {"__name__": "IntegerField"})()
+    is_relation = False
+    primary_key = False
+    name = "organization_id"
+    r_config = None
+
+
+class ModelWithCompositePk:
+    """Fake model met een composite primary key (zoals org_module).
+
+    get_rol_field_permissions leest alleen _meta.get_fields() en per veld
+    __class__/is_relation/primary_key/name/r_config — een lichte stub volstaat.
+    """
+
+    class _Meta:
+        @staticmethod
+        def get_fields():
+            return [_FakePlainField(), _FakeCompositePk()]
+
+    _meta = _Meta()
+
+
+@override_settings(PERMISSION_TREE=TEST_TREE)
+class TestCompositePrimaryKeySkipped(SimpleTestCase):
+    def test_composite_pk_emits_no_field_entry(self):
+        """CompositePrimaryKey heeft geen eigen kolom en mag geen permissie-entry krijgen."""
+        perms = PermissionHelper().get_rol_field_permissions(ModelWithCompositePk)
+        self.assertNotIn(
+            "pk",
+            perms,
+            "CompositePrimaryKey heeft geen eigen kolom en mag geen permissie-entry krijgen",
+        )
+
+
 @override_settings(PERMISSION_TREE=TEST_TREE)
 class TestGetRolTablePermissionsFirstMatchWins(SimpleTestCase):
     def test_own_action_dict_wins_over_inherited(self):

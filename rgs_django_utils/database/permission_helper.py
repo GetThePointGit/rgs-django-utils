@@ -205,6 +205,12 @@ class PermissionHelper:
             ):
                 continue
 
+            # Composite primary keys hebben geen eigen kolom (hun componenten
+            # zijn gewone velden met eigen permissies) — overslaan, anders
+            # belandt er een null in de Hasura-columns-lijst.
+            if field.__class__.__name__ == "CompositePrimaryKey":
+                continue
+
             if field.is_relation:
                 if getattr(field, "attname", None) is not None:
                     # foreign key, add _id field
