@@ -10,9 +10,17 @@ class ValidityPeriodMixin(models.Model):
     or application-level guard on ``start_date <= end_date`` where needed.
     """
 
-    start_date = models.DateField(null=True, blank=True, config=models.Config(permissions=models.FPerm(org_mem="-s-", project_read="-s-", project_edit="isu")))
+    start_date = models.DateField(
+        null=True,
+        blank=True,
+        config=models.Config(permissions=models.FPerm(org_mem="-s-", project_read="-s-", project_edit="isu")),
+    )
 
-    end_date = models.DateField(null=True, blank=True, config=models.Config(permissions=models.FPerm(org_mem="-s-", project_read="-s-", project_edit="isu")))
+    end_date = models.DateField(
+        null=True,
+        blank=True,
+        config=models.Config(permissions=models.FPerm(org_mem="-s-", project_read="-s-", project_edit="isu")),
+    )
 
     class Meta:
         abstract = True
