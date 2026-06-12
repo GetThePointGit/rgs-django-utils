@@ -157,7 +157,12 @@ class PermissionHelper:
                         pass
 
                     if set(rol_table_permissions.keys()).issubset(permission_keys):
-                        out[k].update(rol_table_permissions)
+                        # First match wins: role_list loopt van de rol zelf naar de
+                        # voorouders; een al gezette actie niet meer overschrijven
+                        # (zelfde semantiek als de filter-vorm in de else-tak).
+                        for action, action_filter in rol_table_permissions.items():
+                            if out[k][action] is None:
+                                out[k][action] = action_filter
                     else:
                         if out[k]["insert"] is None:
                             out[k]["insert"] = rol_table_permissions
@@ -198,6 +203,12 @@ class PermissionHelper:
                 field.__class__.__name__ == "GeneratedField"
                 or isinstance(field, getattr(dj_extended_models, "GeneratedField", type(None)))
             ):
+                continue
+
+            # Composite primary keys hebben geen eigen kolom (hun componenten
+            # zijn gewone velden met eigen permissies) — overslaan, anders
+            # belandt er een null in de Hasura-columns-lijst.
+            if field.__class__.__name__ == "CompositePrimaryKey":
                 continue
 
             if field.is_relation:
