@@ -356,7 +356,10 @@ class SchemaGenerator:
                 )  # ensure enum is in $defs so the $ref is valid, even if not directly referenced by a field
                 if field_nullable:
                     prop = dict(enum_schema)  # copy title, description, oneOf, etc.
-                    prop["type"] = [enum_schema["type"], "null"]  # make type array so sanitizeObject treats it as nullable
+                    prop["type"] = [
+                        enum_schema["type"],
+                        "null",
+                    ]  # make type array so sanitizeObject treats it as nullable
                 else:
                     prop = enum_schema
                 props[f"{field_name}_id"] = prop

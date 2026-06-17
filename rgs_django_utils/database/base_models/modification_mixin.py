@@ -102,12 +102,14 @@ class ModificationSourceMixin(ModificationMetaMixin):
     source = models.ForeignKey(
         "Source",
         on_delete=models.CASCADE,
+        null=True,
+        blank=True,
         related_name="+",
         verbose_name="bron",
         config=models.Config(
             section=section,
-            doc_short="bron van de data (import bestand, edit sessie of interface)",
-            doc_development="wordt gezet door hasura of import",
+            doc_short="bron van de data (import bestand, edit sessie of interface); optioneel — leeg bij handmatige invoer",
+            doc_development="wordt gezet door hasura of import; optioneel (niet alle data heeft een bron, bv. handmatige invoer)",
             permissions=models.FPerm(org_mem="-s-", project_read="-s-", project_edit="is-"),
         ),
     )
