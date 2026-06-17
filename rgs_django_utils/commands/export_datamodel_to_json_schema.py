@@ -152,7 +152,10 @@ def export_datamodel_to_json_schema(export_path=None):
                             "$ref": f"#/$defs/{referenced_by[ref]}",
                         }
                     if result["$defs"][ref]["properties"].get(field.attname) is None:
-                        id_prop: dict = {"type": "integer"}
+                        pk_type, pk_fmt = _fk_pk_json_type(field)
+                        id_prop: dict = {"type": pk_type}
+                        if pk_fmt:
+                            id_prop["format"] = pk_fmt
                         if title := str(field.verbose_name).capitalize():
                             id_prop["title"] = title
                         if doc := _config_attr(field, "doc_short"):
@@ -380,7 +383,10 @@ class SchemaGenerator:
             if isinstance(field, ForeignKey) and field.attname != field.name:
                 attname = field.attname
                 if attname not in props:
-                    attname_prop: dict = {"type": "integer"}
+                    pk_type, pk_fmt = _fk_pk_json_type(field)
+                    attname_prop: dict = {"type": pk_type}
+                    if pk_fmt:
+                        attname_prop["format"] = pk_fmt
                     if not getattr(field, "editable", True) or getattr(field, "primary_key", False):
                         attname_prop["readOnly"] = True
                     if doc := _config_attr(field, "doc_short"):
@@ -567,6 +573,16 @@ class SchemaGenerator:
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
+
+
+def _fk_pk_json_type(field) -> tuple[str, str | None]:
+    """Return (json_type, format_or_none) for the PK column of a FK's related model."""
+    pk_field = field.related_model._meta.pk
+    if pk_field is None:
+        return "integer", None
+    pk_type_name = type(pk_field).__name__
+    json_type = _TYPE_MAP.get(pk_type_name, "integer")
+    return json_type, _FORMAT_MAP.get(pk_type_name)
 
 
 def _is_base_enum(model_class) -> bool:
