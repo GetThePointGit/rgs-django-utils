@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- `OneToOneField` krijgt nu dezelfde `pd_type` / `pd_type_func` /
+  `sql_alchemy_type` als `ForeignKey` (afgeleid via `foreign_related_fields`).
+  Voorheen gaf een OneToOne back-reference (bv. `ww_data.waterway`) een
+  `AttributeError` zodra de data_frames/pandas-laag de kolom castte.
+
 ## [0.1.1] - 2026-05-18
 
 ### Added
