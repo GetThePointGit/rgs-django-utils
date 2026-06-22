@@ -909,6 +909,19 @@ class OneToOneField(base_models.OneToOneField, FieldConfig):
         self._init_extras(config)
         # todo...
 
+    @property
+    def pd_type(self):
+        field_type = self.foreign_related_fields[0].__class__.__name__
+        return type_mapping[field_type]().pd_type
+
+    def pd_type_func(self, value):
+        return value.astype(self.pd_type)
+
+    @property
+    def sql_alchemy_type(self):
+        field_type = self.foreign_related_fields[0].__class__.__name__
+        return type_mapping[field_type]().sql_alchemy_type
+
 
 class ManyToManyField(base_models.ManyToManyField, FieldConfig):
     def __init__(self, *args, **kwargs):
