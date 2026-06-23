@@ -61,6 +61,10 @@ class SelectField(Field):
     options_config : SelectOptionsConfig, optional
         Lazy-options descriptor. Used when the options list is too large
         or too user-dependent to inline.
+    display : str, optional
+        Render hint for the UI. ``"radio"`` renders the (small, inline) option
+        set as a radio group instead of a dropdown. ``None`` (default) keeps the
+        standard dropdown.
     **kwargs
         Forwarded to :class:`~rgs_django_utils.forms.fields.Field.Field`.
     """
@@ -71,6 +75,7 @@ class SelectField(Field):
         value_type: ValueType = ValueType.STRING,
         options: list = None,
         options_config: SelectOptionsConfig = None,
+        display: str = None,
         **kwargs,
     ):
         super().__init__(value=value, **kwargs)
@@ -79,6 +84,7 @@ class SelectField(Field):
         self.instance_type = str if value_type == ValueType.STRING else int
         self.options = options
         self.options_config = options_config
+        self.display = display
 
     def to_python(self, value):
         return str(value)
@@ -92,4 +98,6 @@ class SelectField(Field):
         out["options"] = self.options
         if self.options_config is not None:
             out["optionsConfig"] = self.options_config.__dict__()
+        if self.display is not None:
+            out["display"] = self.display
         return out
