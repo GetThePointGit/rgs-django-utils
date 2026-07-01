@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `SelectField(display="radio")` — render-hint zodat een (kleine, inline) optie-set
+  als radiogroep i.p.v. dropdown getoond kan worden. Default (`None`) blijft dropdown.
+
 ### Fixed
 - `OneToOneField` krijgt nu dezelfde `pd_type` / `pd_type_func` /
   `sql_alchemy_type` als `ForeignKey` (afgeleid via `foreign_related_fields`).
