@@ -679,6 +679,11 @@ class Config:
     hasura_set : HasuraSet, optional
         Role-independent Hasura column preset (same value for every role).
         Simpler and sufficient for stamping ``created_by`` / ``updated_at``.
+    recalc : list of str, optional
+        Namen van recalc-targets (CalcStatus-doelen) die geflagd moeten
+        worden wanneer dit veld wijzigt. Wordt door de applicatie
+        geïnterpreteerd (zie de waterworks-triggergenerator); de lib slaat
+        de lijst alleen op.
 
     Raises
     ------
@@ -727,6 +732,7 @@ class Config:
         export: bool = True,
         presets: FPresets = None,
         hasura_set: HasuraSet = None,
+        recalc: typing.List[str] = None,
     ):
         self.modules = modules
         self.section = section
@@ -749,6 +755,7 @@ class Config:
         self.export = export
         self.presets = presets
         self.hasura_set = hasura_set
+        self.recalc = recalc
 
 
 class FieldConfig:
