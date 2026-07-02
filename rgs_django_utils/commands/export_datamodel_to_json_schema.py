@@ -147,10 +147,10 @@ def export_datamodel_to_json_schema(export_path=None):
                 # do not overwrite an existing column
                 for field in fields:
                     if result["$defs"][ref]["properties"].get(f"{field.name}_short") is None:
-                        result["$defs"][ref]["properties"][f"{field.name}_short"] = {
-                            "title": str(field.verbose_name).capitalize(),
-                            "$ref": f"#/$defs/{referenced_by[ref]}",
-                        }
+                        short_prop: dict = {"$ref": f"#/$defs/{referenced_by[ref]}"}
+                        original_title = result["$defs"][ref]["properties"].get(field.name, {}).get("title") or str(field.verbose_name).capitalize()
+                        short_prop["title"] = original_title
+                        result["$defs"][ref]["properties"][f"{field.name}_short"] = short_prop
                     if result["$defs"][ref]["properties"].get(field.attname) is None:
                         pk_type, pk_fmt = _fk_pk_json_type(field)
                         id_prop: dict = {"type": pk_type}
