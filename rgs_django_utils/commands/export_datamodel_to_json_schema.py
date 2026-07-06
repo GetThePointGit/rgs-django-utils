@@ -302,6 +302,27 @@ class SchemaGenerator:
             prop = {}
 
             # ── reverse relations
+            # OneToOneRel MUST be checked before the generic (ManyToOneRel,
+            # ManyToManyRel) branch: Django's OneToOneRel is a *subclass* of
+            # ManyToOneRel, so the generic isinstance check below also matches
+            # it. With the old order every reverse OneToOneField (e.g.
+            # ProfileMeasurementData.profile_measurement -> pm.data) was
+            # emitted as `type: array` even though Hasura — which infers
+            # object- vs array-relationship from the DB-level unique
+            # constraint the OneToOneField creates — exposes it as a plain
+            # object relation. That mismatch made the frontend build
+            # `{data: [...], on_conflict}` for a field where Hasura expects
+            # `{data: {...}, on_conflict}` (`*_obj_rel_insert_input`),
+            # producing "expected an object ... but found a list" on save.
+            if isinstance(field, OneToOneRel):
+                rn = getattr(field, "related_name", None)
+                sub_model = field.related_model
+                # if self._is_skipped_fk_target(model_class=sub_model):
+                #     continue
+                ref = self._ensure_def(model_class=sub_model, parent_model=model_class)
+                props[rn] = {"$ref": ref}
+                continue
+
             if isinstance(field, (ManyToOneRel, ManyToManyRel)):
                 rn = getattr(field, "related_name", None)
                 sub_model = field.related_model
@@ -318,15 +339,6 @@ class SchemaGenerator:
                 if desc:
                     prop["description"] = desc
                 props[rn] = prop
-                continue
-
-            if isinstance(field, OneToOneRel):
-                rn = getattr(field, "related_name", None)
-                sub_model = field.related_model
-                # if self._is_skipped_fk_target(model_class=sub_model):
-                #     continue
-                ref = self._ensure_def(model_class=sub_model, parent_model=model_class)
-                props[rn] = {"$ref": ref}
                 continue
 
             # ── skip non-concrete fields (no DB column)
