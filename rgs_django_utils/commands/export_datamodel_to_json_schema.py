@@ -147,10 +147,13 @@ def export_datamodel_to_json_schema(export_path=None):
                 # do not overwrite an existing column
                 for field in fields:
                     if result["$defs"][ref]["properties"].get(f"{field.name}_short") is None:
-                        result["$defs"][ref]["properties"][f"{field.name}_short"] = {
-                            "title": str(field.verbose_name).capitalize(),
-                            "$ref": f"#/$defs/{referenced_by[ref]}",
-                        }
+                        short_prop: dict = {"$ref": f"#/$defs/{referenced_by[ref]}"}
+                        original_title = (
+                            result["$defs"][ref]["properties"].get(field.name, {}).get("title")
+                            or str(field.verbose_name).capitalize()
+                        )
+                        short_prop["title"] = original_title
+                        result["$defs"][ref]["properties"][f"{field.name}_short"] = short_prop
                     if result["$defs"][ref]["properties"].get(field.attname) is None:
                         pk_type, pk_fmt = _fk_pk_json_type(field)
                         id_prop: dict = {"type": pk_type}
@@ -302,6 +305,27 @@ class SchemaGenerator:
             prop = {}
 
             # ── reverse relations
+            # OneToOneRel MUST be checked before the generic (ManyToOneRel,
+            # ManyToManyRel) branch: Django's OneToOneRel is a *subclass* of
+            # ManyToOneRel, so the generic isinstance check below also matches
+            # it. With the old order every reverse OneToOneField (e.g.
+            # ProfileMeasurementData.profile_measurement -> pm.data) was
+            # emitted as `type: array` even though Hasura — which infers
+            # object- vs array-relationship from the DB-level unique
+            # constraint the OneToOneField creates — exposes it as a plain
+            # object relation. That mismatch made the frontend build
+            # `{data: [...], on_conflict}` for a field where Hasura expects
+            # `{data: {...}, on_conflict}` (`*_obj_rel_insert_input`),
+            # producing "expected an object ... but found a list" on save.
+            if isinstance(field, OneToOneRel):
+                rn = getattr(field, "related_name", None)
+                sub_model = field.related_model
+                # if self._is_skipped_fk_target(model_class=sub_model):
+                #     continue
+                ref = self._ensure_def(model_class=sub_model, parent_model=model_class)
+                props[rn] = {"$ref": ref}
+                continue
+
             if isinstance(field, (ManyToOneRel, ManyToManyRel)):
                 rn = getattr(field, "related_name", None)
                 sub_model = field.related_model
@@ -318,15 +342,6 @@ class SchemaGenerator:
                 if desc:
                     prop["description"] = desc
                 props[rn] = prop
-                continue
-
-            if isinstance(field, OneToOneRel):
-                rn = getattr(field, "related_name", None)
-                sub_model = field.related_model
-                # if self._is_skipped_fk_target(model_class=sub_model):
-                #     continue
-                ref = self._ensure_def(model_class=sub_model, parent_model=model_class)
-                props[rn] = {"$ref": ref}
                 continue
 
             # ── skip non-concrete fields (no DB column)

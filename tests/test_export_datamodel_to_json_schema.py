@@ -419,3 +419,45 @@ class TestFieldToPropertyMetadata(UnitTestCase):
             ["boolean", "null"],
             "type moet ['boolean', 'null'] zijn in JSON Schema voor NullBooleanField",
         )
+
+
+class TestModelPropertiesReverseRelations(UnitTestCase):
+    """model_properties(): cardinaliteit van reverse relaties.
+
+    Regressie voor een bug waarbij OneToOneRel (Django's reverse kant van een
+    OneToOneField) werd opgevangen door de generieke (ManyToOneRel,
+    ManyToManyRel)-check — OneToOneRel is daar een subklasse van — en dus altijd
+    als `type: array` werd geëxporteerd. Hasura leidt object- vs
+    array-relationship zelf af uit de unieke DB-constraint die een
+    OneToOneField meebrengt, dus voor zo'n veld verwacht de mutation-input een
+    los object (`*_obj_rel_insert_input`) i.p.v. een array
+    (`*_arr_rel_insert_input`). Het mismatch-schema liet de frontend
+    `{data: [...], on_conflict}` versturen waar Hasura `{data: {...},
+    on_conflict}` verwachtte ("expected an object ... but found a list").
+    """
+
+    def _gen(self):
+        return SchemaGenerator(models=[])
+
+    def test_reverse_one_to_one_emits_ref_object_not_array(self):
+        """MiddleModel.extended (reverse OneToOneField vanuit MiddleExtendedModel) moet een los $ref-object zijn."""
+        from tests.testapp.models import MiddleModel
+
+        props, _required = self._gen().model_properties(MiddleModel)
+        prop = props["extended"]
+        self.assertNotEqual(prop.get("type"), "array", "Reverse OneToOneField mag niet als array worden geëxporteerd")
+        self.assertNotIn("items", prop, "Reverse OneToOneField mag geen 'items' (array-vorm) hebben")
+        self.assertEqual(
+            prop.get("$ref"),
+            "#/$defs/testapp_middleextendedmodel",
+            "Reverse OneToOneField moet een direct $ref naar het doelmodel zijn",
+        )
+
+    def test_reverse_foreign_key_still_emits_array(self):
+        """ParentModel.middle_models (reverse gewone FK vanuit MiddleModel) moet een array blijven."""
+        from tests.testapp.models import ParentModel
+
+        props, _required = self._gen().model_properties(ParentModel)
+        prop = props["middle_models"]
+        self.assertEqual(prop.get("type"), "array", "Reverse gewone FK moet als array worden geëxporteerd")
+        self.assertIn("$ref", prop.get("items", {}), "Array-item moet een $ref naar het doelmodel bevatten")
