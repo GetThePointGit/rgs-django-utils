@@ -445,9 +445,7 @@ class TestModelPropertiesReverseRelations(UnitTestCase):
 
         props, _required = self._gen().model_properties(MiddleModel)
         prop = props["extended"]
-        self.assertNotEqual(
-            prop.get("type"), "array", "Reverse OneToOneField mag niet als array worden geëxporteerd"
-        )
+        self.assertNotEqual(prop.get("type"), "array", "Reverse OneToOneField mag niet als array worden geëxporteerd")
         self.assertNotIn("items", prop, "Reverse OneToOneField mag geen 'items' (array-vorm) hebben")
         self.assertEqual(
             prop.get("$ref"),

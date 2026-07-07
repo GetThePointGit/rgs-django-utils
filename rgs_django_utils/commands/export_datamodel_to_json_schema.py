@@ -148,7 +148,10 @@ def export_datamodel_to_json_schema(export_path=None):
                 for field in fields:
                     if result["$defs"][ref]["properties"].get(f"{field.name}_short") is None:
                         short_prop: dict = {"$ref": f"#/$defs/{referenced_by[ref]}"}
-                        original_title = result["$defs"][ref]["properties"].get(field.name, {}).get("title") or str(field.verbose_name).capitalize()
+                        original_title = (
+                            result["$defs"][ref]["properties"].get(field.name, {}).get("title")
+                            or str(field.verbose_name).capitalize()
+                        )
                         short_prop["title"] = original_title
                         result["$defs"][ref]["properties"][f"{field.name}_short"] = short_prop
                     if result["$defs"][ref]["properties"].get(field.attname) is None:
