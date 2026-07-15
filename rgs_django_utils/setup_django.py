@@ -74,10 +74,11 @@ def reexec_with_project_python(django_root: Path) -> None:
     """Re-execute the current script using the project's Python interpreter.
 
     Checks for pixi environments (``.pixi/envs/default``) and common virtualenv
-    locations (``.venv``, ``venv``). When a project Python is found and differs
-    from the running interpreter, replaces the current process via ``os.execv``
-    so that all project dependencies are available. No-ops when already running
-    inside the project environment.
+    locations (``.venv``, ``venv``), in that priority order, and uses the first
+    one that exists. When that project Python differs from the running
+    interpreter, replaces the current process via ``os.execv`` so that all
+    project dependencies are available. No-ops when already running inside
+    the project environment.
 
     Parameters
     ----------
@@ -90,8 +91,10 @@ def reexec_with_project_python(django_root: Path) -> None:
         django_root / "venv" / "bin" / "python",
     ]
     for python in candidates:
-        if python.exists() and os.path.realpath(sys.executable) != os.path.realpath(python):
-            os.execv(str(python), [str(python)] + sys.argv)
+        if python.exists():
+            if os.path.realpath(sys.executable) != os.path.realpath(python):
+                os.execv(str(python), [str(python)] + sys.argv)
+            return
 
 
 def find_django_root(start_dir: Path) -> Path | None:
