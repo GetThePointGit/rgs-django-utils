@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 .claude/hooks/block-env-secret-print.py",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/block-env-secret-print.py\"",
             "timeout": 5
           }
         ]
