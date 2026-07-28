@@ -461,3 +461,42 @@ class TestModelPropertiesReverseRelations(UnitTestCase):
         prop = props["middle_models"]
         self.assertEqual(prop.get("type"), "array", "Reverse gewone FK moet als array worden geëxporteerd")
         self.assertIn("$ref", prop.get("items", {}), "Array-item moet een $ref naar het doelmodel bevatten")
+
+
+class TestExtendedEnumSelfReference(UnitTestCase):
+    """model_properties() op een BaseEnumExtended-model zelf: geen self-$ref op `id`.
+
+    Regressie voor een bug waarbij `id` (de OneToOneField die
+    BaseEnumExtendedMetaClass aanmaakt om het extended-model aan zijn eigen
+    base-enum te koppelen) door de generieke "FK naar enum"-tak werd
+    behandeld alsof het een gewoon veld naar een los enum was: die tak
+    expandeert zo'n veld naar een `$ref` naar `field.related_model.extended`
+    - wat voor dit veld exact het model is dat we op dit moment aan het
+    genereren zijn. Het resultaat was een schema met `id.$ref` wijzend naar
+    zijn eigen `$defs`-entry, wat `GraphQueryBuilder` in waterworks-ui terecht
+    afwijst als "Circular $ref detected".
+    """
+
+    def _gen(self):
+        return SchemaGenerator(models=[])
+
+    def test_id_is_plain_scalar_not_self_ref(self):
+        """`EnumExtendedTestModel` symbol is de *base* enum (metaclass-quirk); het
+        extended-model zelf (met het probleemveld `id`) is `.ExtendedClass`."""
+        from tests.testapp.models import EnumExtendedTestModel
+
+        extended_model = EnumExtendedTestModel.ExtendedClass
+        props, _required = self._gen().model_properties(extended_model)
+        id_prop = props["id"]
+        self.assertNotIn("$ref", id_prop, "`id` op het extended-enum-model mag geen $ref zijn (self-reference)")
+        self.assertEqual(id_prop.get("type"), "string", "`id` moet het scalar type van de base-enum code hebben")
+        self.assertTrue(id_prop.get("readOnly"), "`id` is de primary key en moet readOnly zijn")
+
+    def test_id_id_still_carries_base_enum_codes(self):
+        """De losse code-waarde (`id_id`) blijft intact naast de gefixte `id`."""
+        from tests.testapp.models import EnumExtendedTestModel
+
+        extended_model = EnumExtendedTestModel.ExtendedClass
+        props, _required = self._gen().model_properties(extended_model)
+        self.assertIn("id_id", props, "`id_id` (raw code van de base enum) moet aanwezig blijven")
+        self.assertIn("oneOf", props["id_id"], "`id_id` moet de oneOf-constantes van de base enum bevatten")

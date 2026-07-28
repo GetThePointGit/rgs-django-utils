@@ -378,6 +378,21 @@ class SchemaGenerator:
                 else:
                     prop = enum_schema
                 props[f"{field_name}_id"] = prop
+
+                # `id` on the extended-enum table itself is the OneToOneField that
+                # BaseEnumExtendedMetaClass creates to link back to its own base enum
+                # (field.related_model.ExtendedClass is this very model). Expanding
+                # it as an "extended object" $ref below would point the $defs entry
+                # at itself - an unresolvable cycle that GraphQueryBuilder rightly
+                # rejects. It's the table's own primary key here, not a relation to
+                # expand, so emit it as a plain scalar instead.
+                if field.primary_key and getattr(field.related_model, "ExtendedClass", None) is model_class:
+                    id_prop: dict = {"type": enum_schema["type"], "readOnly": True}
+                    if title := _verbose_title(field):
+                        id_prop["title"] = title
+                    props[field_name] = id_prop
+                    continue
+
                 if not hasattr(field.related_model, "extended") or not _is_base_enum_extended(
                     field.related_model.extended.related.model
                 ):
