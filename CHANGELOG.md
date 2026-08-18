@@ -7,7 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-08-18
+
 ### Added
+- `CsvFileParserField` — formulierveld dat een geüpload CSV-bestand parseert en
+  een kolom-preview + parser-configuratie (delimiter, header, kolomtoewijzing)
+  naar de wizard-UI stuurt (`forms/fields/CsvFileParserField.py`).
+- `DateField` — datum-formulierveld met ISO-8601-validatie (`YYYY-MM-DD`).
+- `forms/file_mixin.py` — gedeelde upload/bestandsafhandeling voor
+  formuliervelden.
+- `export_datamodel_to_json_schema` exporteert nu ook `_short`-velden.
 - `SelectField(display="radio")` — render-hint zodat een (kleine, inline) optie-set
   als radiogroep i.p.v. dropdown getoond kan worden. Default (`None`) blijft dropdown.
 
