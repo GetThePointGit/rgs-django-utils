@@ -482,7 +482,8 @@ class TestExtendedEnumSelfReference(UnitTestCase):
 
     def test_id_is_plain_scalar_not_self_ref(self):
         """`EnumExtendedTestModel` symbol is de *base* enum (metaclass-quirk); het
-        extended-model zelf (met het probleemveld `id`) is `.ExtendedClass`."""
+        extended-model zelf (met het probleemveld `id`) is `.ExtendedClass`.
+        """
         from tests.testapp.models import EnumExtendedTestModel
 
         extended_model = EnumExtendedTestModel.ExtendedClass
