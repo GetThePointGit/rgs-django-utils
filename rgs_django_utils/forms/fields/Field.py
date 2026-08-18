@@ -44,6 +44,12 @@ class Field:
         Extra validators ``(field) -> bool`` — return ``False`` to halt
         the chain, append ``ValidationErrorMessage`` entries via
         ``field._errors``.
+    visible_when : dict, optional
+        Declarative show/hide condition, e.g. ``{"field": "measurement_type",
+        "equals": "onderzoek"}``. Purely a UI hint for the frontend renderer —
+        it is not evaluated here and does not affect ``validate()``, so a
+        hidden field must also be made ``required=False`` (or otherwise
+        tolerated when absent) if it shouldn't block submission.
 
     Raises
     ------
@@ -63,6 +69,7 @@ class Field:
         doc_full=None,
         doc_development=None,
         validators=None,
+        visible_when=None,
     ):
         # raise when name or verbose_name is None
         for var in [name, label]:
@@ -81,6 +88,7 @@ class Field:
         self.doc_short = doc_short
         self.doc_full = doc_full
         self.doc_development = doc_development
+        self.visible_when = visible_when
 
         self.validators = validators or []
 
@@ -182,6 +190,7 @@ class Field:
             # "doc_development": self.doc_development,
             "value": self.value,
             "defaultValue": self.default_value,
+            "visibleWhen": self.visible_when,
             # "validators": self.validators,
         }
         # filter out empty values

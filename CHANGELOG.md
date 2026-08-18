@@ -16,6 +16,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `sql_alchemy_type` als `ForeignKey` (afgeleid via `foreign_related_fields`).
   Voorheen gaf een OneToOne back-reference (bv. `ww_data.waterway`) een
   `AttributeError` zodra de data_frames/pandas-laag de kolom castte.
+- `export_datamodel_to_json_schema`: het `id`-veld van een `BaseEnumExtended`-
+  model (de `OneToOneField` die het extended-enum-model aan zijn eigen base
+  enum koppelt) werd geëxporteerd als `$ref` naar zichzelf, omdat de
+  generieke "FK naar enum"-tak dat veld behandelde als een gewone verwijzing
+  naar een los enum-model. Dat gaf een genuine self-reference in de JSON
+  Schema (`enum_..._ext.properties.id.$ref == "#/$defs/enum_..._ext"`), die
+  consumers als `GraphQueryBuilder` (waterworks-ui) terecht afwijzen als
+  "Circular $ref detected". `id` wordt nu geëxporteerd als plain scalar
+  primary key i.p.v. als relatie om te expanderen.
 
 ## [0.1.1] - 2026-05-18
 
