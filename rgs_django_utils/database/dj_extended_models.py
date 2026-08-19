@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING, Any, Generic, List, Literal, TypeVar
 import numpy as np
 import pandas as pd
 from django.contrib.gis.db import models as base_models
+from django.core.files.storage import storages
+from django.db.models.fields.files import FieldFile
 
 from django.contrib.gis.db.models import *  # NOQA isort:skip
 import geopandas as gpd
@@ -1202,6 +1204,84 @@ class ImageField(base_models.ImageField, FieldConfig):
         super().__init__(*args, **kwargs)
         dtype = "U" if self.max_length is None else f"U{self.max_length}"
         self._init_extras(config, np.dtype(dtype), sql_types.String(length=self.max_length))
+
+
+class DynamicStorageFieldFile(FieldFile):
+    """FieldFile waarvan de Storage per rij wordt bepaald via ``field.storage_key_attname``
+    (een ander veld op dezelfde instance), i.p.v. één vaste storage voor het hele veld.
+    """
+
+    @property
+    def storage(self):
+        key = getattr(self.instance, self.field.storage_key_attname, None) or "default"
+        return storages[key]
+
+    @storage.setter
+    def storage(self, value):
+        # Django's FieldFile.__init__ en __setstate__ doen onvoorwaardelijk
+        # `self.storage = field.storage` — deze setter vangt die assignments alleen op;
+        # storage wordt altijd dynamisch herberekend door de getter hierboven.
+        pass
+
+
+class DynamicStorageFileField(FileField):
+    """FileField waarvan de Storage per rij wordt bepaald (zie ``DynamicStorageFieldFile``),
+    aan de hand van een ander veld op hetzelfde model (default naam: ``storage_key``) met
+    daarin een ``django.core.files.storage.storages``/``settings.STORAGES``-sleutel.
+
+    Examples
+    --------
+    ``settings.py`` definieert de mogelijke storage-backends onder een sleutel per
+    bron (bv. per klant of per omgeving)::
+
+        STORAGES = {
+            "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+            "klant_a": {"BACKEND": "storages.backends.s3.S3Storage",
+                        "OPTIONS": {"bucket_name": "klant-a-bucket"}},
+            "klant_b": {"BACKEND": "storages.backends.s3.S3Storage",
+                        "OPTIONS": {"bucket_name": "klant-b-bucket"}},
+        }
+
+    Het model krijgt een gewoon veld met de storage-sleutel, onder een naam naar
+    keuze — die naam geef je door aan ``storage_key_attname`` zodat het veld weet
+    welk attribuut op de instance het moet uitlezen::
+
+        class Document(models.Model):
+            klant_storage = models.CharField(max_length=32, default="default")
+            bestand = DynamicStorageFileField(
+                upload_to="documenten/", storage_key_attname="klant_storage"
+            )
+
+    Bij opslaan/lezen van ``instance.bestand`` wordt de storage niet van het veld
+    zelf gehaald, maar dynamisch opgezocht via ``storages[instance.klant_storage]``
+    (``DynamicStorageFieldFile.storage`` leest ``field.storage_key_attname`` en
+    haalt daarmee ``getattr(instance, "klant_storage")`` op) — zo landt hetzelfde
+    veld voor de ene rij in ``klant_a``'s bucket en voor de andere in ``klant_b``'s
+    bucket::
+
+        doc_a = Document.objects.create(klant_storage="klant_a", bestand=upload_a)
+        doc_b = Document.objects.create(klant_storage="klant_b", bestand=upload_b)
+
+    Laat je ``storage_key_attname`` weg, dan wordt het attribuut ``storage_key``
+    verwacht (de default).
+    """
+
+    attr_class = DynamicStorageFieldFile
+
+    def __init__(self, *args, storage_key_attname="storage_key", **kwargs):
+        if "storage" in kwargs:
+            raise TypeError(
+                f"{self.__class__.__name__} bepaalt de storage dynamisch per rij via "
+                f"'{storage_key_attname}'; geef storage_key-waarden op rijen mee i.p.v. "
+                "een vaste storage=."
+            )
+        self.storage_key_attname = storage_key_attname
+        super().__init__(*args, **kwargs)
+
+    def deconstruct(self):
+        name, path, args, kwargs = super().deconstruct()
+        kwargs["storage_key_attname"] = self.storage_key_attname
+        return name, path, args, kwargs
 
 
 type_mapping = {
