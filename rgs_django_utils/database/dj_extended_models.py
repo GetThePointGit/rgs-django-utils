@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 from django.contrib.gis.db import models as base_models
 from django.core.files.storage import storages
+from django.db.models.fields.files import FieldFile
 
 from django.contrib.gis.db.models import *  # NOQA isort:skip
 import geopandas as gpd
@@ -1205,7 +1206,7 @@ class ImageField(base_models.ImageField, FieldConfig):
         self._init_extras(config, np.dtype(dtype), sql_types.String(length=self.max_length))
 
 
-class DynamicStorageFieldFile(base_models.FieldFile):
+class DynamicStorageFieldFile(FieldFile):
     """FieldFile waarvan de Storage per rij wordt bepaald via ``field.storage_key_attname``
     (een ander veld op dezelfde instance), i.p.v. één vaste storage voor het hele veld.
     """
