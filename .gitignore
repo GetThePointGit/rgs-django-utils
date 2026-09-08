@@ -176,3 +176,4 @@ cython_debug/
 
 # mac system files
 .DS_Store
+.claude/
