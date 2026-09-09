@@ -5,7 +5,20 @@ All notable changes to rgs-django-utils will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.5.2] - 2026-09-09
+
+### Fixed
+- `upsert_multiple_data` kan weer json-waarden wegschrijven. psycopg3 heeft geen
+  dumper voor `dict`/`list`, dus `cursor.mogrify` viel om met
+  "cannot adapt type 'dict' using placeholder '%t' (format: TEXT)" zodra een rij
+  een `json`/`jsonb`-kolom vulde (raakt o.a. `install_db_default_records` met een
+  `default_records()` die een configuratie-dict teruggeeft). De waarden van
+  kolommen die in Postgres echt `json`/`jsonb` zijn worden nu in
+  `psycopg.types.json.Json`/`Jsonb` gewikkeld. Bewust géén procesbrede
+  `register_adapter(dict, Json)` zoals in psycopg2: die zou ook queries raken
+  waar een dict juist geen JSON is. `None` blijft NULL en een al met
+  `json.dumps` geserialiseerde `str` gaat ongewijzigd mee, dus bestaande
+  aanroepen blijven werken.
 
 ## [0.4.0] - 2026-08-18
 

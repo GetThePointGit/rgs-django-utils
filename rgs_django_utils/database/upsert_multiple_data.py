@@ -6,15 +6,21 @@ from typing import Type
 from django.db import connection
 from django.db.models import Model
 from psycopg import sql
+from psycopg.types.json import Json, Jsonb
 
 from rgs_django_utils.database.db_types import ImportMethod
 
-# todo: needed in psycopg3?
-# from psycopg2.extensions import register_adapter
-# from psycopg2.extras import Json
-# register_adapter(dict, Json)
-
 log = logging.getLogger(__name__)
+
+# psycopg3 heeft geen dumper voor `dict`/`list`, dus `cursor.mogrify` faalt met
+# "cannot adapt type 'dict' using placeholder '%t' (format: TEXT)" zodra een rij
+# een json-waarde bevat. psycopg2 loste dat globaal op met
+# `register_adapter(dict, Json)`; dat doen we hier bewust niet, want zo'n
+# registratie geldt procesbreed en raakt ook queries waar een dict juist geen
+# JSON is (hstore, composite types, een custom adapter van een consumer).
+# In plaats daarvan wikkelen we alleen de waarden van de kolommen die in
+# Postgres echt `json`/`jsonb` zijn — zie `_get_json_column_wrappers`.
+_JSON_WRAPPERS = {"json": Json, "jsonb": Jsonb}
 
 
 def _get_data_row(data, cols):
@@ -39,6 +45,57 @@ def _get_mogrify_template(cols, model: Type[Model]):
             out.append("%s")
 
     return "(" + ",".join(out) + ")"
+
+
+def _get_json_column_wrappers(cols, model: Type[Model]):
+    """Zoek de json-kolommen van *model* op en geef hun psycopg3-wrapper.
+
+    Parameters
+    ----------
+    cols : list of str
+        Kolomnamen in de volgorde waarin ze in een datarij staan.
+    model : type[django.db.models.Model]
+        Model waartegen het Postgres-kolomtype bepaald wordt.
+
+    Returns
+    -------
+    dict of {int: type}
+        Index in de datarij -> ``Json`` of ``Jsonb``, alleen voor kolommen die
+        in Postgres een ``json``- respectievelijk ``jsonb``-type hebben. Leeg
+        wanneer het model geen json-kolommen heeft.
+    """
+    wrappers = {}
+    for index, col in enumerate(cols):
+        wrapper = _JSON_WRAPPERS.get(_get_postgres_field_type(col, model).lower())
+        if wrapper is not None:
+            wrappers[index] = wrapper
+    return wrappers
+
+
+def _wrap_json_values(row, wrappers):
+    """Wikkel de json-waarden in *row* zodat psycopg3 ze kan serialiseren.
+
+    Alleen `dict` en `list` worden gewikkeld: `None` moet NULL blijven, en een
+    `str` is door de aanroeper al geserialiseerd (bv. met `json.dumps`) en gaat
+    ongewijzigd als literal mee — Postgres cast die zelf naar json/jsonb.
+
+    Parameters
+    ----------
+    row : list
+        Eén datarij; wordt ter plekke aangepast.
+    wrappers : dict of {int: type}
+        Uitkomst van :func:`_get_json_column_wrappers`.
+
+    Returns
+    -------
+    list
+        Dezelfde rij, met de json-waarden gewikkeld.
+    """
+    for index, wrapper in wrappers.items():
+        value = row[index]
+        if isinstance(value, (dict, list)):
+            row[index] = wrapper(value)
+    return row
 
 
 class NotAvailable:
@@ -365,6 +422,13 @@ def upsert_multiple_data(
 
     with connection.cursor() as cursor:
         template = _get_mogrify_template(combined_field_names, model)
+
+        # psycopg3 adapteert een dict/list niet vanzelf naar json/jsonb (zie de
+        # toelichting bij _JSON_WRAPPERS), dus wikkelen we die waarden vlak voor
+        # de mogrify.
+        json_wrappers = _get_json_column_wrappers(combined_field_names, model)
+        if json_wrappers:
+            total_data = [_wrap_json_values(row, json_wrappers) for row in total_data]
 
         table = sql.Identifier(model._meta.db_table)
         cols_with_definition = sql.Composed(

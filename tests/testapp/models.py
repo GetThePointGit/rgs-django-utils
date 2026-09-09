@@ -218,6 +218,7 @@ class ChildModel(models.Model):
 
     # field types
     int_field = models.IntegerField(default=0)
+    json_field = models.JSONField(null=True, blank=True)
 
     class Meta:
         verbose_name = "verbose_child_model"
