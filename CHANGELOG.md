@@ -5,6 +5,16 @@ All notable changes to rgs-django-utils will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-09-09
+
+### Added
+- `OrderedListField` — formulierveld voor een herordenbare lijst die een vaste
+  set verplichte velden combineert met vrij toe te voegen/verwijderen/
+  verplaatsen "literal"-slots (een lege string voor een verplichte lege kolom,
+  of tekst voor een vaste letterlijke waarde op een vaste positie)
+  (`forms/fields/OrderedListField.py`). Bedoeld voor exportformaten met een
+  per-organisatie configureerbare veldvolgorde, zoals de metfile-export.
+
 ## [0.5.2] - 2026-09-09
 
 ### Fixed
