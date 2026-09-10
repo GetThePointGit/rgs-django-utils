@@ -50,6 +50,10 @@ class Field:
         it is not evaluated here and does not affect ``validate()``, so a
         hidden field must also be made ``required=False`` (or otherwise
         tolerated when absent) if it shouldn't block submission.
+    placeholder : str, optional
+        Text shown in an empty input/select before a value is chosen (e.g.
+        while a ``SelectField``'s server-driven options are still loading).
+        Purely a UI hint, not a default value.
 
     Raises
     ------
@@ -70,6 +74,7 @@ class Field:
         doc_development=None,
         validators=None,
         visible_when=None,
+        placeholder=None,
     ):
         # raise when name or verbose_name is None
         for var in [name, label]:
@@ -89,6 +94,7 @@ class Field:
         self.doc_full = doc_full
         self.doc_development = doc_development
         self.visible_when = visible_when
+        self.placeholder = placeholder
 
         self.validators = validators or []
 
@@ -191,6 +197,7 @@ class Field:
             "value": self.value,
             "defaultValue": self.default_value,
             "visibleWhen": self.visible_when,
+            "placeholder": self.placeholder,
             # "validators": self.validators,
         }
         # filter out empty values
