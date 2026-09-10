@@ -159,6 +159,18 @@ class Styles:
         )
 
 
+def _xlsx_safe_value(value):
+    """Coerce a value to a type xlsxwriter's ``write()`` accepts.
+
+    ``default_records()`` values can be arbitrary Python objects (dicts,
+    lists, ...) coming straight from model definitions; xlsxwriter only
+    supports str/number/bool/None/datetime.
+    """
+    if isinstance(value, (dict, list, tuple)):
+        return str(value)
+    return value
+
+
 def table_field_style(styles, row, rows, use_even_odd=True, for_default=False):
     if row == 0:
         if for_default:
@@ -304,12 +316,10 @@ def export_datamodel_to_excel(export_path=None):
                     style = table_field_style(styles, i, len(real_table.default_records()["data"]), use_even_odd=True)
                     if isinstance(record, dict):
                         for ii, col in enumerate(real_table.default_records()["fields"]):
-                            worksheet.write(row, ii, record[col], style)
+                            worksheet.write(row, ii, _xlsx_safe_value(record[col]), style)
                     else:
                         for ii, value in enumerate(record):
-                            if isinstance(value, list):
-                                value = str(value)
-                            worksheet.write(row, ii, value, style)
+                            worksheet.write(row, ii, _xlsx_safe_value(value), style)
                     row += 1
 
                 row += 1
