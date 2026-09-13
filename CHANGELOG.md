@@ -5,6 +5,24 @@ All notable changes to rgs-django-utils will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- Rolnamen worden gevalideerd tegen `settings.PERMISSION_TREE` in plaats van
+  tegen de handgeschreven `roles_list`. Elk project heeft die boom al; de lijst
+  ernaast liep uit de pas. Zonder die setting geldt de oude lijst, dus bestaande
+  consumers merken niets (`database/dj_extended_models.py`).
+- `Roles` verbreedt van `Literal[...]` naar `str`: autocomplete op de
+  `FPerm`/`TPerm`-kwargs verdwijnt, de runtime-controle wordt juist strenger
+  (`database/dj_extended_models.py`).
+
+### Added
+- `build_claim_function_sql()` genereert de plpgsql-functie die rol-id's naar
+  `x-hasura-allowed-roles` vertaalt uit diezelfde `PERMISSION_TREE`. Die
+  overervingsgraaf stond voorheen een tweede keer met de hand in een migratie.
+  De functie is `IMMUTABLE` en `PARALLEL SAFE`, zodat hij bruikbaar is in een
+  `GENERATED ... STORED`-kolom (`database/claim_sql.py`).
+
 ## [0.7.1] - 2026-09-13
 
 ### Fixed
