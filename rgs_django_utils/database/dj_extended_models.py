@@ -1032,6 +1032,37 @@ if TYPE_CHECKING:
     from shapely.geometry.base import BaseGeometry, BaseMultipartGeometry
 
 
+def _to_geoseries(serie, srid: int) -> gpd.GeoSeries:
+    """Zet een kolom met geometrie-waarden om naar een ``GeoSeries`` met crs.
+
+    Accepteert wat er in de praktijk in een kolom kan staan: hex-EWKB-tekst
+    (zoals ``pd.read_sql`` PostGIS-geometrie teruggeeft), ruwe WKB-bytes, al
+    gedecodeerde shapely-objecten, een bestaande ``GeoSeries`` of alleen
+    NULL/NaN. Niet-gevulde waarden blijven ontbrekend.
+
+    Parameters
+    ----------
+    serie : pandas.Series or geopandas.GeoSeries
+        Kolom met geometrie-waarden.
+    srid : int
+        SRID van het veld; wordt de crs van het resultaat.
+
+    Returns
+    -------
+    geopandas.GeoSeries
+        Kolom met dezelfde index, als echte geometrie met crs.
+    """
+    if isinstance(serie, gpd.GeoSeries):
+        return serie if serie.crs is not None else serie.set_crs(srid)
+    serie = pd.Series(serie, dtype="object")
+    values = serie.where(serie.notna(), None)
+    filled = values.dropna()
+    if filled.map(lambda v: isinstance(v, (str, bytes))).all():
+        # geldt ook voor een kolom met alleen NULL (from_wkb verwacht bytes/str of None)
+        return gpd.GeoSeries.from_wkb(values, index=serie.index, crs=srid)
+    return gpd.GeoSeries(values, index=serie.index, crs=srid)
+
+
 def _gpd_make_single_geometry(
     gs: gpd.GeoSeries,
     shapely_single_geom: typing.Type["BaseGeometry"],
@@ -1096,7 +1127,7 @@ class GeometryField(base_models.GeometryField, FieldConfig):
         )
 
     def pd_type_func(self, serie):
-        gs = gpd.GeoSeries.from_wkb(serie, crs=self.srid)
+        gs = _to_geoseries(serie, self.srid)
         return gs
 
 
@@ -1111,7 +1142,7 @@ class PointField(base_models.PointField, FieldConfig):
         )
 
     def pd_type_func(self, serie):
-        gs = gpd.GeoSeries.from_wkb(serie, crs=self.srid)
+        gs = _to_geoseries(serie, self.srid)
         return _gpd_make_single_geometry(gs, Point, MultiPoint)
 
 
@@ -1126,7 +1157,7 @@ class MultiPointField(base_models.MultiPointField, FieldConfig):
         )
 
     def pd_type_func(self, serie):
-        gs = gpd.GeoSeries.from_wkb(serie, crs=self.srid)
+        gs = _to_geoseries(serie, self.srid)
         return _gpd_make_multi_geometry(gs, Point, MultiPoint)
 
 
@@ -1141,7 +1172,7 @@ class LineStringField(base_models.LineStringField, FieldConfig):
         )
 
     def pd_type_func(self, serie):
-        gs = gpd.GeoSeries.from_wkb(serie, crs=self.srid)
+        gs = _to_geoseries(serie, self.srid)
         return _gpd_make_single_geometry(gs, LineString, MultiLineString)
 
 
@@ -1156,7 +1187,7 @@ class MultiLineStringField(base_models.MultiLineStringField, FieldConfig):
         )
 
     def pd_type_func(self, serie):
-        gs = gpd.GeoSeries.from_wkb(serie, crs=self.srid)
+        gs = _to_geoseries(serie, self.srid)
         return _gpd_make_multi_geometry(gs, LineString, MultiLineString)
 
 
@@ -1171,7 +1202,7 @@ class PolygonField(base_models.MultiPolygonField, FieldConfig):
         )
 
     def pd_type_func(self, serie):
-        gs = gpd.GeoSeries(serie, crs=self.srid)
+        gs = _to_geoseries(serie, self.srid)
         return _gpd_make_single_geometry(gs, Polygon, MultiPolygon)
 
 
@@ -1186,7 +1217,7 @@ class MultiPolygonField(base_models.MultiPolygonField, FieldConfig):
         )
 
     def pd_type_func(self, serie):
-        gs = gpd.GeoSeries(serie, crs=self.srid)
+        gs = _to_geoseries(serie, self.srid)
         return _gpd_make_multi_geometry(gs, Polygon, MultiPolygon)
 
 
