@@ -5,6 +5,17 @@ All notable changes to rgs-django-utils will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.1] - 2026-09-13
+
+### Fixed
+- `PolygonField`/`MultiPolygonField.pd_type_func` decodeerden geen WKB: een kolom
+  met hex-EWKB-tekst (zoals `pd.read_sql` PostGIS-geometrie teruggeeft) crashte
+  met "Non geometry data passed to GeoSeries constructor". Alle geometrie-velden
+  gaan nu door één helper (`_to_geoseries`) die hex-EWKB, WKB-bytes, al
+  gedecodeerde shapely-objecten, een bestaande `GeoSeries` en alleen-NULL
+  kolommen accepteert — de `from_wkb`-velden crashten voorheen juist op al
+  gedecodeerde objecten en op NaN (`database/dj_extended_models.py`).
+
 ## [0.7.0] - 2026-09-10
 
 ### Added
