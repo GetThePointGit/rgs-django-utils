@@ -133,4 +133,8 @@ PERMISSION_TREE = {
     "org_mem": ["auth"],
     "org_adm": ["org_mem"],
     "sys_adm": ["org_adm", "project_management"],
+    # gebruikt door tests/test_base_model_roles.py om een projecteigen
+    # rolvocabulaire na te bootsen
+    "aanvr_read": ["auth"],
+    "aanvr_man": ["aanvr_read"],
 }

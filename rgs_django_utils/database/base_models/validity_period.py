@@ -1,4 +1,5 @@
 from rgs_django_utils.database import dj_extended_models as models
+from rgs_django_utils.database.base_models.roles import audit_perm
 
 
 class ValidityPeriodMixin(models.Model):
@@ -13,13 +14,13 @@ class ValidityPeriodMixin(models.Model):
     start_date = models.DateField(
         null=True,
         blank=True,
-        config=models.Config(permissions=models.FPerm(org_mem="-s-", project_read="-s-", project_edit="isu")),
+        config=models.Config(permissions=audit_perm()),
     )
 
     end_date = models.DateField(
         null=True,
         blank=True,
-        config=models.Config(permissions=models.FPerm(org_mem="-s-", project_read="-s-", project_edit="isu")),
+        config=models.Config(permissions=audit_perm()),
     )
 
     class Meta:

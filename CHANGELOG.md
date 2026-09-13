@@ -22,6 +22,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   overervingsgraaf stond voorheen een tweede keer met de hand in een migratie.
   De functie is `IMMUTABLE` en `PARALLEL SAFE`, zodat hij bruikbaar is in een
   `GENERATED ... STORED`-kolom (`database/claim_sql.py`).
+- `BASE_MODEL_ROLES` vertaalt de rolnamen die de abstracte basismodellen
+  hardcoderen (`project_read`, `project_edit`, `proj_read`) naar het
+  vocabulaire van het eigen project. Nodig omdat rolnamen sinds deze release
+  tegen `PERMISSION_TREE` gevalideerd worden: zonder vertaling kon een project
+  met een ander vocabulaire de mixins niet meer importeren. Zonder de setting
+  blijft elke naam zichzelf, dus bestaande consumers merken niets
+  (`database/base_models/roles.py`).
 
 ## [0.7.1] - 2026-09-13
 
