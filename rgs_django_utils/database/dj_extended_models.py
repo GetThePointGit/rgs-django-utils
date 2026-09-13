@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Any, Generic, List, Literal, TypeVar
 
 import numpy as np
 import pandas as pd
+from django.conf import settings
 from django.contrib.gis.db import models as base_models
 from django.core.files.storage import storages
 from django.db.models.fields.files import FieldFile
@@ -284,30 +285,11 @@ class FieldPermissionType(typing.TypedDict, total=False):
     dev_man: FieldActions
 
 
-type Roles = typing.Literal[
-    "public",
-    "auth",
-    "module_auth",
-    "module_auth_2",
-    "user_self",
-    "project_rol",
-    "project_read",
-    "project_edit",
-    "proj_read",
-    "proj_cli",
-    "proj_con",
-    "proj_ext",
-    "project_edit",
-    "proj_fw",
-    "proj_coll",
-    "proj_man",
-    "org_mem",
-    "org_uman",
-    "org_adm",
-    "sys_adm",
-    "dev",
-    "dev_man",
-]
+# Rolnamen zijn projectgebonden (settings.PERMISSION_TREE), dus niet als
+# Literal vast te leggen; allowed_role_names() is het echte hek. De
+# ingebouwde namen hieronder blijven staan als terugval én als documentatie
+# van wat de stack standaard kent.
+type Roles = str
 
 roles_list: List[Roles] = [
     "public",
@@ -335,6 +317,29 @@ roles_list: List[Roles] = [
 ]
 
 roles_set = set(roles_list)
+
+
+def allowed_role_names() -> set[str]:
+    """Rolnamen die in een permissie-declaratie mogen voorkomen.
+
+    De rollen van een project staan samen met hun overerving in
+    ``settings.PERMISSION_TREE``; dat is de bron. De ingebouwde
+    :data:`roles_list` blijft de terugval voor consumers die die setting niet
+    definiëren, zodat bestaande projecten niets merken.
+
+    Deze lookup gebeurt bewust lui, bij elke declaratie: de validatie draait
+    op modeldefinitie-tijd, dus ná ``django.setup()``, en een module-level
+    constante zou de setting te vroeg uitlezen.
+
+    Returns
+    -------
+    set of str
+        De toegestane rolnamen.
+    """
+    tree = getattr(settings, "PERMISSION_TREE", None)
+    if not tree:
+        return roles_set
+    return set(tree)
 
 
 class Perm(Generic[T], ABC):
@@ -428,7 +433,7 @@ class FPerm(Perm[FieldPermissionType]):
                 raise ValueError(
                     f"Permission for {key} should be one of ['---', '-s-', 'i--', '-su', 'isu', 'is-'], got {value}"
                 )
-            if key not in roles_set:
+            if key not in allowed_role_names():
                 raise ValueError(f"Role {key} is not a valid role")
 
 
@@ -534,7 +539,7 @@ class TPerm(Perm[dict[TableAction, dict]]):
         for key, value in self.config.items():
             if not isinstance(value, dict):
                 raise ValueError(f"Permission for {key} should be a dict, got {type(value)}")
-            if key not in roles_set:
+            if key not in allowed_role_names():
                 raise ValueError(f"Role {key} is not a valid role")
 
 
