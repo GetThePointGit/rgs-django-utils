@@ -7,7 +7,8 @@ Geen Django DB nodig — werkt op fake-modelklassen met get_permissions().
 
 from django.test import SimpleTestCase, override_settings
 
-from rgs_django_utils.database.dj_extended_models import TPerm
+from rgs_django_utils.database import dj_extended_models
+from rgs_django_utils.database.dj_extended_models import FPerm, TPerm
 from rgs_django_utils.database.permission_helper import PermissionHelper
 
 TEST_TREE = {
@@ -127,3 +128,39 @@ class TestGetRolTablePermissionsFirstMatchWins(SimpleTestCase):
         self.assertEqual(perms["org_mem"]["update"], org_filt)
         self.assertEqual(perms["org_mem"]["insert"], org_filt)
         self.assertIsNone(perms["org_mem"]["delete"])
+
+
+# Een boom met namen die bewust NIET in de oude roles_list staan.
+EIGEN_TREE = {
+    "public": [],
+    "auth": ["public"],
+    "aanvr_read": ["auth"],
+    "aanvr_man": ["aanvr_read"],
+}
+
+
+@override_settings(PERMISSION_TREE=EIGEN_TREE)
+class TestRolvalidatieVolgtDeBoom(SimpleTestCase):
+    def test_eigen_rol_uit_de_boom_wordt_geaccepteerd(self):
+        """Een projectrol die alleen in PERMISSION_TREE staat mag gebruikt worden."""
+        perm = FPerm("---", aanvr_man="isu")
+        self.assertEqual(perm.config["aanvr_man"], "isu")
+
+    def test_rol_buiten_de_boom_wordt_geweigerd(self):
+        """Een rol die het project niet kent hoort te knallen waar je hem schrijft."""
+        with self.assertRaises(ValueError):
+            FPerm("---", proj_cli="isu")
+
+    def test_tperm_volgt_dezelfde_regel(self):
+        """TPerm valideert tegen dezelfde bron als FPerm."""
+        perm = TPerm(aanvr_read={"select": {}})
+        self.assertIn("aanvr_read", perm.config)
+        with self.assertRaises(ValueError):
+            TPerm(proj_cli={"select": {}})
+
+
+@override_settings(PERMISSION_TREE=None)
+class TestTerugvalZonderBoom(SimpleTestCase):
+    def test_zonder_boom_geldt_de_ingebouwde_lijst(self):
+        """Consumers zonder PERMISSION_TREE blijven op roles_list werken."""
+        self.assertEqual(dj_extended_models.allowed_role_names(), dj_extended_models.roles_set)

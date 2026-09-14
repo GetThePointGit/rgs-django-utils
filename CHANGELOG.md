@@ -5,6 +5,31 @@ All notable changes to rgs-django-utils will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.0] - 2026-09-14
+
+### Changed
+- Rolnamen worden gevalideerd tegen `settings.PERMISSION_TREE` in plaats van
+  tegen de handgeschreven `roles_list`. Elk project heeft die boom al; de lijst
+  ernaast liep uit de pas. Zonder die setting geldt de oude lijst, dus bestaande
+  consumers merken niets (`database/dj_extended_models.py`).
+- `Roles` verbreedt van `Literal[...]` naar `str`: autocomplete op de
+  `FPerm`/`TPerm`-kwargs verdwijnt, de runtime-controle wordt juist strenger
+  (`database/dj_extended_models.py`).
+
+### Added
+- `build_claim_function_sql()` genereert de plpgsql-functie die rol-id's naar
+  `x-hasura-allowed-roles` vertaalt uit diezelfde `PERMISSION_TREE`. Die
+  overervingsgraaf stond voorheen een tweede keer met de hand in een migratie.
+  De functie is `IMMUTABLE` en `PARALLEL SAFE`, zodat hij bruikbaar is in een
+  `GENERATED ... STORED`-kolom (`database/claim_sql.py`).
+- `BASE_MODEL_ROLES` vertaalt de rolnamen die de abstracte basismodellen
+  hardcoderen (`project_read`, `project_edit`, `proj_read`) naar het
+  vocabulaire van het eigen project. Nodig omdat rolnamen sinds deze release
+  tegen `PERMISSION_TREE` gevalideerd worden: zonder vertaling kon een project
+  met een ander vocabulaire de mixins niet meer importeren. Zonder de setting
+  blijft elke naam zichzelf, dus bestaande consumers merken niets
+  (`database/base_models/roles.py`).
+
 ## [0.7.1] - 2026-09-13
 
 ### Fixed

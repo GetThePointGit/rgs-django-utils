@@ -123,4 +123,18 @@ PERMISSION_TREE = {
     "organization_management": ["organization", "project"],
     "developer": ["project_management", "organization_projectmanager"],
     "developer_management": ["developer"],
+    # toegevoegd: rollen die de testapp-modellen al gebruikten maar die niet
+    # in de boom stonden
+    "module_auth": [],
+    "user_self": ["auth"],
+    "project_read": ["project"],
+    "proj_read": ["project"],
+    "proj_man": ["proj_read"],
+    "org_mem": ["auth"],
+    "org_adm": ["org_mem"],
+    "sys_adm": ["org_adm", "project_management"],
+    # gebruikt door tests/test_base_model_roles.py om een projecteigen
+    # rolvocabulaire na te bootsen
+    "aanvr_read": ["auth"],
+    "aanvr_man": ["aanvr_read"],
 }
