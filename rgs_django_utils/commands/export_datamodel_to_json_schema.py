@@ -464,6 +464,10 @@ class SchemaGenerator:
         if modules := _modules_to_list(_config_attr(field, "modules")):
             prop["modules"] = modules
 
+        # presentation from config.presentation (field-layer hints for tables, bulk edit, map labels)
+        if (presentation := _config_attr(field, "presentation")) is not None:
+            prop["presentation"] = _presentation_to_dict(presentation)
+
         # readOnly (rules 24-26)
         readonly = (
             field_name.startswith("c_")  # rule 25: calculated fields
@@ -674,6 +678,31 @@ def _config_attr(field, attr: str, default=None):
     """
     config = getattr(field, "r_config", None) or getattr(field, "config", None)
     return getattr(config, attr, default) if config else default
+
+
+def _presentation_to_dict(presentation) -> dict:
+    """Serialise a ``Presentation`` to its camelCase JSON Schema form.
+
+    Parameters
+    ----------
+    presentation : rgs_django_utils.database.dj_extended_models.Presentation
+        The field-layer object from ``Config.presentation``.
+
+    Returns
+    -------
+    dict
+        ``width`` and ``kind`` only when set; ``bulkEdit``, ``mapLabel`` and
+        ``thousandsSeparator`` always, so consumers need no defaults.
+    """
+    out: dict = {}
+    if presentation.width is not None:
+        out["width"] = presentation.width
+    out["bulkEdit"] = bool(presentation.bulk_edit)
+    out["mapLabel"] = bool(presentation.map_label)
+    if presentation.kind is not None:
+        out["kind"] = presentation.kind
+    out["thousandsSeparator"] = bool(presentation.thousands_separator)
+    return out
 
 
 def _verbose_title(field) -> str | None:

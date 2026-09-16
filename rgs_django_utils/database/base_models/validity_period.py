@@ -14,13 +14,13 @@ class ValidityPeriodMixin(models.Model):
     start_date = models.DateField(
         null=True,
         blank=True,
-        config=models.Config(permissions=audit_perm()),
+        config=models.Config(permissions=audit_perm(), presentation=models.Presentation(width=110, bulk_edit=True)),
     )
 
     end_date = models.DateField(
         null=True,
         blank=True,
-        config=models.Config(permissions=audit_perm()),
+        config=models.Config(permissions=audit_perm(), presentation=models.Presentation(width=110, bulk_edit=True)),
     )
 
     class Meta:

@@ -38,3 +38,18 @@ class TestPresentation(UnitTestCase):
             repr(Presentation(width=100, bulk_edit=True)),
             "Presentation(width=100, bulk_edit=True, map_label=False, kind=None, thousands_separator=True)",
         )
+
+
+class TestValidityPeriodPresentation(UnitTestCase):
+    def test_start_and_end_date_are_table_columns_with_bulk_edit(self):
+        from rgs_django_utils.database.base_models import ValidityPeriodMixin
+
+        for naam in ("start_date", "end_date"):
+            with self.subTest(veld=naam):
+                # Config wordt op het veld opgeslagen als `r_config`, niet `config`
+                # (zie FieldConfig._init_extras / _config_attr() in
+                # export_datamodel_to_json_schema.py); de brief noemde `.config`,
+                # maar dat attribuut bestaat niet op echte modelvelden.
+                p = ValidityPeriodMixin._meta.get_field(naam).r_config.presentation
+                self.assertEqual(p.width, 110)
+                self.assertTrue(p.bulk_edit)
