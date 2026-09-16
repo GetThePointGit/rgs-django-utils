@@ -630,6 +630,71 @@ class Model(base_models.Model):
         abstract = True
 
 
+PRESENTATION_KINDS = ("year",)
+
+
+class Presentation:
+    """How this field presents in generated tables, bulk edit and map labels.
+
+    This is the *field layer*: properties that belong to the field itself,
+    regardless of the screen it is shown on. A view layer in the consuming
+    project decides which columns a table shows and in what order; it may
+    narrow these values (e.g. disable bulk edit for a linked field) but
+    never widen them.
+
+    Parameters
+    ----------
+    width : int, optional
+        Default column width in pixels. ``None`` means the field is not a
+        table column by default (a view can still give it a width).
+    bulk_edit : bool, optional
+        Whether the field may be offered in group edit. Default ``False``.
+    map_label : bool, optional
+        Whether the field is a sensible choice as a map label. Default
+        ``False``.
+    kind : str, optional
+        Display-type hint where the JSON type is not specific enough. One of
+        :data:`PRESENTATION_KINDS`; today only ``"year"``.
+    thousands_separator : bool, optional
+        Show a thousands separator for numeric values. Default ``True``;
+        set ``False`` for counts and identifiers.
+
+    Raises
+    ------
+    ValueError
+        If ``width`` is not a positive integer or ``kind`` is unknown.
+
+    Examples
+    --------
+    >>> Presentation(width=100, bulk_edit=True)
+    Presentation(width=100, bulk_edit=True, map_label=False, kind=None, thousands_separator=True)
+    """
+
+    def __init__(
+        self,
+        width: int | None = None,
+        bulk_edit: bool = False,
+        map_label: bool = False,
+        kind: str | None = None,
+        thousands_separator: bool = True,
+    ):
+        if width is not None and (isinstance(width, bool) or not isinstance(width, int) or width <= 0):
+            raise ValueError(f"width must be a positive int, got {width!r}")
+        if kind is not None and kind not in PRESENTATION_KINDS:
+            raise ValueError(f"kind must be one of {PRESENTATION_KINDS}, got {kind!r}")
+        self.width = width
+        self.bulk_edit = bulk_edit
+        self.map_label = map_label
+        self.kind = kind
+        self.thousands_separator = thousands_separator
+
+    def __repr__(self):
+        return (
+            f"Presentation(width={self.width!r}, bulk_edit={self.bulk_edit!r}, map_label={self.map_label!r}, "
+            f"kind={self.kind!r}, thousands_separator={self.thousands_separator!r})"
+        )
+
+
 class Config:
     """Attach rgs-specific metadata to a Django model field.
 
@@ -691,6 +756,10 @@ class Config:
         worden wanneer dit veld wijzigt. Wordt door de applicatie
         geïnterpreteerd (zie de waterworks-triggergenerator); de lib slaat
         de lijst alleen op.
+    presentation : Presentation, optional
+        Field-layer presentation hints (column width, bulk edit, map label,
+        kind, thousands separator). Exported as ``presentation`` in the JSON
+        Schema. See :class:`Presentation`.
 
     Raises
     ------
@@ -740,6 +809,7 @@ class Config:
         presets: FPresets = None,
         hasura_set: HasuraSet = None,
         recalc: typing.List[str] = None,
+        presentation: "Presentation | None" = None,
     ):
         self.modules = modules
         self.section = section
@@ -763,6 +833,7 @@ class Config:
         self.presets = presets
         self.hasura_set = hasura_set
         self.recalc = recalc
+        self.presentation = presentation
 
 
 class FieldConfig:

@@ -5,6 +5,18 @@ All notable changes to rgs-django-utils will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2026-09-16
+
+### Added
+- `Presentation` op `Config`: veldlaag voor tabellen, groepedit en kaartlabels
+  (`width`, `bulk_edit`, `map_label`, `kind`, `thousands_separator`). Wordt als
+  `presentation` (camelCase) per property in `datamodel.schema.json`
+  geëxporteerd, naast `unit`/`precision`. Velden zonder `Presentation` krijgen
+  geen sleutel, dus bestaande consumers merken niets
+  (`database/dj_extended_models.py`, `commands/export_datamodel_to_json_schema.py`).
+- `ValidityPeriodMixin.start_date`/`end_date` dragen `Presentation(width=110, bulk_edit=True)`
+  (`database/base_models/validity_period.py`).
+
 ## [0.8.0] - 2026-09-14
 
 ### Changed

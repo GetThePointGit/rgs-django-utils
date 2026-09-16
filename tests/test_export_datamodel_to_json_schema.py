@@ -14,7 +14,13 @@ from rgs_django_utils.commands.export_datamodel_to_json_schema import (
     SchemaGenerator,
     _modules_to_list,
 )
-from rgs_django_utils.database.dj_extended_models import Config, ForeignKey, ManyToManyField, OneToOneField
+from rgs_django_utils.database.dj_extended_models import (
+    Config,
+    ForeignKey,
+    ManyToManyField,
+    OneToOneField,
+    Presentation,
+)
 
 
 class TestModulesToList(UnitTestCase):
@@ -501,3 +507,39 @@ class TestExtendedEnumSelfReference(UnitTestCase):
         props, _required = self._gen().model_properties(extended_model)
         self.assertIn("id_id", props, "`id_id` (raw code van de base enum) moet aanwezig blijven")
         self.assertIn("oneOf", props["id_id"], "`id_id` moet de oneOf-constantes van de base enum bevatten")
+
+
+class TestFieldToPropertyPresentation(UnitTestCase):
+    """The field layer (Presentation) must land as ``presentation`` on the property."""
+
+    def _gen(self):
+        return SchemaGenerator(models=[])
+
+    def test_no_presentation_means_no_key(self):
+        field = _bare_field(dj_models.FloatField)
+        field.config = Config(doc_unit="m")
+        prop = self._gen()._field_to_property(field=field)
+        self.assertNotIn("presentation", prop, "Zonder Presentation geen presentation-sleutel")
+
+    def test_full_presentation_is_camel_cased(self):
+        field = _bare_field(dj_models.IntegerField, name="planned_year")
+        field.config = Config(
+            presentation=Presentation(
+                width=100, bulk_edit=True, map_label=True, kind="year", thousands_separator=False
+            )
+        )
+        prop = self._gen()._field_to_property(field=field)
+        self.assertEqual(
+            prop["presentation"],
+            {"width": 100, "bulkEdit": True, "mapLabel": True, "kind": "year", "thousandsSeparator": False},
+        )
+
+    def test_none_values_are_omitted_but_booleans_always_present(self):
+        field = _bare_field(dj_models.CharField, name="code", max_length=50)
+        field.config = Config(presentation=Presentation())
+        prop = self._gen()._field_to_property(field=field)
+        self.assertEqual(
+            prop["presentation"],
+            {"bulkEdit": False, "mapLabel": False, "thousandsSeparator": True},
+            "width/kind None → weg; booleans altijd aanwezig",
+        )
