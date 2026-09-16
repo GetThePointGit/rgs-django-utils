@@ -6,6 +6,8 @@ from rgs_django_utils.database.dj_extended_models import Config, Presentation
 
 
 class TestPresentation(UnitTestCase):
+    """Tests for the ``Presentation`` field-layer object itself."""
+
     def test_defaults(self):
         p = Presentation()
         self.assertIsNone(p.width, "width default is None (geen tabelkolom by default)")
@@ -22,6 +24,8 @@ class TestPresentation(UnitTestCase):
     def test_width_must_be_positive_int(self):
         with self.assertRaises(ValueError):
             Presentation(width=0)
+        with self.assertRaises(ValueError):
+            Presentation(width=-5)
         with self.assertRaises(ValueError):
             Presentation(width=12.5)
 
@@ -41,6 +45,8 @@ class TestPresentation(UnitTestCase):
 
 
 class TestValidityPeriodPresentation(UnitTestCase):
+    """Tests that ``ValidityPeriodMixin``'s audit fields carry the expected ``Presentation``."""
+
     def test_start_and_end_date_are_table_columns_with_bulk_edit(self):
         from rgs_django_utils.database.base_models import ValidityPeriodMixin
 

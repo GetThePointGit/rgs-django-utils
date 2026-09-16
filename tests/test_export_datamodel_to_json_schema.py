@@ -510,7 +510,7 @@ class TestExtendedEnumSelfReference(UnitTestCase):
 
 
 class TestFieldToPropertyPresentation(UnitTestCase):
-    """De veldlaag (Presentation) moet als ``presentation`` in de property landen."""
+    """The field layer (Presentation) must land as ``presentation`` on the property."""
 
     def _gen(self):
         return SchemaGenerator(models=[])
