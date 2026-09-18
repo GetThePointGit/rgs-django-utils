@@ -5,6 +5,28 @@ All notable changes to rgs-django-utils will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.1] - 2026-09-18
+
+### Fixed
+- **Beveiliging.** `JwtUserToken.authenticate` toetste `claims.is_authenticated`
+  zonder haakjes, terwijl dat een methode is. Een gebonden methode is altijd
+  waar, dus de controle was een no-op: elk bearer-token kwam door de
+  authenticatielaag heen -- ook een token waarvan `decode_jwt` de handtekening
+  al had afgekeurd (die geeft bij een ongeldige handtekening bewust `None`
+  terug in plaats van te raisen). Consumenten die hun autorisatie op `user_id`
+  of een rolcheck bouwen vielen bij toeval alsnog dicht, maar een endpoint dat
+  alleen "is er iemand ingelogd" nodig heeft had geen slot.
+  `JwtModuleToken` was niet geraakt: die roept `has_allowed_role()` wel aan
+  (`utils/authorization.py`).
+- `Claims.is_authenticated()` geeft een echte `bool` terug in plaats van de
+  user of de rollenlijst, en `Claims.__getitem__` roept de methode aan voor die
+  ene sleutel -- `{**claims}` gaf eerder de gebonden methode door, dus een
+  template die daarop gate't liet iedereen door (`permissions/claims.py`).
+
+### Upgrade
+Geen actie nodig naast de versiebump. Tokens die eerder ten onrechte werden
+geaccepteerd, worden nu geweigerd; dat is de fix.
+
 ## [0.9.0] - 2026-09-16
 
 ### Added
