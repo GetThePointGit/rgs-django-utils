@@ -28,7 +28,11 @@ class JwtUserToken(HttpBearer):
     def authenticate(self, request, token):
         """Return ``Claims`` when the token is authenticated, otherwise raise."""
         claims = Claims(token)
-        if claims.is_authenticated:
+        # NOTE: de haakjes zijn dragend. ``is_authenticated`` is een methode,
+        # dus ``if claims.is_authenticated:`` toetst een gebonden methode en
+        # die is altijd waar -- elk bearer-token kwam erdoor, ook een token
+        # waarvan ``decode_jwt`` de handtekening al had afgekeurd.
+        if claims.is_authenticated():
             return claims
         raise UnauthorizedError("User not authenticated.")
 

@@ -53,7 +53,7 @@ class Claims(collections.abc.Mapping):
             ``True`` if a valid user was resolved *and* ``user_self`` is in
             the token's allowed roles; ``False`` otherwise.
         """
-        return self.user and self.has_allowed_role("user_self")
+        return bool(self.user and self.has_allowed_role("user_self"))
 
     @property
     def user(self) -> get_user_model() | None:
@@ -133,6 +133,12 @@ class Claims(collections.abc.Mapping):
     def __getitem__(self, key):
         if key not in self._keys:
             raise KeyError(key)
+        # ``is_authenticated`` is als enige van ``_keys`` een methode en geen
+        # property. Zonder deze aanroep levert ``{**claims}`` de gebonden
+        # methode op, en die is altijd waar -- een template die op
+        # ``is_authenticated`` gate't, zou dan iedereen doorlaten.
+        if key == "is_authenticated":
+            return self.is_authenticated()
         return getattr(self, key)
 
     def __iter__(self):
