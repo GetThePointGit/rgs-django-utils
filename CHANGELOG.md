@@ -5,7 +5,7 @@ All notable changes to rgs-django-utils will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.11.0] - 2026-09-18
 
 ### Removed
 - **De library registreert de waterworks-objecten `vw_auth_uman_roles_summary_type`
@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ze ook niet meer. Waterworks moet na deze versie de view en functie zelf
   droppen (`postgres/install/99_last/auth_roles_summary.sql`) en de metadata
   opnieuw genereren.
+
+  Versie 0.11.0: minor, want de metadata van waterworks verandert hierdoor.
 
 ## [0.10.0] - 2026-09-18
 
