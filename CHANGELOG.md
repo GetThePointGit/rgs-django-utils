@@ -5,6 +5,21 @@ All notable changes to rgs-django-utils will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0] - 2026-09-18
+
+### Removed
+- **De library registreert de waterworks-objecten `vw_auth_uman_roles_summary_type`
+  (view) en `auth_uman_get_roles_summary` (functie) niet meer in de
+  Hasura-metadata** (#37). Ze stonden hardgecodeerd in
+  `commands/hasura_permissions.py` en kwamen daardoor in de metadata van élk
+  project. Een project zonder die objecten (urbanworks) kreeg twee permanente
+  inconsistenties, en sinds 0.10.0 faalt `--apply` daarop. Waterworks gebruikt
+  ze ook niet meer. Waterworks moet na deze versie de view en functie zelf
+  droppen (`postgres/install/99_last/auth_roles_summary.sql`) en de metadata
+  opnieuw genereren.
+
+  Versie 0.11.0: minor, want de metadata van waterworks verandert hierdoor.
+
 ## [0.10.0] - 2026-09-18
 
 ### Changed
