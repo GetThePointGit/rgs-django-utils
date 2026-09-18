@@ -191,6 +191,19 @@ python manage.py generate_hasura_metadata --apply
 python manage.py generate_hasura_metadata --apply-only
 ```
 
+An apply that does not take effect is an **error**: a missing metadata file,
+a missing URL or admin secret, an unreachable Hasura, an HTTP error, or
+inconsistent objects reported by Hasura all raise `CommandError`, so the
+command exits non-zero and a deploy job under `set -e` stops. That matters
+because this metadata is where the permissions actually live — a job that
+carries on turns a permission change into a silent no-op while every signal
+stays green.
+
+Hasura reports *inconsistent objects* when it accepted the metadata but had
+to drop the parts it could not place — which is exactly where permissions go
+missing. Pass `--allow-inconsistent` to downgrade that to a warning when you
+knowingly want to continue.
+
 Register per-app SQL functions and views by subclassing `HasuraConfig`:
 
 ```python
