@@ -5,6 +5,42 @@ All notable changes to rgs-django-utils will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2026-09-18
+
+### Changed
+- **`generate_hasura_metadata --apply` faalt nu hard als de metadata niet is
+  toegepast.** Vijf paden eindigden met exit 0 zonder iets toe te passen: een
+  ontbrekend metadatabestand (`--apply-only`), een ontbrekende
+  `HASURA_GRAPHQL_URL`, een ontbrekend `HASURA_GRAPHQL_ADMIN_SECRET`, een
+  `HTTPError` en een `URLError`. In een deploy-job onder `set -e` betekende dat:
+  job `Complete`, groen dashboard, en de rechten in Hasura ongewijzigd. Alle
+  vijf geven nu een `CommandError`
+  (`management/commands/generate_hasura_metadata.py`).
+- De succesmelding `Successfully ran generate_hasura_metadata` stond *boven* de
+  apply en staat nu erna. Het log eindigde daardoor altijd op "succes",
+  ongeacht wat de apply deed.
+- Een inconsistente apply is standaard een fout. Hasura neemt de metadata aan
+  (`allow_inconsistent_metadata`) maar laat de objecten vallen die het niet kon
+  plaatsen -- precies de plek waar permissies ongemerkt verdwijnen. Dat gaf
+  eerder alleen een waarschuwing.
+
+### Added
+- `--allow-inconsistent` op `generate_hasura_metadata`: laat een inconsistente
+  apply bewust door als waarschuwing in plaats van als fout.
+
+### Fixed
+- De URL en het admin-secret worden weer uit de omgeving gelezen als de
+  Django-settings ze niet hebben. De bestaande `if settings is None`-tak liep
+  nooit (`settings` is een `LazySettings` en is nooit `None`), waardoor een
+  ontbrekende instelling een kale `AttributeError` gaf in plaats van een
+  bruikbare melding.
+
+### Upgrade
+Deploys worden hiermee strenger. Een omgeving waar de apply vandaag stil
+mislukt, krijgt nu een rode job -- dat is de bedoeling, maar reken erop bij de
+eerste uitrol. Wie bewust wil doorgaan bij inconsistenties zet
+`--allow-inconsistent` in de job. De aanroep zonder `--apply` verandert niet.
+
 ## [0.9.1] - 2026-09-18
 
 ### Fixed
