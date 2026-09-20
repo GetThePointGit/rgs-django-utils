@@ -273,12 +273,12 @@ class SchemaGenerator:
             "required": ["id", "ids", "name"],
         }
 
-    def _enum_def(self, model_class) -> dict:
+    def _enum_def(self, model_class, *, field=None) -> dict:
         """Rule 23 – BaseEnum subclasses: oneOf with entries consisting of objects containing const, type, readonly and title properties."""
         meta = model_class._meta
         title = str(meta.verbose_name).capitalize()
         desc = _td_attr(model_class, "description", "")
-        oneofs = _enum_oneofs(model_class)
+        oneofs = _enum_oneofs(model_class, enum_filter=_config_attr(field, "enum_filter") if field else None)
         defn: dict = {"type": "string", "title": title}
         if desc:
             defn["description"] = desc
@@ -367,7 +367,7 @@ class SchemaGenerator:
                 field_name = field.name
                 field_nullable = getattr(field, "null", False)
                 enum_schema = self._enum_def(
-                    field.related_model
+                    field.related_model, field=field
                 )  # ensure enum is in $defs so the $ref is valid, even if not directly referenced by a field
                 if field_nullable:
                     prop = dict(enum_schema)  # copy title, description, oneOf, etc.
@@ -483,7 +483,7 @@ class SchemaGenerator:
         # ── FK / OneToOne (rules 19, 23) ──────────────────────────────────
         if isinstance(field, (ForeignKey, OneToOneField)):
             if _is_base_enum(field.related_model):
-                enum_schema = self._enum_def(field.related_model)
+                enum_schema = self._enum_def(field.related_model, field=field)
                 enum_type_part: dict = {"type": enum_schema["type"]}
                 if "oneOf" in enum_schema:
                     enum_type_part["oneOf"] = enum_schema["oneOf"]
@@ -650,20 +650,56 @@ def _is_base_enum_extended(model_class) -> bool:
         return False
 
 
-def _enum_oneofs(model_class) -> list[dict]:
-    """Return [{const, title}, …] from a BaseEnum model's default_records()."""
+def _enum_oneofs(model_class, *, enum_filter: dict | None = None) -> list[dict]:
+    """Return [{const, title, standards?}, …] from a BaseEnum model's default_records().
+
+    Parameters
+    ----------
+    model_class : type
+        Het enum-model.
+    enum_filter : dict, optional
+        Sleutel/waarde-paren waaraan een rij moet voldoen om mee te gaan.
+        De sleutel wordt gezocht in ``fields``; staat hij daar niet, dan wordt
+        ook ``<sleutel>_id`` en, andersom, ``<sleutel>`` zonder een ``_id``-staart
+        geprobeerd - FK-kolommen staan in ``default_records`` soms met en soms
+        zonder die staart. Een onbekende sleutel laat het filter vallen - beter
+        het volledige ``oneOf`` dan een leeg formulier.
+
+    Returns
+    -------
+    list of dict
+        Eén dict per rij, met ``standards`` erbij als de enum die kolom heeft.
+    """
     try:
         records = model_class.default_records()
         fields = records["fields"]
         data = records["data"]
         id_idx = fields.index("id")
         name_idx = fields.index("name")
-        return [
-            {"const": row[id_idx], "title": row[name_idx]}
-            if isinstance(row, tuple)
-            else {"const": row["id"], "title": row["name"]}
-            for row in data
-        ]
+        standards_idx = fields.index("standards") if "standards" in fields else None
+
+        def _value(row, idx):
+            return row[idx] if isinstance(row, tuple) else row[fields[idx]]
+
+        rows = list(data)
+        for key, expected in (enum_filter or {}).items():
+            if key in fields:
+                idx = fields.index(key)
+            elif f"{key}_id" in fields:
+                idx = fields.index(f"{key}_id")
+            elif key.endswith("_id") and key[:-3] in fields:
+                idx = fields.index(key[:-3])
+            else:
+                continue
+            rows = [row for row in rows if _value(row, idx) == expected]
+
+        oneofs = []
+        for row in rows:
+            option = {"const": _value(row, id_idx), "title": _value(row, name_idx)}
+            if standards_idx is not None:
+                option["standards"] = list(_value(row, standards_idx) or [])
+            oneofs.append(option)
+        return oneofs
     except Exception:
         return []
 

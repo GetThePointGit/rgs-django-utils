@@ -760,6 +760,13 @@ class Config:
         Field-layer presentation hints (column width, bulk edit, map label,
         kind, thousands separator). Exported as ``presentation`` in the JSON
         Schema. See :class:`Presentation`.
+    enum_filter : dict, optional
+        Beperkt het ``oneOf`` dat de JSON-schema-generator voor dit veld maakt
+        tot de rijen van de enum-tabel die aan alle sleutel/waarde-paren
+        voldoen, bv. ``{"kind": "soil_type"}``. Sleutels worden gematcht tegen
+        de kolomnamen in ``default_records()``; een sleutel mag ook in zijn
+        ``_id``-vorm opgegeven worden. Alleen zinvol op een FK naar een
+        enum-tabel die meerdere soorten in één tabel bewaart.
 
     Raises
     ------
@@ -810,6 +817,7 @@ class Config:
         hasura_set: HasuraSet = None,
         recalc: typing.List[str] = None,
         presentation: "Presentation | None" = None,
+        enum_filter: dict | None = None,
     ):
         self.modules = modules
         self.section = section
@@ -834,6 +842,7 @@ class Config:
         self.hasura_set = hasura_set
         self.recalc = recalc
         self.presentation = presentation
+        self.enum_filter = enum_filter
 
 
 class FieldConfig:

@@ -67,9 +67,11 @@ def _bare_field(field_cls, name: str = "depth", **kwargs):
     The exporter only reads introspection attributes; we side-step
     contribute_to_class so we do not need a registered model.
     """
+    config = kwargs.pop("config", None)
     field = field_cls(**kwargs)
     field.name = name
     field.column = name
+    field.r_config = config
     return field
 
 
@@ -542,4 +544,71 @@ class TestFieldToPropertyPresentation(UnitTestCase):
             prop["presentation"],
             {"bulkEdit": False, "mapLabel": False, "thousandsSeparator": True},
             "width/kind None → weg; booleans altijd aanwezig",
+        )
+
+
+class TestEnumFilter(UnitTestCase):
+    """enum_filter beperkt het oneOf tot één soort; standards reist per optie mee."""
+
+    def test_without_filter_all_rows_are_emitted(self):
+        from tests.testapp.models import EnumFilteredTestModel
+
+        gen = SchemaGenerator(models=[])
+        field = _bare_field(ForeignKey, to=EnumFilteredTestModel, on_delete=dj_models.CASCADE)
+        prop = gen._field_to_property(field=field)
+
+        self.assertEqual(len(prop["oneOf"]), 3, "Zonder enum_filter moeten alle drie de rijen in het oneOf staan")
+
+    def test_filter_on_kind_limits_one_of(self):
+        from tests.testapp.models import EnumFilteredTestModel
+
+        gen = SchemaGenerator(models=[])
+        field = _bare_field(
+            ForeignKey,
+            to=EnumFilteredTestModel,
+            on_delete=dj_models.CASCADE,
+            config=Config(enum_filter={"kind": "soil"}),
+        )
+        prop = gen._field_to_property(field=field)
+
+        self.assertEqual(
+            [o["const"] for o in prop["oneOf"]],
+            ["soil.klei", "soil.leem"],
+            "enum_filter op kind moet alleen de soil-rijen overhouden",
+        )
+
+    def test_standards_travel_per_option(self):
+        from tests.testapp.models import EnumFilteredTestModel
+
+        gen = SchemaGenerator(models=[])
+        field = _bare_field(
+            ForeignKey,
+            to=EnumFilteredTestModel,
+            on_delete=dj_models.CASCADE,
+            config=Config(enum_filter={"kind": "soil"}),
+        )
+        prop = gen._field_to_property(field=field)
+
+        self.assertEqual(
+            prop["oneOf"][1],
+            {"const": "soil.leem", "title": "leem", "standards": ["nen_5104"]},
+            "Elke optie moet zijn normvarianten meekrijgen",
+        )
+
+    def test_filter_accepts_fk_column_name(self):
+        from tests.testapp.models import EnumFilteredTestModel
+
+        gen = SchemaGenerator(models=[])
+        field = _bare_field(
+            ForeignKey,
+            to=EnumFilteredTestModel,
+            on_delete=dj_models.CASCADE,
+            config=Config(enum_filter={"kind_id": "color"}),
+        )
+        prop = gen._field_to_property(field=field)
+
+        self.assertEqual(
+            [o["const"] for o in prop["oneOf"]],
+            ["color.grijs"],
+            "enum_filter moet ook werken als de sleutel de _id-vorm van de kolom is",
         )

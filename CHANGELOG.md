@@ -5,6 +5,26 @@ All notable changes to rgs-django-utils will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.0] - 2026-09-20
+
+### Added
+- **`Config(enum_filter=...)`** beperkt het `oneOf` dat de JSON-schema-generator
+  voor een FK-veld naar een enum-tabel maakt tot de rijen die aan alle
+  sleutel/waarde-paren voldoen, bv. `{"kind": "soil_type"}`. Nodig voor een
+  enum-tabel die meerdere soorten in één tabel bewaart (bv. `enum_boring_code`
+  in waterworks): zonder filter kreeg elk veld dat naar zo'n tabel verwijst
+  alle rijen van alle soorten in zijn `oneOf`. Sleutels matchen tegen de
+  kolomnamen in `default_records()`, met of zonder `_id`-staart.
+- **`standards` per enum-optie.** Heeft de enum-tabel een `standards`-kolom in
+  `default_records()`, dan draagt elke optie in het `oneOf` zijn normvarianten
+  mee als `{"const", "title", "standards": [...]}`.
+- `SchemaGenerator._enum_def(self, model_class, *, field=None)` geeft het veld
+  door zodat `enum_filter` uit `Config` gelezen kan worden; de twee
+  call-sites die een specifiek veld schema genereren geven nu `field=field`
+  mee. De aanroepen die de enum-tabel zelf als los `$defs`-object opnemen
+  (in `_ensure_def` en de app-lus) blijven zonder `field` en tonen dus het
+  volledige `oneOf`.
+
 ## [0.11.0] - 2026-09-18
 
 ### Removed

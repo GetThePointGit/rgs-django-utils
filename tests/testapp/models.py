@@ -289,6 +289,40 @@ class EnumExtendedTestModel(BaseEnumExtended):
         }
 
 
+class EnumFilteredTestModel(BaseEnumExtended):
+    kind = models.TextStringField(
+        "soort",
+        config=models.Config(permissions=models.FPerm("-s-")),
+    )
+    standards = models.ArrayField(
+        models.TextField(),
+        default=list,
+        config=models.Config(permissions=models.FPerm("-s-")),
+    )
+
+    class Meta:
+        db_table = "enum_filtered_test_model"
+        app_label = app_label
+
+    class TableDescription:
+        modules = "*"
+
+    @classmethod
+    def get_permissions(cls):
+        return models.TPerm({})
+
+    @classmethod
+    def default_records(cls):
+        return {
+            "fields": ["id", "name", "kind", "standards"],
+            "data": [
+                ("soil.klei", "klei", "soil", ["nen_5104", "nen_6693"]),
+                ("soil.leem", "leem", "soil", ["nen_5104"]),
+                ("color.grijs", "grijs", "color", ["nen_6693"]),
+            ],
+        }
+
+
 class EnumTestModel(BaseEnum):
     class Meta:
         db_table = "enum_test_model"
