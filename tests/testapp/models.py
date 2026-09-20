@@ -215,6 +215,15 @@ class ChildModel(models.Model):
             ),
         ),
     )
+    # Nullable SET_NULL-FK, alleen gebruikt om install_db_defaults_and_relation_cascading
+    # te testen op een echte constraint (zie test_install_db_defaults_and_relation_cascading.py).
+    set_null_parent = models.ForeignKey(
+        ParentModel,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="deferrable_children",
+    )
 
     # field types
     int_field = models.IntegerField(default=0)

@@ -5,6 +5,21 @@ All notable changes to rgs-django-utils will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+- **`install_db_defaults_and_relation_cascading` behoudt nu de bestaande
+  deferrability van een FK-constraint.** De functie herschreef elke FK met
+  `on_delete` CASCADE/SET_NULL/SET_DEFAULT altijd als
+  `DEFERRABLE INITIALLY IMMEDIATE`, ongeacht de bestaande staat. Een migratie
+  die bewust `DEFERRABLE INITIALLY DEFERRED` zet (zodat een sync-batch ouder-
+  en kindrij in willekeurige volgorde binnen één transactie kan inserten)
+  overleefde daardoor noch `manage.py migrate` (via de `post_migrate`-hook)
+  noch `migrate_and_update`: de eerstvolgende migratie zette de constraint
+  stilzwijgend terug naar `INITIALLY IMMEDIATE`. De constraint blijft altijd
+  deferrable; alleen de `INITIALLY DEFERRED`/`INITIALLY IMMEDIATE`-status
+  volgt nu de bestaande constraint (`pg_constraint.condeferred`).
+
 ## [0.12.0] - 2026-09-20
 
 ### Added
