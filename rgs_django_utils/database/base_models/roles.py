@@ -8,7 +8,9 @@ def base_model_role(name: str) -> str:
     """Translate a base-model role name into the project's own vocabulary.
 
     The abstract base models ship with role names from the project this
-    library grew up in (``project_read``, ``project_edit``, ``proj_read``).
+    library grew up in (``project_read`` and ``project_edit``; ``proj_read``
+    is still translated for consumers that map it, but no base model uses
+    it any more since 0.12.2).
     Since role names are validated against ``settings.PERMISSION_TREE``, a
     project using a different vocabulary could not import the mixins at all.
     ``BASE_MODEL_ROLES`` maps the shipped name onto a name that project does

@@ -1,6 +1,23 @@
 from django.test import SimpleTestCase, override_settings
 
+from rgs_django_utils.database.base_models.modification_mixin import ModificationMetaMixin
 from rgs_django_utils.database.base_models.roles import audit_perm, base_model_role
+
+
+def _perm_config(field_name: str) -> dict:
+    """Geef het permissieconfig van een auditveld van ``ModificationMetaMixin``.
+
+    Parameters
+    ----------
+    field_name : str
+        Naam van het veld op de abstracte mixin.
+
+    Returns
+    -------
+    dict
+        De rol → acties-mapping zoals ``FPerm`` die vastlegt.
+    """
+    return ModificationMetaMixin._meta.get_field(field_name).r_config.permissions.config
 
 
 class TestZonderMapping(SimpleTestCase):
@@ -24,6 +41,21 @@ class TestZonderMapping(SimpleTestCase):
 
     def test_edit_argument_wordt_doorgegeven(self):
         assert audit_perm("is-").config["project_edit"] == "is-"
+
+    def test_db_last_modified_leest_via_project_read(self):
+        """``db_last_modified`` volgt de leesrollen van de andere auditvelden.
+
+        Tot 0.12.1 stond dit veld op ``proj_read`` — een bladrol die in de
+        oorspronkelijke consument nooit in een token terechtkomt, zodat het
+        leesrecht bij niemand landde (waterworks#445). Het veld blijft
+        select-only: de server zet het via ``auto_now``.
+        """
+        assert _perm_config("db_last_modified") == {
+            "org_mem": "-s-",
+            "project_read": "-s-",
+            "public": "---",
+        }
+        assert "proj_read" not in _perm_config("db_last_modified")
 
 
 @override_settings(BASE_MODEL_ROLES={"project_read": "aanvr_read", "project_edit": "aanvr_man"})

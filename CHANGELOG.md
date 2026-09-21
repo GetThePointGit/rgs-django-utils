@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.2] - 2026-09-21
+
+### Fixed
+- **`ModificationMetaMixin.db_last_modified` is leesbaar voor `project_read`
+  in plaats van `proj_read`.** De acht andere auditvelden van de mixin staan
+  al op de ouderrol `project_read` (via `audit_perm()`); alleen dit veld stond
+  op de bladrol `proj_read`, waardoor het leesrecht in de praktijk bij niemand
+  landde (waterworks#445). Het veld blijft select-only — geen rol krijgt er
+  insert of update op, want de server zet het via `auto_now`.
+  **Consumer-actie:** genereer de Hasura-metadata opnieuw
+  (`manage.py generate_hasura_metadata`); op elke tabel met deze mixin krijgt
+  `db_last_modified` dezelfde select-rollen als `last_modified_at`.
+
 ## [0.12.1] - 2026-09-21
 
 ### Fixed

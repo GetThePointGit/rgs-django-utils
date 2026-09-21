@@ -30,7 +30,7 @@ class ModificationMetaMixin(models.Model):
             section=section,
             doc_short="laatst aangepast in centrale database. Gebruikt voor synchronisatie",
             ignore_for_history=True,
-            permissions=models.FPerm(**{"org_mem": "-s-", base_model_role("proj_read"): "-s-"}),
+            permissions=models.FPerm(**{"org_mem": "-s-", base_model_role("project_read"): "-s-"}),
         ),
     )
 
