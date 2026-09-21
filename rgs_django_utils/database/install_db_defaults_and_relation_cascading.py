@@ -41,7 +41,11 @@ def install_db_defaults_and_relation_cascading(*args, **kwargs):
     -----
     Enables the ``pgcrypto`` extension on entry (used by UUID defaults).
     Runs in autocommit-off mode while rewriting FK constraints and commits
-    once per FK change.
+    once per FK change. The rewritten constraint is always made
+    ``DEFERRABLE``; its ``INITIALLY DEFERRED``/``INITIALLY IMMEDIATE``
+    state is preserved from the existing constraint (e.g. a migration
+    that set ``DEFERRABLE INITIALLY DEFERRED`` on a FK survives this
+    rewrite instead of being reset to ``INITIALLY IMMEDIATE``).
     """
     log.info("install field default values to database (for Hasura)")
 
@@ -134,6 +138,8 @@ def install_db_defaults_and_relation_cascading(*args, **kwargs):
                               ,string_agg(f.attname, ', ') AS referenced_columns
                               ,c.conname AS fk_name
                               ,pg_get_constraintdef(c.oid) AS fk_definition
+                              ,c.condeferrable AS deferrable
+                              ,c.condeferred AS initially_deferred
                             FROM pg_attribute  a
                             JOIN pg_constraint c ON (c.conrelid, c.conkey[1]) = (a.attrelid, a.attnum)
                             JOIN pg_attribute  f ON f.attrelid = c.confrelid
@@ -151,10 +157,25 @@ def install_db_defaults_and_relation_cascading(*args, **kwargs):
                             log.warning("constraint for %s.%s not found.", db_table, column)
                             continue
 
+                        (
+                            _referenced_table,
+                            _referenced_columns,
+                            fk_name,
+                            _fk_definition,
+                            _was_deferrable,
+                            was_initially_deferred,
+                        ) = constraint
+
+                        # De constraint blijft altijd deferrable (bestaand gedrag); alleen de
+                        # bestaande INITIALLY-DEFERRED/-IMMEDIATE-status wordt overgenomen, zodat
+                        # een migratie die bewust DEFERRABLE INITIALLY DEFERRED zet niet door deze
+                        # herschrijving wordt teruggezet naar INITIALLY IMMEDIATE.
+                        initially = "DEFERRED" if was_initially_deferred else "IMMEDIATE"
+
                         transaction.set_autocommit(False)
 
                         query = sql.SQL("ALTER TABLE {db_table} DROP CONSTRAINT {constraint};").format(
-                            db_table=sql.Identifier(db_table), constraint=sql.Identifier(constraint[2])
+                            db_table=sql.Identifier(db_table), constraint=sql.Identifier(fk_name)
                         )
                         log.debug("query: %s", query.as_string(cursor.connection))
                         cursor.execute(query)
@@ -162,14 +183,15 @@ def install_db_defaults_and_relation_cascading(*args, **kwargs):
                         query = sql.SQL("""
                             ALTER TABLE {db_table} ADD CONSTRAINT {constraint} FOREIGN KEY ({column})
                             REFERENCES {ref_table} ({ref_column})
-                            MATCH SIMPLE ON DELETE {action} DEFERRABLE INITIALLY IMMEDIATE;
+                            MATCH SIMPLE ON DELETE {action} DEFERRABLE INITIALLY {initially};
                         """).format(
                             db_table=sql.Identifier(db_table),
                             column=sql.Identifier(column),
-                            constraint=sql.Identifier(constraint[2]),
+                            constraint=sql.Identifier(fk_name),
                             ref_table=sql.Identifier(field.related_model()._meta.db_table),
                             ref_column=sql.Identifier(field.remote_field.get_related_field().column),
                             action=sql.SQL(action),
+                            initially=sql.SQL(initially),
                         )
                         log.debug("query: %s", query.as_string(cursor.connection))
                         cursor.execute(query)
