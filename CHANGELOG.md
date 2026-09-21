@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.1] - 2026-09-21
+
 ### Fixed
 - **`install_db_defaults_and_relation_cascading` behoudt nu de bestaande
   deferrability van een FK-constraint.** De functie herschreef elke FK met
