@@ -22,8 +22,20 @@ from rgs_django_utils.models import (
 )
 from rgs_django_utils.models.enums import EnumModuleBase
 
-_available_modules = getattr(settings, "AVAILABLE_MODULES", [])
-_all_modules_str = "".join([m["id"] for m in _available_modules])
+
+def _all_modules_string() -> str:
+    """Return the one-character ids of ``settings.AVAILABLE_MODULES``, in order.
+
+    Read from the settings on every call instead of at import time, so the
+    value follows ``override_settings`` in tests and a settings module that
+    is loaded after this one.
+
+    Returns
+    -------
+    str
+        Concatenated module ids, e.g. ``"DPVMUSO"``.
+    """
+    return "".join([m["id"] for m in getattr(settings, "AVAILABLE_MODULES", [])])
 
 
 def get_modules_string(modules: str | typing.Iterable[typing.AnyStr | "EnumModuleBase"]) -> str:
@@ -37,7 +49,8 @@ def get_modules_string(modules: str | typing.Iterable[typing.AnyStr | "EnumModul
     Parameters
     ----------
     modules : str or iterable of (str or EnumModuleBase)
-        ``"*"``, a single module id, or an iterable of module ids.
+        ``"*"``, one or more module ids as a string (``"D"``, ``"DP"``), or
+        an iterable of module ids / enum constants.
 
     Returns
     -------
@@ -50,17 +63,35 @@ def get_modules_string(modules: str | typing.Iterable[typing.AnyStr | "EnumModul
     ValueError
         If any requested module is not listed in
         ``settings.AVAILABLE_MODULES``.
+
+    Examples
+    --------
+    With ``AVAILABLE_MODULES`` ids ``"DPVMUSO"``:
+
+    >>> get_modules_string("*")
+    'DPVMUSO'
+    >>> get_modules_string("D")
+    'D......'
+    >>> get_modules_string(["D", "O"])
+    'D.....O'
     """
 
+    alle = _all_modules_string()
+
     if modules == "*":
-        return _all_modules_str
-    if isinstance(modules, str):
-        if modules not in _all_modules_str:
-            raise ValueError(f"Module {modules} not found")
-        return "".join([m if m == modules else "." for m in _available_modules])
-    if not all(module in _all_modules_str for module in modules):
-        raise ValueError(f"Module {modules} not found")
-    return "".join([m if m in modules else "." for m in _available_modules])
+        return alle
+
+    # Both a string ("DP") and an iterable of ids or enum constants end up
+    # as a set of one-character ids. Enum constants are str subclasses, so
+    # str() is enough to normalise them.
+    gevraagd = set(modules) if isinstance(modules, str) else {str(module) for module in modules}
+
+    onbekend = sorted(gevraagd - set(alle))
+    if onbekend:
+        raise ValueError(f"Module(s) {''.join(onbekend)} not found in settings.AVAILABLE_MODULES ({alle})")
+
+    # Positional: every slot keeps its place, inactive modules become ".".
+    return "".join([m if m in gevraagd else "." for m in alle])
 
 
 def sync_db_meta_tables():
