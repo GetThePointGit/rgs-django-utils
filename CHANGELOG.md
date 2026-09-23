@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.12.3] - 2026-09-23
+
 ### Fixed
 - **`get_modules_string` gaf voor elke invoer behalve `"*"` een masker met
   alleen punten.** De functie liep over `settings.AVAILABLE_MODULES` — een
