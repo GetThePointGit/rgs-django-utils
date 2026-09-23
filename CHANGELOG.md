@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **`get_modules_string` gaf voor elke invoer behalve `"*"` een masker met
+  alleen punten.** De functie liep over `settings.AVAILABLE_MODULES` — een
+  lijst van dicts — en vergeleek die dicts met losse module-letters, wat nooit
+  waar is. Daardoor kreeg elke tabel of veld met een expliciete
+  `modules=`-configuratie een leeg masker (`".........."`) in de
+  `description_*`-tabellen in plaats van zijn eigen modules. De functie loopt
+  nu over de module-letters zelf, accepteert naast `"*"` en één letter ook
+  meerdere letters (`"DP"`) of een iterable van letters/enum-constanten, en
+  noemt in de `ValueError` welke letter onbekend is. `AVAILABLE_MODULES` wordt
+  per aanroep uit de settings gelezen in plaats van bij import, zodat
+  `override_settings` werkt.
+  **Consumer-actie:** draai `manage.py sync_db_description` opnieuw, zodat de
+  `description_*`-tabellen de juiste maskers krijgen.
+
 ## [0.12.2] - 2026-09-21
 
 ### Fixed
