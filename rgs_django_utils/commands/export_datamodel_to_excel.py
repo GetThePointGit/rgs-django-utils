@@ -171,6 +171,31 @@ def _xlsx_safe_value(value):
     return value
 
 
+# Excel staat maximaal 31 tekens toe; we kappen standaard af op 30.
+SHEET_NAME_MAX_LENGTH = 30
+_SHEET_NAME_INVALID_CHARS = "[]:*?/\\"
+
+
+def _xlsx_sheet_name(name, used_names, max_length=SHEET_NAME_MAX_LENGTH):
+    """Maak van een sectienaam een geldige, unieke Excel-werkbladnaam.
+
+    Excel eist <= 31 tekens, geen ``[]:*?/\\`` en unieke namen
+    (hoofdletterongevoelig). Te lange namen worden afgekapt; botst de
+    afgekapte naam met een eerder blad, dan krijgt hij een volgnummer
+    (``~2``, ``~3``, ...) binnen dezelfde lengte. ``used_names`` wordt
+    bijgewerkt met de (lowercase) gekozen naam.
+    """
+    clean = "".join("_" if c in _SHEET_NAME_INVALID_CHARS else c for c in str(name)).strip("'") or "Sheet"
+    candidate = clean[:max_length]
+    n = 1
+    while candidate.lower() in used_names:
+        n += 1
+        suffix = f"~{n}"
+        candidate = clean[: max_length - len(suffix)] + suffix
+    used_names.add(candidate.lower())
+    return candidate
+
+
 def table_field_style(styles, row, rows, use_even_odd=True, for_default=False):
     if row == 0:
         if for_default:
@@ -223,6 +248,7 @@ def export_datamodel_to_excel(export_path=None):
     styles = Styles(workbook)
 
     overview = workbook.add_worksheet("Overzicht")
+    used_sheet_names = {"overzicht"}
     overview.write(0, 0, "Overzicht", styles.h1)
     overview_row = 2
 
@@ -230,7 +256,7 @@ def export_datamodel_to_excel(export_path=None):
         row = 0
 
         ### table section
-        worksheet = workbook.add_worksheet(section.name)
+        worksheet = workbook.add_worksheet(_xlsx_sheet_name(section.name, used_sheet_names))
         worksheet.write(0, 0, f"Sectie {section.name} ({section.code})", styles.h1)
 
         overview.write(overview_row, 0, f"Sectie {section.name}", styles.h2)
