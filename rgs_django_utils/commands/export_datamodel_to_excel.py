@@ -177,9 +177,9 @@ _SHEET_NAME_INVALID_CHARS = "[]:*?/\\"
 
 
 def _xlsx_sheet_name(name, used_names, max_length=SHEET_NAME_MAX_LENGTH):
-    """Maak van een sectienaam een geldige, unieke Excel-werkbladnaam.
+    r"""Maak van een sectienaam een geldige, unieke Excel-werkbladnaam.
 
-    Excel eist <= 31 tekens, geen ``[]:*?/\\`` en unieke namen
+    Excel eist <= 31 tekens, geen ``[]:*?/\`` en unieke namen
     (hoofdletterongevoelig). Te lange namen worden afgekapt; botst de
     afgekapte naam met een eerder blad, dan krijgt hij een volgnummer
     (``~2``, ``~3``, ...) binnen dezelfde lengte. ``used_names`` wordt
