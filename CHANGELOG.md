@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-09-25
+
 ### Added
 - `build_claim_function_sql(..., aliases=)` en `settings.CLAIM_ROLE_ALIASES`: een
   id buiten `PERMISSION_TREE` (bv. de stafrol-id `sys_admin` van
