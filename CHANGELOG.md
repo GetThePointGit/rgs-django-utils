@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `build_claim_function_sql(..., aliases=)` en `settings.CLAIM_ROLE_ALIASES`: een
+  id buiten `PERMISSION_TREE` (bv. de stafrol-id `sys_admin` van
+  `@getthepointgit/auth`) levert de claimketen van een boomrol (`sys_adm`).
+
 ## [0.12.3] - 2026-09-23
 
 ### Fixed
