@@ -7,7 +7,9 @@ plpgsql daaruit te renderen staat die graaf op één plek, in plaats van ook nog
 eens met de hand in een ``IF``-keten in een migratie.
 """
 
-from typing import Sequence
+from typing import Mapping, Sequence
+
+from django.conf import settings
 
 from rgs_django_utils.database.permission_helper import PermissionHelper
 
@@ -34,6 +36,7 @@ def build_claim_function_sql(
     function_name: str,
     arguments: Sequence[str],
     base_roles: Sequence[str] = DEFAULT_BASE_ROLES,
+    aliases: Mapping[str, str] | None = None,
 ) -> str:
     """Render een ``CREATE OR REPLACE FUNCTION`` voor de Hasura-claims.
 
@@ -41,6 +44,11 @@ def build_claim_function_sql(
     ``IF``/``ELSIF``-keten gerenderd over alle rollen uit
     ``settings.PERMISSION_TREE``. Elke tak voegt de volledige
     overervingsketen van die rol toe.
+
+    Aliassen laten een id dat *niet* in de boom staat (bijvoorbeeld de
+    stafrol-id ``sys_admin`` uit ``@getthepointgit/auth``) de keten van een
+    boomrol opleveren (``sys_adm``, de Hasura-rolnaam). De alias zelf komt
+    niet in de claimset: het is een sleutel in een enum-tabel, geen rol.
 
     De functie is ``IMMUTABLE`` en ``PARALLEL SAFE``, omdat hij gebruikt wordt
     in een ``GENERATED ... STORED``-kolom; Postgres weigert daar anders.
@@ -53,13 +61,29 @@ def build_claim_function_sql(
         Namen van de ``text``-argumenten, elk met een rol-id.
     base_roles : sequence of str, optional
         Rollen die iedereen krijgt, ongeacht de argumenten.
+    aliases : mapping of {str: str}, optional
+        Alias-id naar boomrol. Standaard ``settings.CLAIM_ROLE_ALIASES``
+        (leeg als die setting ontbreekt).
 
     Returns
     -------
     str
         De volledige plpgsql, klaar voor ``migrations.RunSQL``.
+
+    Raises
+    ------
+    ValueError
+        Als een alias naar een rol wijst die niet in de boom staat, of als
+        de alias zelf al een boomrol is (dan zou hij twee takken krijgen).
     """
     inheritance = PermissionHelper.get_permission_inherence_list()
+    if aliases is None:
+        aliases = getattr(settings, "CLAIM_ROLE_ALIASES", {})
+    for alias, doel in aliases.items():
+        if alias in inheritance:
+            raise ValueError(f"alias {alias!r} is zelf een rol in PERMISSION_TREE")
+        if doel not in inheritance:
+            raise ValueError(f"alias {alias!r} wijst naar onbekende rol {doel!r}")
 
     signature = ", ".join(f"{name} text" for name in arguments)
     lines = [
@@ -80,6 +104,9 @@ def build_claim_function_sql(
                 continue
             lines.append(f"  ELSIF {name} = '{role}' THEN")
             lines.append(f"    role_set := role_set || {_array_literal(chain)};")
+        for alias, doel in sorted(aliases.items()):
+            lines.append(f"  ELSIF {name} = '{alias}' THEN")
+            lines.append(f"    role_set := role_set || {_array_literal(inheritance[doel])};")
         lines.append("  END IF;")
 
     lines += [
