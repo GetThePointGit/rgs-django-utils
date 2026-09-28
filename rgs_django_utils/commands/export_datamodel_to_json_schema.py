@@ -399,7 +399,12 @@ class SchemaGenerator:
                     continue
                 extended_model = field.related_model.extended.related.related_model  # ExtendedEnum
                 ref = self._ensure_def(model_class=extended_model)
-                props[field_name] = {"$ref": ref}
+                # Altijd readOnly: het uitgeklapte enum-record is referentiedata
+                # (alleen om te tonen). De keuze zelf gaat via `<veld>_id`; een
+                # schrijfbare relatie laat de formulierbouwer 'm als geneste
+                # insert meesturen, en die bestaat niet in Hasura ("field
+                # '<veld>' not found in type: '<model>_insert_input'").
+                props[field_name] = {"$ref": ref, "readOnly": True}
                 continue
 
             prop = self._field_to_property(field=field)
