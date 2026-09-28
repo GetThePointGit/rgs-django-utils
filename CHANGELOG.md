@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.1] - 2026-09-28
+
+### Fixed
+- **JSON-schema-export: de relatie naar een extended enum is nu `readOnly`.**
+  Een FK naar een extended enum levert `<veld>_id` (de keuze) en `<veld>` als
+  `$ref` naar het enum-record. Dat record is referentiedata; zonder `readOnly`
+  stuurde de formulierbouwer in waterworks-ui het als geneste insert mee, wat
+  Hasura weigert (`field 'classification' not found in type:
+  'ss_classification_insert_input'`). `<veld>_id` blijft schrijfbaar.
+
 ## [0.13.0] - 2026-09-25
 
 ### Added

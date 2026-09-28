@@ -511,6 +511,42 @@ class TestExtendedEnumSelfReference(UnitTestCase):
         self.assertIn("oneOf", props["id_id"], "`id_id` moet de oneOf-constantes van de base enum bevatten")
 
 
+class TestExtendedEnumRelationReadOnly(UnitTestCase):
+    """model_properties(): een FK naar een extended enum geeft `<veld>_id`
+    (de keuze) plus `<veld>` als `$ref` naar het uitgeklapte enum-record. Dat
+    record is referentiedata en moet readOnly zijn: anders stuurt de
+    formulierbouwer in waterworks-ui het als geneste insert mee, wat Hasura
+    weigert ("field 'classification' not found in type:
+    'ss_classification_insert_input'").
+    """
+
+    def _props(self):
+        from tests.testapp.models import EnumExtendedTestModel
+
+        field = _bare_field(ForeignKey, name="klasse", to=EnumExtendedTestModel, on_delete=dj_models.CASCADE)
+
+        class _Meta:
+            @staticmethod
+            def get_fields():
+                return [field]
+
+        class _Model:
+            _meta = _Meta
+
+        props, _required = SchemaGenerator(models=[]).model_properties(_Model)
+        return props
+
+    def test_relation_is_readonly_ref(self):
+        prop = self._props()["klasse"]
+        self.assertIn("$ref", prop, "De relatie moet naar het extended-enum-model wijzen")
+        self.assertTrue(prop.get("readOnly"), "Het uitgeklapte enum-record moet readOnly zijn")
+
+    def test_choice_column_stays_writable(self):
+        prop = self._props()["klasse_id"]
+        self.assertIn("oneOf", prop, "`klasse_id` moet de enum-keuzes bevatten")
+        self.assertNotIn("readOnly", prop, "De keuze zelf (`klasse_id`) moet schrijfbaar blijven")
+
+
 class TestFieldToPropertyPresentation(UnitTestCase):
     """The field layer (Presentation) must land as ``presentation`` on the property."""
 
