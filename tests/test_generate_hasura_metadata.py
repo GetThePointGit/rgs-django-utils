@@ -196,3 +196,65 @@ class TestSuccesmeldingStaatNaDeApply(SimpleTestCase):
 
         self.assertIsNone(fout)
         self.assertIn("Successfully ran generate_hasura_metadata", commando.stdout.getvalue())
+
+
+class TestReloadNaApply(SimpleTestCase):
+    """Na een apply volgt ``reload_metadata`` met ``reload_sources`` (waterworks#615).
+
+    ``replace_metadata`` ververst de enum-cache van Hasura niet: een nieuwe
+    enum-rij (module ``O``) bleef in GraphQL onbekend tot iemand met de hand
+    herlaadde.
+    """
+
+    @staticmethod
+    def _verzoeken(urlopen):
+        """De JSON-bodies die naar ``urlopen`` zijn gestuurd, in volgorde."""
+        return [json.loads(c.args[0].data.decode("utf-8")) for c in urlopen.call_args_list]
+
+    def test_apply_wordt_gevolgd_door_reload_met_sources(self):
+        commando = _commando()
+
+        with self.settings(**GELDIGE_CONFIG):
+            with mock.patch("urllib.request.urlopen", return_value=_antwoord({"is_consistent": True})) as urlopen:
+                commando._send_metadata_to_hasura({"version": 3})
+
+        verzoeken = self._verzoeken(urlopen)
+        self.assertEqual([v["type"] for v in verzoeken], ["replace_metadata", "reload_metadata"])
+        self.assertEqual(verzoeken[1]["args"], {"reload_sources": True})
+        self.assertIn("herladen", commando.stdout.getvalue())
+
+    def test_mislukte_apply_herlaadt_niet(self):
+        commando = _commando()
+
+        with self.settings(**GELDIGE_CONFIG):
+            with mock.patch("urllib.request.urlopen", side_effect=urllib.error.URLError("weg")) as urlopen:
+                with self.assertRaises(CommandError):
+                    commando._send_metadata_to_hasura({"version": 3})
+
+        self.assertEqual(urlopen.call_count, 1)
+
+    def test_mislukte_reload_laat_het_commando_falen(self):
+        commando = _commando()
+        antwoorden = [_antwoord({"is_consistent": True}), urllib.error.URLError("weg")]
+
+        with self.settings(**GELDIGE_CONFIG):
+            with mock.patch("urllib.request.urlopen", side_effect=antwoorden):
+                with self.assertRaises(CommandError) as ctx:
+                    commando._send_metadata_to_hasura({"version": 3})
+
+        self.assertIn("Kan Hasura niet bereiken", str(ctx.exception))
+        self.assertNotIn("herladen.", commando.stdout.getvalue())
+
+    def test_inconsistente_reload_is_een_fout(self):
+        commando = _commando()
+        antwoorden = [
+            _antwoord({"is_consistent": True}),
+            _antwoord({"is_consistent": False, "inconsistent_objects": [{"type": "table", "name": "x"}]}),
+        ]
+
+        with self.settings(**GELDIGE_CONFIG):
+            with mock.patch("urllib.request.urlopen", side_effect=antwoorden):
+                with self.assertRaises(CommandError) as ctx:
+                    commando._send_metadata_to_hasura({"version": 3})
+
+        self.assertIn("Metadata herladen, maar Hasura meldt inconsistenties", str(ctx.exception))
