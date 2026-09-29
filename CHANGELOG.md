@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **`generate_hasura_metadata --apply` herlaadt Hasura na de apply.** Na een
+  geslaagde `replace_metadata` volgt `reload_metadata` met `reload_sources: true`.
+  `replace_metadata` alleen ververst de enum-cache van Hasura niet, waardoor een
+  nieuwe enum-rij (bv. module `O` in waterworks) in GraphQL onbekend bleef tot
+  iemand met de hand herlaadde. Een mislukte of inconsistente reload laat het
+  commando falen, net als de apply zelf (waterworks#615).
+
 ## [0.14.0] - 2026-09-29
 
 ### Added

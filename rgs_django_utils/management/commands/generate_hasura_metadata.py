@@ -24,6 +24,11 @@ class Command(BaseCommand):
     file (useful in CI when metadata is generated in one step and applied
     in another).
 
+    After a successful apply the command also sends ``reload_metadata`` with
+    ``reload_sources: true``. ``replace_metadata`` alone leaves Hasura's cached
+    enum-table values untouched, so a newly added enum row (e.g. module ``O``)
+    would be rejected by GraphQL until someone reloaded by hand.
+
     Every way in which an apply can fail to take effect raises
     :class:`~django.core.management.base.CommandError`, so the command exits
     non-zero. Dat is dragend: deze metadata is waar de rechten echt staan, en
@@ -155,7 +160,7 @@ class Command(BaseCommand):
         )
 
     def _send_metadata_to_hasura(self, metadata, allow_inconsistent=False):
-        """POST *metadata* to the Hasura metadata API.
+        """POST *metadata* to the Hasura metadata API, then reload the sources.
 
         Parameters
         ----------
@@ -171,7 +176,51 @@ class Command(BaseCommand):
             When the URL or admin secret is missing, when Hasura is
             unreachable, when it answers with an HTTP error, or when it
             reports inconsistent objects while *allow_inconsistent* is
-            ``False``.
+            ``False``. Also when the follow-up ``reload_metadata`` fails.
+        """
+        body = self._post_metadata_api(
+            {
+                "type": "replace_metadata",
+                "version": 2,
+                "args": {
+                    "allow_inconsistent_metadata": True,
+                    "metadata": metadata,
+                },
+            },
+            "Metadata toepassen",
+        )
+        if self._check_consistency(body, "Metadata toegepast", allow_inconsistent):
+            self.stdout.write(self.style.SUCCESS("Metadata succesvol toegepast op Hasura."))
+
+        # replace_metadata ververst de enum-cache van Hasura niet; zonder reload
+        # weigert GraphQL nieuwe enum-waarden (ww#615: module 'O').
+        body = self._post_metadata_api(
+            {"type": "reload_metadata", "args": {"reload_sources": True}},
+            "Metadata herladen (reload_sources)",
+        )
+        if self._check_consistency(body, "Metadata herladen", allow_inconsistent):
+            self.stdout.write(self.style.SUCCESS("Hasura-metadata en bronnen herladen."))
+
+    def _post_metadata_api(self, query, beschrijving):
+        """POST one request to ``/v1/metadata`` and return the parsed answer.
+
+        Parameters
+        ----------
+        query : dict
+            The metadata-API request (``type`` + ``args``).
+        beschrijving : str
+            What is being done, for the log line.
+
+        Returns
+        -------
+        dict
+            The JSON answer of Hasura.
+
+        Raises
+        ------
+        CommandError
+            When the URL or admin secret is missing, when Hasura is
+            unreachable or when it answers with an HTTP error.
         """
         hasura_url, admin_secret = self._hasura_credentials()
 
@@ -181,16 +230,7 @@ class Command(BaseCommand):
         if not admin_secret:
             raise CommandError("HASURA_GRAPHQL_ADMIN_SECRET is niet ingesteld.")
 
-        payload = json.dumps(
-            {
-                "type": "replace_metadata",
-                "version": 2,
-                "args": {
-                    "allow_inconsistent_metadata": True,
-                    "metadata": metadata,
-                },
-            }
-        ).encode("utf-8")
+        payload = json.dumps(query).encode("utf-8")
 
         url = hasura_url.rstrip("/") + "/v1/metadata"
         req = urllib.request.Request(
@@ -203,7 +243,7 @@ class Command(BaseCommand):
             method="POST",
         )
 
-        self.stdout.write(f"Metadata toepassen op {url}...")
+        self.stdout.write(f"{beschrijving} op {url}...")
 
         try:
             with urllib.request.urlopen(req) as resp:
@@ -213,10 +253,34 @@ class Command(BaseCommand):
             raise CommandError(f"Hasura API fout ({e.code}): {e.read().decode('utf-8')}") from e
         except urllib.error.URLError as e:
             raise CommandError(f"Kan Hasura niet bereiken: {e.reason}") from e
+        return body
 
+    def _check_consistency(self, body, context, allow_inconsistent):
+        """Raise (or warn) when Hasura reports inconsistent objects.
+
+        Parameters
+        ----------
+        body : dict
+            Answer of the metadata API.
+        context : str
+            Start of the message, e.g. ``"Metadata toegepast"``.
+        allow_inconsistent : bool
+            Log a warning instead of raising.
+
+        Returns
+        -------
+        bool
+            ``True`` when Hasura reports no inconsistencies, ``False`` when it
+            does and *allow_inconsistent* turned that into a warning.
+
+        Raises
+        ------
+        CommandError
+            When Hasura reports inconsistent objects and *allow_inconsistent*
+            is ``False``.
+        """
         if body.get("is_consistent") is not False:
-            self.stdout.write(self.style.SUCCESS("Metadata succesvol toegepast op Hasura."))
-            return
+            return True
 
         # Hasura heeft de metadata aangenomen (allow_inconsistent_metadata) maar
         # de objecten die het niet kon plaatsen laten vallen. Precies daar gaan
@@ -225,11 +289,11 @@ class Command(BaseCommand):
             f"  - {inc.get('type')}: {inc.get('name', '')} — {inc.get('reason', '')}"
             for inc in body.get("inconsistent_objects", [])
         ]
-        melding = "\n".join(["Metadata toegepast, maar Hasura meldt inconsistenties:", *regels])
+        melding = "\n".join([f"{context}, maar Hasura meldt inconsistenties:", *regels])
 
         if allow_inconsistent:
             self.stdout.write(self.style.WARNING(melding))
-            return
+            return False
 
         raise CommandError(f"{melding}\n\nGebruik --allow-inconsistent om hier bewust langs te gaan.")
 
