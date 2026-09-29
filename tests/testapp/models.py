@@ -47,6 +47,7 @@ class ParentModel(models.Model):
 
     class TableDescription:
         modules = "*"
+        display_field = "ids"
 
     @classmethod
     def get_permissions(cls):
@@ -232,6 +233,9 @@ class ChildModel(models.Model):
     class Meta:
         verbose_name = "verbose_child_model"
         app_label = app_label
+
+    class TableDescription:
+        display_field = "middle_model.ids"
 
     @classmethod
     def get_permissions(cls):

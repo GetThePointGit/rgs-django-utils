@@ -648,3 +648,31 @@ class TestEnumFilter(UnitTestCase):
             ["color.grijs"],
             "enum_filter moet ook werken als de sleutel de _id-vorm van de kolom is",
         )
+
+
+class TestDisplayField(UnitTestCase):
+    """``TableDescription.display_field`` → ``x-displayField`` in het schema (ww#588)."""
+
+    def test_root_schema_emits_display_field(self):
+        from tests.testapp.models import ParentModel
+
+        schema = SchemaGenerator(models=[]).generate(ParentModel)
+        self.assertEqual(schema.get("x-displayField"), "ids")
+
+    def test_def_emits_dotted_display_field(self):
+        from tests.testapp.models import ChildModel, ParentModel
+
+        gen = SchemaGenerator(models=[])
+        gen.generate(ParentModel)
+        ref = gen._ensure_def(ChildModel)
+        self.assertEqual(ref, "#/$defs/testapp_childmodel")
+        self.assertEqual(gen.defs["testapp_childmodel"].get("x-displayField"), "middle_model.ids")
+
+    def test_no_display_field_emits_nothing(self):
+        from tests.testapp.models import MiddleModel
+
+        schema = SchemaGenerator(models=[]).generate(MiddleModel)
+        self.assertNotIn("x-displayField", schema)
+        # het gerelateerde ChildModel in $defs draagt zijn eigen weergaveveld wel
+        self.assertEqual(schema["$defs"]["testapp_childmodel"].get("x-displayField"), "middle_model.ids")
+        self.assertNotIn("x-displayField", schema["$defs"]["testapp_manytomanymodel"])

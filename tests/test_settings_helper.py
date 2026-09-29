@@ -1,9 +1,10 @@
 import json
 
+from django.core.exceptions import ImproperlyConfigured
 from django.test import TestCase
 
 from rgs_django_utils.database import dj_extended_models
-from rgs_django_utils.database.dj_settings_helper import TableDescriptionGetter
+from rgs_django_utils.database.dj_settings_helper import TableDescriptionGetter, resolve_display_field
 from rgs_django_utils.database.permission_helper import get_permission_helper
 from tests.testapp.models import (
     ChildModel,
@@ -113,3 +114,25 @@ class TestDoubleIdentifier(TestCase):
     def test_permissions(self):
         td = TableDescriptionGetter(MiddleModel)
         self.assertEqual(type(td.raw_permissions), dj_extended_models.TPerm)
+
+
+class TestDisplayField(TestCase):
+    """``TableDescriptionGetter.display_field`` en ``resolve_display_field`` (ww#588)."""
+
+    def test_plain_field(self):
+        self.assertEqual(TableDescriptionGetter(ParentModel).display_field, "ids")
+
+    def test_dotted_path_through_foreign_key(self):
+        self.assertEqual(TableDescriptionGetter(ChildModel).display_field, "middle_model.ids")
+        field = resolve_display_field(ChildModel, "middle_model.parent_model.ids")
+        self.assertEqual(field.model, ParentModel)
+        self.assertEqual(field.name, "ids")
+
+    def test_unset_is_none(self):
+        self.assertIsNone(TableDescriptionGetter(MiddleModel).display_field)
+        self.assertIsNone(TableDescriptionGetter(ManyToManyModel).display_field)
+
+    def test_invalid_paths_raise(self):
+        for path in ["bestaat_niet", "middle_model", "middle_model.bestaat_niet", "ids.x", "middle_models.ids", ""]:
+            with self.subTest(path=path), self.assertRaises(ImproperlyConfigured):
+                resolve_display_field(ChildModel if path != "middle_models.ids" else ParentModel, path)

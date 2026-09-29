@@ -13,6 +13,7 @@ from django.apps import apps
 from django.conf import settings
 from django.db import models as dj_models
 
+from rgs_django_utils.database.dj_settings_helper import TableDescriptionGetter
 from rgs_django_utils.models.views.abstract import HasuraTrackedView
 
 # Django field type name → JSON Schema "type"
@@ -216,6 +217,9 @@ class SchemaGenerator:
         }
         if description:
             schema["description"] = description
+        display_field = TableDescriptionGetter(root_model).display_field
+        if display_field:
+            schema["x-displayField"] = display_field
         if props:
             schema["properties"] = props
         if required:
@@ -249,6 +253,9 @@ class SchemaGenerator:
             desc = _td_attr(model_class, "description", "")
             if desc:
                 defn["description"] = desc
+            display_field = TableDescriptionGetter(model_class).display_field
+            if display_field:
+                defn["x-displayField"] = display_field
             if props:
                 defn["properties"] = props
             if required:
