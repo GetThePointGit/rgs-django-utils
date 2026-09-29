@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.1] - 2026-09-29
+
 ### Fixed
 - **`generate_hasura_metadata --apply` herlaadt Hasura na de apply.** Na een
   geslaagde `replace_metadata` volgt `reload_metadata` met `reload_sources: true`.
