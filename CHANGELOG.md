@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-09-29
+
+### Added
+- **`TableDescription.display_field`: het weergaveveld van een model.** Eén veld
+  (bv. `"ids"` of `"name"`) dat een record leesbaar benoemt, voor plekken waar een
+  UI één record moet tonen, zoals een keuzelijst. Een pad met punten
+  (`"profile_location.ids"`) volgt forward `ForeignKey`/`OneToOneField`-relaties.
+  `TableDescriptionGetter.display_field` valideert het pad (`ImproperlyConfigured`
+  bij een onbekend veld of een pad dat op een relatie eindigt);
+  `resolve_display_field()` geeft het eindveld terug.
+- JSON-schema-export: `x-displayField` op het root-schema en op elke `$defs`-objectdefinitie
+  van een model met een weergaveveld.
+
 ## [0.13.1] - 2026-09-28
 
 ### Fixed
