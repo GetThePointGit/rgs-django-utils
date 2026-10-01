@@ -1,34 +1,33 @@
 name: tests
 
+# Pull requests test only the production combination (Python 3.12 + Django
+# 5.2, what waterworks runs). Pushes to main, the weekly schedule and a manual
+# run test the full matrix, equal to the tox envlist (Python 3.11 is skipped:
+# `requires-python = ">=3.12"`).
 on:
   push:
     branches: [ main, master ]
   pull_request:
     branches:
       - '**'
+  schedule:
+    # Monday 05:00 UTC: catches breakage from Django main and new releases.
+    - cron: "0 5 * * 1"
+  workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   run_unittest_tests:
-    name: Unittest
-    runs-on: ${{ matrix.os }}
+    name: py${{ matrix.python-version }}-django${{ matrix.django-version }}
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04]
-        python-version:
-            - "3.12"
-            - "3.13"
-        django-version:
-            - "5.0"
-            - "5.1"
-        include:
-            - os: ubuntu-24.04
-              python-version: "3.12"
-              django-version: "main"
-            - os: ubuntu-24.04
-              python-version: "3.13"
-              django-version: "main"
+        python-version: ${{ fromJSON(github.event_name == 'pull_request' && '["3.12"]' || '["3.12", "3.13"]') }}
+        django-version: ${{ fromJSON(github.event_name == 'pull_request' && '["5.2"]' || '["5.1", "5.2", "6.0", "main"]') }}
 
     services:
       postgres:
@@ -41,26 +40,38 @@ jobs:
           - 5431:5432
         options: >-
           --health-cmd pg_isready
-          --health-interval 10s
+          --health-interval 2s
           --health-timeout 5s
-          --health-retries 5
+          --health-retries 15
 
     steps:
       - uses: actions/checkout@v4
+
       - name: setup python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Cache uv downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/uv
+          key: uv-${{ runner.os }}-py${{ matrix.python-version }}-django${{ matrix.django-version }}-${{ hashFiles('pyproject.toml', 'tox.ini') }}
+          restore-keys: |
+            uv-${{ runner.os }}-py${{ matrix.python-version }}-django${{ matrix.django-version }}-
+
       - name: Install system dependencies
+        # Only the GDAL runtime library is needed (Django loads it via ctypes);
+        # skipping the -dev headers, recommends and the man-db trigger saves
+        # most of the apt time.
         run: |
+          sudo rm -f /var/lib/man-db/auto-update
           sudo apt-get update
-          sudo apt-get install -y gdal-bin libgdal-dev
+          sudo apt-get install -y --no-install-recommends gdal-bin
 
       - name: Install Python dependencies
-        run: |
-          pip install --upgrade setuptools
-          pip install tox
+        # tox-uv: tox creates its environments with uv instead of pip.
+        run: pip install tox tox-uv
 
       - name: Run unittest Python ${{ matrix.python-version }} -- Django ${{ matrix.django-version }}
         env:
