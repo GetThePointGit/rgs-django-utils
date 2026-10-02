@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Django 5.1 (EOL december 2025) uit de testmatrix** van `tox.ini` en de
+  CI-workflow, en de classifier `Framework :: Django :: 5.1` vervalt. De
+  dependency-range (`Django>=5.0,<6.1`) blijft ongewijzigd (utils#51).
+
 ## [0.14.1] - 2026-09-29
 
 ### Fixed
