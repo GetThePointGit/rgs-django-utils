@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+- **Update-permissies krijgen een post-update-check gelijk aan de filter.**
+  De Hasura-generator zette bij alle update-permissies `check: {}`. Daardoor
+  mocht een rij naar een staat buiten de eigen scope worden geüpdatet: een
+  `proj_man` van project A kon een `auth_user_project`-rij naar project B
+  verplaatsen en zo rechten op B krijgen. De `check` is nu gelijk aan de
+  `filter` ("zelfde scope vóór en ná de update"). Dit is een gedragswijziging:
+  regenereer de metadata in de consumers (rgs-django-utils#25).
+
+### Added
+- **`TPerm`: `update_check` naast `update`.** Een rol die een andere
+  post-update-check nodig heeft, declareert die als
+  `{"update": <filter>, "update_check": <check>}`; `{}` zet de check expliciet
+  uit. Een `update_check` zonder `update` geeft een `ValueError`.
+
 ## [0.14.1] - 2026-09-29
 
 ### Fixed

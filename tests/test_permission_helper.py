@@ -164,3 +164,115 @@ class TestTerugvalZonderBoom(SimpleTestCase):
     def test_zonder_boom_geldt_de_ingebouwde_lijst(self):
         """Consumers zonder PERMISSION_TREE blijven op roles_list werken."""
         self.assertEqual(dj_extended_models.allowed_role_names(), dj_extended_models.roles_set)
+
+
+# --- Post-update check (rgs-django-utils#25) --------------------------------
+#
+# Zonder check mag een rij naar een staat buiten de eigen scope worden
+# geüpdatet (bv. auth_user_project.project_id naar een ander project). De
+# generator zet de check daarom standaard gelijk aan de update-filter.
+
+PROJECT_FILTER = {"project_id": {"_in": "x-hasura-project-ids"}}
+ORG_FILTER = {"organization_id": {"_eq": "x-hasura-org-id"}}
+
+
+class _FakeConfigField:
+    """Veld met een ``r_config`` dat org_adm (en dus sys_adm) laat updaten."""
+
+    __class__ = type("IntegerField", (), {"__name__": "IntegerField"})()
+    is_relation = False
+    primary_key = False
+
+    def __init__(self, name):
+        self.name = name
+        # FPerm valideert rollen tegen PERMISSION_TREE: pas aanmaken binnen
+        # override_settings, dus hier (bij get_fields) en niet op moduleniveau.
+        self.r_config = type("Cfg", (), {"permissions": FPerm("-s-", org_adm="isu"), "presets": None})()
+
+
+def _model_met_permissies(tperm_factory):
+    """Bouw een fake model met één updatebaar veld en de gegeven ``TPerm``."""
+
+    class _Meta:
+        @staticmethod
+        def get_fields():
+            return [_FakeConfigField("project_id")]
+
+    class FakeModel:
+        _meta = _Meta()
+
+        @classmethod
+        def get_permissions(cls):
+            return tperm_factory()
+
+    return FakeModel
+
+
+def _update_check_per_rol(model, wrap=None):
+    perms = PermissionHelper().get_hasura_model_permissions(model, wrap)
+    return {p["role"]: p["permission"] for p in perms["update_permissions"]}
+
+
+@override_settings(PERMISSION_TREE=TEST_TREE)
+class TestUpdateCheckGelijkAanFilter(SimpleTestCase):
+    def test_filtervorm_krijgt_check_gelijk_aan_filter(self):
+        model = _model_met_permissies(lambda: TPerm(org_adm=PROJECT_FILTER))
+        perms = _update_check_per_rol(model)
+        self.assertEqual(perms["org_adm"]["filter"], PROJECT_FILTER)
+        self.assertEqual(perms["org_adm"]["check"], PROJECT_FILTER)
+
+    def test_actievorm_zonder_check_krijgt_check_gelijk_aan_filter(self):
+        model = _model_met_permissies(lambda: TPerm(org_adm={"select": {}, "update": PROJECT_FILTER}))
+        perms = _update_check_per_rol(model)
+        self.assertEqual(perms["org_adm"]["check"], PROJECT_FILTER)
+
+    def test_geerfde_update_neemt_check_mee(self):
+        """sys_adm heeft geen eigen entry en erft update én check van org_adm."""
+        model = _model_met_permissies(lambda: TPerm(org_adm={"update": PROJECT_FILTER}))
+        perms = _update_check_per_rol(model)
+        self.assertEqual(perms["sys_adm"]["filter"], PROJECT_FILTER)
+        self.assertEqual(perms["sys_adm"]["check"], PROJECT_FILTER)
+
+    def test_lege_filter_geeft_lege_check(self):
+        model = _model_met_permissies(lambda: TPerm(org_adm={"update": {}}))
+        perms = _update_check_per_rol(model)
+        self.assertEqual(perms["org_adm"]["check"], {})
+
+    def test_wrapper_geldt_ook_voor_check(self):
+        """Through-tabellen nesten filter én check onder de relatie naar het bronmodel."""
+        model = _model_met_permissies(lambda: TPerm(org_adm=PROJECT_FILTER))
+        perms = _update_check_per_rol(model, lambda x: {"bron": x})
+        self.assertEqual(perms["org_adm"]["filter"], {"bron": PROJECT_FILTER})
+        self.assertEqual(perms["org_adm"]["check"], {"bron": PROJECT_FILTER})
+
+
+@override_settings(PERMISSION_TREE=TEST_TREE)
+class TestExplicieteUpdateCheck(SimpleTestCase):
+    def test_expliciete_check_wint_van_filter(self):
+        model = _model_met_permissies(lambda: TPerm(org_adm={"update": PROJECT_FILTER, "update_check": ORG_FILTER}))
+        perms = _update_check_per_rol(model)
+        self.assertEqual(perms["org_adm"]["filter"], PROJECT_FILTER)
+        self.assertEqual(perms["org_adm"]["check"], ORG_FILTER)
+
+    def test_expliciet_lege_check_schakelt_de_check_uit(self):
+        model = _model_met_permissies(lambda: TPerm(org_adm={"update": PROJECT_FILTER, "update_check": {}}))
+        perms = _update_check_per_rol(model)
+        self.assertEqual(perms["org_adm"]["check"], {})
+
+    def test_check_van_voorouder_wordt_niet_met_eigen_filter_gecombineerd(self):
+        """sys_adm's eigen update-filter krijgt zijn eigen check, niet die van org_adm."""
+        model = _model_met_permissies(
+            lambda: TPerm(
+                org_adm={"update": PROJECT_FILTER, "update_check": ORG_FILTER},
+                sys_adm={"update": {}},
+            )
+        )
+        table_perms = PermissionHelper().get_rol_table_permissions(model)
+        self.assertNotIn("update_check", table_perms["sys_adm"])
+        perms = _update_check_per_rol(model)
+        self.assertEqual(perms["sys_adm"]["check"], {})
+        self.assertEqual(perms["org_adm"]["check"], ORG_FILTER)
+
+    def test_update_check_zonder_update_wordt_geweigerd(self):
+        with self.assertRaises(ValueError):
+            TPerm(org_adm={"select": {}, "update_check": ORG_FILTER})

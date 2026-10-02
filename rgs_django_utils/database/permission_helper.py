@@ -55,13 +55,12 @@ def recursive_list(root_element, permissions, permission_tree, child_list, depth
     return
 
 
-permission_keys = {"select", "insert", "update", "delete"}
+permission_keys = {"select", "insert", "update", "delete", "update_check"}
 
 
 # todo:
 # -config select aggregation rights
 # - insert and update "set"
-# - ignore update "check"?
 # - comments?
 
 
@@ -123,6 +122,14 @@ class PermissionHelper:
         (either an explicit ``{select: ..., insert: ..., ...}`` dict or a
         row-level filter that is applied to every action).
 
+        ``update_check`` is the post-update check (the state a row must be in
+        *after* the update). It is only present when the entry that supplies
+        the ``update`` filter declares it explicitly; otherwise the key is
+        absent and :meth:`get_hasura_model_permissions` uses the update filter as
+        check. An ``update_check`` is never inherited separately from its
+        ``update`` filter, so a role's own filter is never combined with the
+        check of an ancestor.
+
         Parameters
         ----------
         model : type[django.db.models.Model]
@@ -131,8 +138,10 @@ class PermissionHelper:
         Returns
         -------
         dict or None
-            Nested mapping ``{role: {action: filter_or_None}}``. ``None``
-            when the model has no ``get_permissions`` classmethod.
+            Nested mapping ``{role: {action: filter_or_None}}`` with actions
+            ``insert``, ``select``, ``update`` and ``delete``, plus
+            ``update_check`` when declared. ``None`` when the model has no
+            ``get_permissions`` classmethod.
         """
         # todo: make arrays from subbranches to correctly propagate None
         # get table permissions
@@ -161,8 +170,13 @@ class PermissionHelper:
                         # voorouders; een al gezette actie niet meer overschrijven
                         # (zelfde semantiek als de filter-vorm in de else-tak).
                         for action, action_filter in rol_table_permissions.items():
+                            if action == "update_check":
+                                # Hoort bij de update-filter van deze entry, zie hieronder.
+                                continue
                             if out[k][action] is None:
                                 out[k][action] = action_filter
+                                if action == "update" and "update_check" in rol_table_permissions:
+                                    out[k]["update_check"] = rol_table_permissions["update_check"]
                     else:
                         if out[k]["insert"] is None:
                             out[k]["insert"] = rol_table_permissions
@@ -304,6 +318,30 @@ class PermissionHelper:
         return out
 
     def get_hasura_model_permissions(self, model, wrap_role_table_filter=None):
+        """Build the Hasura select/insert/update/delete permissions for *model*.
+
+        Update permissions get a post-update ``check`` equal to their
+        ``filter`` ("same scope before and after the update"), unless the
+        model declares an explicit ``update_check`` in its ``TPerm``. Without
+        that check a row could be updated into a scope the role has no
+        access to (rgs-django-utils#25).
+
+        Parameters
+        ----------
+        model : type[django.db.models.Model]
+            Django model with a classmethod ``get_permissions() -> TPerm``.
+        wrap_role_table_filter : callable, optional
+            Applied to every filter and check, e.g. to nest the filter under
+            a relationship for through tables. Default is ``None`` (no
+            wrapping).
+
+        Returns
+        -------
+        OrderedDict
+            ``select_permissions``, ``insert_permissions``,
+            ``update_permissions`` and ``delete_permissions`` as Hasura
+            metadata lists; an empty dict when the model has no permissions.
+        """
         table_perms = self.get_rol_table_permissions(model)
         if table_perms is None:
             log.warning(f"{model} has no hasura permissions")
@@ -371,7 +409,7 @@ class PermissionHelper:
                             "filter": wrap_role_table_filter(role_table_filter.get("update"))
                             if wrap_role_table_filter
                             else role_table_filter.get("update"),
-                            "check": {},  # todo: also support?
+                            "check": _update_check(role_table_filter, wrap_role_table_filter),
                             "columns": action_fields,
                             "set": set_fields,
                         },
@@ -406,6 +444,29 @@ class PermissionHelper:
                 ("delete_permissions", delete_permissions),
             )
         )
+
+
+def _update_check(role_table_filter, wrap_role_table_filter=None):
+    """Return the Hasura post-update ``check`` for one role.
+
+    Parameters
+    ----------
+    role_table_filter : dict
+        The role's resolved table permissions, as returned per role by
+        :meth:`PermissionHelper.get_rol_table_permissions`.
+    wrap_role_table_filter : callable, optional
+        Same wrapper as applied to the filters. Default is ``None``.
+
+    Returns
+    -------
+    dict
+        The explicit ``update_check`` when declared, otherwise the update
+        filter itself.
+    """
+    check = role_table_filter.get("update_check")
+    if check is None:
+        check = role_table_filter.get("update")
+    return wrap_role_table_filter(check) if wrap_role_table_filter else check
 
 
 @cache
