@@ -247,7 +247,7 @@ class Calculation(object):
 
 T = TypeVar("T")
 
-type TableAction = Literal["select", "update", "insert", "delete"]
+type TableAction = Literal["select", "update", "insert", "delete", "update_check"]
 type FieldActions = Literal["---", "-s-", "i--", "-su", "isu", "is-"]
 """Field Actions.
 
@@ -499,6 +499,13 @@ class TPerm(Perm[dict[TableAction, dict]]):
     ``{}`` means "allow the action with no row filter"; ``None`` means "no
     permission for this action".
 
+    The ``update`` filter decides which rows a role may update; the
+    post-update check (the state the row must be in *after* the update) is
+    by default the same filter, so a row cannot be moved out of the role's
+    scope. A role that needs a different post-update check declares it as
+    ``"update_check"`` next to its ``"update"`` filter; ``{}`` disables the
+    check explicitly.
+
     Parameters
     ----------
     public : dict or None, optional
@@ -511,8 +518,8 @@ class TPerm(Perm[dict[TableAction, dict]]):
     Raises
     ------
     ValueError
-        If any permission value is not a dict, or if a role name is not
-        recognised.
+        If any permission value is not a dict, if a role name is not
+        recognised, or if ``"update_check"`` is given without ``"update"``.
 
     Examples
     --------
@@ -524,6 +531,15 @@ class TPerm(Perm[dict[TableAction, dict]]):
     Restrict project members to rows linked to their project:
 
     >>> TPerm(project_read={"select": {"project_id": {"_eq": "X-Hasura-Project-Id"}}})  # doctest: +SKIP
+
+    Let a role update rows it can see, with a different post-update check:
+
+    >>> TPerm(
+    ...     proj_man={
+    ...         "update": {"project_id": {"_in": "X-Hasura-Project-Ids"}},
+    ...         "update_check": {"archived": {"_eq": False}},
+    ...     }
+    ... )  # doctest: +SKIP
     """
 
     def __init__(
@@ -541,6 +557,8 @@ class TPerm(Perm[dict[TableAction, dict]]):
                 raise ValueError(f"Permission for {key} should be a dict, got {type(value)}")
             if key not in allowed_role_names():
                 raise ValueError(f"Role {key} is not a valid role")
+            if "update_check" in value and "update" not in value:
+                raise ValueError(f"Permission for {key} has an 'update_check' without an 'update' filter")
 
 
 class HasuraSet:
