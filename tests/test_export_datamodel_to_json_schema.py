@@ -591,7 +591,7 @@ class TestEnumFilter(UnitTestCase):
 
         gen = SchemaGenerator(models=[])
         field = _bare_field(ForeignKey, to=EnumFilteredTestModel, on_delete=dj_models.CASCADE)
-        prop = gen._field_to_property(field=field)
+        prop = gen._enum_def(EnumFilteredTestModel, field=field)
 
         self.assertEqual(len(prop["oneOf"]), 3, "Zonder enum_filter moeten alle drie de rijen in het oneOf staan")
 
@@ -605,7 +605,7 @@ class TestEnumFilter(UnitTestCase):
             on_delete=dj_models.CASCADE,
             config=Config(enum_filter={"kind": "soil"}),
         )
-        prop = gen._field_to_property(field=field)
+        prop = gen._enum_def(EnumFilteredTestModel, field=field)
 
         self.assertEqual(
             [o["const"] for o in prop["oneOf"]],
@@ -623,7 +623,7 @@ class TestEnumFilter(UnitTestCase):
             on_delete=dj_models.CASCADE,
             config=Config(enum_filter={"kind": "soil"}),
         )
-        prop = gen._field_to_property(field=field)
+        prop = gen._enum_def(EnumFilteredTestModel, field=field)
 
         self.assertEqual(
             prop["oneOf"][1],
@@ -641,7 +641,7 @@ class TestEnumFilter(UnitTestCase):
             on_delete=dj_models.CASCADE,
             config=Config(enum_filter={"kind_id": "color"}),
         )
-        prop = gen._field_to_property(field=field)
+        prop = gen._enum_def(EnumFilteredTestModel, field=field)
 
         self.assertEqual(
             [o["const"] for o in prop["oneOf"]],
