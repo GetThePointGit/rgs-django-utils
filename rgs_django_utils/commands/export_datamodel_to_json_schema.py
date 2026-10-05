@@ -239,9 +239,7 @@ class SchemaGenerator:
 
         self._in_progress.add(name)
 
-        if name in self.models:
-            self.defs[name] = self._metadata_def(model_class)
-        elif _is_base_enum(model_class) and not _is_base_enum_extended(model_class):
+        if _is_base_enum(model_class) and not _is_base_enum_extended(model_class):
             self.defs[name] = self._enum_def(model_class)
         else:
             props, required = self.model_properties(model_class=model_class, parent_model=parent_model)
@@ -264,21 +262,6 @@ class SchemaGenerator:
 
         self._in_progress.discard(name)
         return f"#/$defs/{name}"
-
-    def _metadata_def(self, model_class) -> dict:
-        """Project / Organisation / User: id, ids, name only."""
-        meta = model_class._meta
-        return {
-            "type": "object",
-            "title": str(meta.verbose_name).capitalize(),
-            "description": "Metadata object. Alle velden zijn alleen-lezen.",
-            "properties": {
-                "id": {"type": "integer", "title": "ID", "readOnly": True},
-                "ids": {"type": "string", "title": "Code", "readOnly": True},
-                "name": {"type": "string", "title": "Naam", "readOnly": True},
-            },
-            "required": ["id", "ids", "name"],
-        }
 
     def _enum_def(self, model_class, *, field=None) -> dict:
         """Rule 23 – BaseEnum subclasses: oneOf with entries consisting of objects containing const, type, readonly and title properties."""
@@ -359,10 +342,7 @@ class SchemaGenerator:
             # if field.name in mixin_field_names:
             #     prop["readOnly"] = True
 
-            # ── skip meta models; they are emitted in simplified form when referenced, but not expanded inline
             is_foreign_key = isinstance(field, ForeignKey)
-            if is_foreign_key and field.related_model._meta.db_table in self.models:
-                continue
             if (
                 is_foreign_key
                 and self._is_skipped_fk_target(model_class=field.related_model)
