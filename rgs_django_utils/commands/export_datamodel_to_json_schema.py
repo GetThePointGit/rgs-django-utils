@@ -132,6 +132,29 @@ def export_datamodel_to_json_schema(export_path=None):
                 table_def["modules"] = modules
             result["$defs"][model._meta.db_table] = table_def
 
+    _merge_view_defs(result, app_models)
+
+    with open(export_path, "w") as f:
+        import json
+
+        json.dump(result, f, indent=2, ensure_ascii=False)
+        log.info(f"Exported datamodel JSON Schema to {export_path}")
+
+
+def _merge_view_defs(result: dict, app_models: list) -> None:
+    """Merge the JSON Schema parts of all Hasura-tracked views into *result*.
+
+    Adds every view definition that is not yet present to ``$defs`` and
+    ``oneOf``, and gives each referencing table a ``<field>_short`` property
+    (``$ref`` to the view) plus the scalar FK column, unless already present.
+
+    Parameters
+    ----------
+    result : dict
+        The schema document under construction; mutated in place.
+    app_models : list of type[django.db.models.Model]
+        Models in scope, passed on to ``get_all_views``.
+    """
     for view_cls in HasuraTrackedView.all():
         for view in view_cls.get_all_views(app_models=app_models):
             view: HasuraTrackedView
@@ -145,32 +168,33 @@ def export_datamodel_to_json_schema(export_path=None):
                     result["$defs"][defn] = definitions[defn]
                     result["oneOf"].append({"$ref": f"#/$defs/{defn}"})
             for ref in referenced_by:
-                # do not overwrite an existing column
-                for field in fields:
-                    if result["$defs"][ref]["properties"].get(f"{field.name}_short") is None:
-                        short_prop: dict = {"$ref": f"#/$defs/{referenced_by[ref]}"}
-                        original_title = (
-                            result["$defs"][ref]["properties"].get(field.name, {}).get("title")
-                            or str(field.verbose_name).capitalize()
-                        )
-                        short_prop["title"] = original_title
-                        result["$defs"][ref]["properties"][f"{field.name}_short"] = short_prop
-                    if result["$defs"][ref]["properties"].get(field.attname) is None:
-                        pk_type, pk_fmt = _fk_pk_json_type(field)
-                        id_prop: dict = {"type": pk_type}
-                        if pk_fmt:
-                            id_prop["format"] = pk_fmt
-                        if title := str(field.verbose_name).capitalize():
-                            id_prop["title"] = title
-                        if doc := _config_attr(field, "doc_short"):
-                            id_prop["description"] = doc
-                        result["$defs"][ref]["properties"][field.attname] = id_prop
+                _add_view_reference_props(result["$defs"], ref, fields, referenced_by[ref])
 
-    with open(export_path, "w") as f:
-        import json
 
-        json.dump(result, f, indent=2, ensure_ascii=False)
-        log.info(f"Exported datamodel JSON Schema to {export_path}")
+def _add_view_reference_props(defs: dict, ref: str, fields, view_def_name: str) -> None:
+    """Add the ``<field>_short`` and FK-column properties for one referencing table.
+
+    Existing properties are never overwritten.
+
+    Parameters
+    ----------
+    defs : dict
+        The ``$defs`` mapping of the schema document; mutated in place.
+    ref : str
+        Name of the table definition that references the view.
+    fields : iterable of django.db.models.ForeignKey
+        The FK fields that point at the view's original table.
+    view_def_name : str
+        Name of the view definition in ``$defs``.
+    """
+    for field in fields:
+        props = defs[ref]["properties"]
+        if props.get(f"{field.name}_short") is None:
+            short_prop: dict = {"$ref": f"#/$defs/{view_def_name}"}
+            short_prop["title"] = props.get(field.name, {}).get("title") or str(field.verbose_name).capitalize()
+            props[f"{field.name}_short"] = short_prop
+        if props.get(field.attname) is None:
+            props[field.attname] = _fk_attname_prop(field, with_title=True)
 
 
 # ── Schema generator ──────────────────────────────────────────────────────────
@@ -239,9 +263,7 @@ class SchemaGenerator:
 
         self._in_progress.add(name)
 
-        if name in self.models:
-            self.defs[name] = self._metadata_def(model_class)
-        elif _is_base_enum(model_class) and not _is_base_enum_extended(model_class):
+        if _is_base_enum(model_class) and not _is_base_enum_extended(model_class):
             self.defs[name] = self._enum_def(model_class)
         else:
             props, required = self.model_properties(model_class=model_class, parent_model=parent_model)
@@ -265,21 +287,6 @@ class SchemaGenerator:
         self._in_progress.discard(name)
         return f"#/$defs/{name}"
 
-    def _metadata_def(self, model_class) -> dict:
-        """Project / Organisation / User: id, ids, name only."""
-        meta = model_class._meta
-        return {
-            "type": "object",
-            "title": str(meta.verbose_name).capitalize(),
-            "description": "Metadata object. Alle velden zijn alleen-lezen.",
-            "properties": {
-                "id": {"type": "integer", "title": "ID", "readOnly": True},
-                "ids": {"type": "string", "title": "Code", "readOnly": True},
-                "name": {"type": "string", "title": "Naam", "readOnly": True},
-            },
-            "required": ["id", "ids", "name"],
-        }
-
     def _enum_def(self, model_class, *, field=None) -> dict:
         """Rule 23 – BaseEnum subclasses: oneOf with entries consisting of objects containing const, type, readonly and title properties."""
         meta = model_class._meta
@@ -298,7 +305,7 @@ class SchemaGenerator:
     def model_properties(self, model_class, *, parent_model=None) -> tuple[dict, list]:
         """Return (properties dict, required list) for *model_class*."""
         from django.db.models.fields.related import ForeignKey
-        from django.db.models.fields.reverse_related import ManyToManyRel, ManyToOneRel, OneToOneRel
+        from django.db.models.fields.reverse_related import ManyToManyRel, ManyToOneRel
 
         props: dict = {}
         required: list = []
@@ -309,46 +316,9 @@ class SchemaGenerator:
         # mixin_field_names: frozenset[str] = frozenset(name for _, _, names in mixin_groups for name in names)
 
         for field in model_class._meta.get_fields():
-            prop = {}
-
-            # ── reverse relations
-            # OneToOneRel MUST be checked before the generic (ManyToOneRel,
-            # ManyToManyRel) branch: Django's OneToOneRel is a *subclass* of
-            # ManyToOneRel, so the generic isinstance check below also matches
-            # it. With the old order every reverse OneToOneField (e.g.
-            # ProfileMeasurementData.profile_measurement -> pm.data) was
-            # emitted as `type: array` even though Hasura — which infers
-            # object- vs array-relationship from the DB-level unique
-            # constraint the OneToOneField creates — exposes it as a plain
-            # object relation. That mismatch made the frontend build
-            # `{data: [...], on_conflict}` for a field where Hasura expects
-            # `{data: {...}, on_conflict}` (`*_obj_rel_insert_input`),
-            # producing "expected an object ... but found a list" on save.
-            if isinstance(field, OneToOneRel):
-                rn = getattr(field, "related_name", None)
-                sub_model = field.related_model
-                # if self._is_skipped_fk_target(model_class=sub_model):
-                #     continue
-                ref = self._ensure_def(model_class=sub_model, parent_model=model_class)
-                props[rn] = {"$ref": ref}
-                continue
-
+            # ── reverse relations (OneToOneRel is a subclass of ManyToOneRel)
             if isinstance(field, (ManyToOneRel, ManyToManyRel)):
-                rn = getattr(field, "related_name", None)
-                sub_model = field.related_model
-                # if self._is_skipped_fk_target(model_class=sub_model):
-                #     continue
-                ref = self._ensure_def(model_class=sub_model, parent_model=model_class)
-                sub_meta = sub_model._meta
-                prop: dict = {
-                    "type": "array",
-                    "title": str(sub_meta.verbose_name_plural or sub_meta.verbose_name).capitalize(),
-                    "items": {"$ref": ref},
-                }
-                desc = _td_attr(sub_model, "description", "")
-                if desc:
-                    prop["description"] = desc
-                props[rn] = prop
+                props[getattr(field, "related_name", None)] = self._reverse_relation_prop(field, model_class)
                 continue
 
             # ── skip non-concrete fields (no DB column)
@@ -359,10 +329,7 @@ class SchemaGenerator:
             # if field.name in mixin_field_names:
             #     prop["readOnly"] = True
 
-            # ── skip meta models; they are emitted in simplified form when referenced, but not expanded inline
             is_foreign_key = isinstance(field, ForeignKey)
-            if is_foreign_key and field.related_model._meta.db_table in self.models:
-                continue
             if (
                 is_foreign_key
                 and self._is_skipped_fk_target(model_class=field.related_model)
@@ -371,47 +338,7 @@ class SchemaGenerator:
                 continue
 
             if _is_base_enum(field.related_model):
-                field_name = field.name
-                field_nullable = getattr(field, "null", False)
-                enum_schema = self._enum_def(
-                    field.related_model, field=field
-                )  # ensure enum is in $defs so the $ref is valid, even if not directly referenced by a field
-                if field_nullable:
-                    prop = dict(enum_schema)  # copy title, description, oneOf, etc.
-                    prop["type"] = [
-                        enum_schema["type"],
-                        "null",
-                    ]  # make type array so sanitizeObject treats it as nullable
-                else:
-                    prop = enum_schema
-                props[f"{field_name}_id"] = prop
-
-                # `id` on the extended-enum table itself is the OneToOneField that
-                # BaseEnumExtendedMetaClass creates to link back to its own base enum
-                # (field.related_model.ExtendedClass is this very model). Expanding
-                # it as an "extended object" $ref below would point the $defs entry
-                # at itself - an unresolvable cycle that GraphQueryBuilder rightly
-                # rejects. It's the table's own primary key here, not a relation to
-                # expand, so emit it as a plain scalar instead.
-                if field.primary_key and getattr(field.related_model, "ExtendedClass", None) is model_class:
-                    id_prop: dict = {"type": enum_schema["type"], "readOnly": True}
-                    if title := _verbose_title(field):
-                        id_prop["title"] = title
-                    props[field_name] = id_prop
-                    continue
-
-                if not hasattr(field.related_model, "extended") or not _is_base_enum_extended(
-                    field.related_model.extended.related.model
-                ):
-                    continue
-                extended_model = field.related_model.extended.related.related_model  # ExtendedEnum
-                ref = self._ensure_def(model_class=extended_model)
-                # Altijd readOnly: het uitgeklapte enum-record is referentiedata
-                # (alleen om te tonen). De keuze zelf gaat via `<veld>_id`; een
-                # schrijfbare relatie laat de formulierbouwer 'm als geneste
-                # insert meesturen, en die bestaat niet in Hasura ("field
-                # '<veld>' not found in type: '<model>_insert_input'").
-                props[field_name] = {"$ref": ref, "readOnly": True}
+                props.update(self._enum_fk_props(field, model_class))
                 continue
 
             prop = self._field_to_property(field=field)
@@ -425,20 +352,111 @@ class SchemaGenerator:
             # For FK fields, also emit the scalar attname column (e.g. project_id).
             # The relation field (e.g. project) gives the $ref, but Hasura mutations
             # accept the raw integer FK column, so the form schema needs it too.
-            if isinstance(field, ForeignKey) and field.attname != field.name:
-                attname = field.attname
-                if attname not in props:
-                    pk_type, pk_fmt = _fk_pk_json_type(field)
-                    attname_prop: dict = {"type": pk_type}
-                    if pk_fmt:
-                        attname_prop["format"] = pk_fmt
-                    if not getattr(field, "editable", True) or getattr(field, "primary_key", False):
-                        attname_prop["readOnly"] = True
-                    if doc := _config_attr(field, "doc_short"):
-                        attname_prop["description"] = doc
-                    props[attname] = attname_prop
+            if is_foreign_key and field.attname != field.name and field.attname not in props:
+                props[field.attname] = _fk_attname_prop(field, with_readonly=True)
 
         return props, required
+
+    def _reverse_relation_prop(self, field, model_class) -> dict:
+        """Return the property for a reverse relation of *model_class*.
+
+        A reverse ``OneToOneRel`` becomes a plain ``$ref`` (object relation);
+        other reverse relations become an array of ``$ref`` items.
+
+        Parameters
+        ----------
+        field : django.db.models.ForeignObjectRel
+            The reverse relation (``OneToOneRel``, ``ManyToOneRel`` or
+            ``ManyToManyRel``).
+        model_class : type[django.db.models.Model]
+            The model that owns the reverse relation.
+
+        Returns
+        -------
+        dict
+            The JSON Schema property.
+        """
+        from django.db.models.fields.reverse_related import OneToOneRel
+
+        sub_model = field.related_model
+        ref = self._ensure_def(model_class=sub_model, parent_model=model_class)
+        # OneToOneRel MUST be checked before the generic (ManyToOneRel,
+        # ManyToManyRel) case: Django's OneToOneRel is a *subclass* of
+        # ManyToOneRel. Treating it as generic emitted every reverse
+        # OneToOneField (e.g. ProfileMeasurementData.profile_measurement ->
+        # pm.data) as `type: array` even though Hasura — which infers
+        # object- vs array-relationship from the DB-level unique
+        # constraint the OneToOneField creates — exposes it as a plain
+        # object relation. That mismatch made the frontend build
+        # `{data: [...], on_conflict}` for a field where Hasura expects
+        # `{data: {...}, on_conflict}` (`*_obj_rel_insert_input`),
+        # producing "expected an object ... but found a list" on save.
+        if isinstance(field, OneToOneRel):
+            return {"$ref": ref}
+
+        sub_meta = sub_model._meta
+        prop: dict = {
+            "type": "array",
+            "title": str(sub_meta.verbose_name_plural or sub_meta.verbose_name).capitalize(),
+            "items": {"$ref": ref},
+        }
+        desc = _td_attr(sub_model, "description", "")
+        if desc:
+            prop["description"] = desc
+        return prop
+
+    def _enum_fk_props(self, field, model_class) -> dict:
+        """Return the properties for a FK/OneToOne to a ``BaseEnum``.
+
+        Always emits ``<veld>_id`` with the enum codes. For an extended enum
+        the expanded record is added as a readOnly ``$ref`` under the field
+        name; on the extended-enum table itself the ``id`` link is emitted as
+        a plain scalar instead.
+
+        Parameters
+        ----------
+        field : django.db.models.ForeignKey
+            The FK or OneToOne field pointing at the enum.
+        model_class : type[django.db.models.Model]
+            The model that owns *field*.
+
+        Returns
+        -------
+        dict
+            Property name → JSON Schema property, in emission order.
+        """
+        field_name = field.name
+        enum_schema = self._enum_def(field.related_model, field=field)
+        # type array for nullable, so sanitizeObject treats it as nullable
+        out: dict = {f"{field_name}_id": _nullable(enum_schema, getattr(field, "null", False))}
+
+        # `id` on the extended-enum table itself is the OneToOneField that
+        # BaseEnumExtendedMetaClass creates to link back to its own base enum
+        # (field.related_model.ExtendedClass is this very model). Expanding
+        # it as an "extended object" $ref below would point the $defs entry
+        # at itself - an unresolvable cycle that GraphQueryBuilder rightly
+        # rejects. It's the table's own primary key here, not a relation to
+        # expand, so emit it as a plain scalar instead.
+        if field.primary_key and getattr(field.related_model, "ExtendedClass", None) is model_class:
+            id_prop: dict = {"type": enum_schema["type"], "readOnly": True}
+            if title := _verbose_title(field):
+                id_prop["title"] = title
+            out[field_name] = id_prop
+            return out
+
+        if not hasattr(field.related_model, "extended") or not _is_base_enum_extended(
+            field.related_model.extended.related.model
+        ):
+            return out
+        extended_model = field.related_model.extended.related.related_model  # ExtendedEnum
+        ref = self._ensure_def(model_class=extended_model)
+        # Altijd readOnly: het uitgeklapte enum-record is referentiedata
+        # (alleen om te tonen). De keuze zelf gaat via `<veld>_id`; een
+        # schrijfbare relatie laat de formulierbouwer 'm als geneste
+        # insert meesturen, en die bestaat niet in Hasura ("field
+        # '<veld>' not found in type: '<model>_insert_input'").
+        out[field_name] = {"$ref": ref, "readOnly": True}
+        return out
 
     # ── field → property ──────────────────────────────────────────────────────
 
@@ -447,68 +465,18 @@ class SchemaGenerator:
         from django.db.models.fields.related import ForeignKey, ManyToManyField, OneToOneField
 
         field_type = type(field).__name__
-        field_name = field.name
         nullable = getattr(field, "null", False)
 
-        prop: dict = {}
-
-        # title (rule 22)
-        if title := _verbose_title(field):
-            prop["title"] = title
-
-        # description from config.doc_short (rule 21)
-        if doc := _config_attr(field, "doc_short"):
-            prop["description"] = doc
-
-        # docFull from config.doc_full (background information)
-        if doc_full := _config_attr(field, "doc_full"):
-            prop["docFull"] = doc_full
-
-        # unit from config.doc_unit (e.g. "m", "°C") – aansluitend op rgs-schema custom keyword
-        if unit := _config_attr(field, "doc_unit"):
-            prop["unit"] = unit
-
-        # precision from config.precision (numeric precision)
-        if (precision := _config_attr(field, "precision")) is not None:
-            prop["precision"] = precision
-
-        # modules from config.modules (None = niet beperkt)
-        if modules := _modules_to_list(_config_attr(field, "modules")):
-            prop["modules"] = modules
-
-        # presentation from config.presentation (field-layer hints for tables, bulk edit, map labels)
-        if (presentation := _config_attr(field, "presentation")) is not None:
-            prop["presentation"] = _presentation_to_dict(presentation)
+        # title, description, docFull, unit, precision, modules, presentation (rules 21, 22)
+        prop: dict = _metadata_props(field)
 
         # readOnly (rules 24-26)
-        readonly = (
-            field_name.startswith("c_")  # rule 25: calculated fields
-            or getattr(field, "primary_key", False)  # rule 24
-            or field_type in _AUTO_PK_TYPES  # rule 24
-            or not getattr(field, "editable", True)  # rule 26
-            or getattr(field, "auto_now", False)  # rule 26
-            or getattr(field, "auto_now_add", False)  # rule 26
-        )
-        if readonly:
+        if _is_readonly(field):
             prop["readOnly"] = True
 
         # ── FK / OneToOne (rules 19, 23) ──────────────────────────────────
         if isinstance(field, (ForeignKey, OneToOneField)):
-            if _is_base_enum(field.related_model):
-                enum_schema = self._enum_def(field.related_model, field=field)
-                enum_type_part: dict = {"type": enum_schema["type"]}
-                if "oneOf" in enum_schema:
-                    enum_type_part["oneOf"] = enum_schema["oneOf"]
-                if nullable:
-                    prop["anyOf"] = [enum_type_part, {"type": "null"}]
-                else:
-                    prop.update(enum_type_part)
-            else:
-                ref = self._ensure_def(model_class=field.related_model)
-                if nullable:
-                    prop["anyOf"] = [{"$ref": ref}, {"type": "null"}]
-                else:
-                    prop["$ref"] = ref
+            prop.update(self._relation_schema(field, nullable))
             return prop
 
         # ── ManyToMany (rule 20) ───────────────────────────────────────────────
@@ -520,7 +488,7 @@ class SchemaGenerator:
 
         # ── GIS geometry ──────────────────────────────────────────────────────
         if field_type in _GIS_FIELDS:
-            prop["type"] = ["object", "null"] if nullable else "object"
+            prop.update(_nullable({"type": "object"}, nullable))
             if not prop.get("description"):
                 prop["description"] = "GeoJSON geometrie object."
             return prop
@@ -529,44 +497,47 @@ class SchemaGenerator:
         if field_type == "ArrayField":
             prop["type"] = "array"
             base = getattr(field, "base_field", None)
-            if base:
-                inner = self._field_to_property(field=base)
-                if inner:
-                    prop["items"] = inner
+            if base and (inner := self._field_to_property(field=base)):
+                prop["items"] = inner
             return prop
 
         # ── JSONField (rule 38) ───────────────────────────────────────────────
         if field_type == "JSONField":
-            prop["type"] = ["object", "null"] if nullable else "object"
+            prop.update(_nullable({"type": "object"}, nullable))
             prop["additionalProperties"] = True
             return prop
 
         # ── Scalar fields ─────────────────────────────────────────────────────
-        json_type = _TYPE_MAP.get(field_type)
-        if json_type is None:
-            # Walk MRO to handle custom subclasses (e.g. TextStringField → CharField)
-            for base_cls in type(field).__mro__[1:]:
-                json_type = _TYPE_MAP.get(base_cls.__name__)
-                if json_type:
-                    break
-            else:
-                json_type = "string"  # safe fallback
-
-        prop["type"] = [json_type, "null"] if nullable else json_type
-
-        if fmt := _FORMAT_MAP.get(field_type):
-            prop["format"] = fmt
-
-        # maxLength for string fields (rule 31)
-        if json_type == "string":
-            if ml := getattr(field, "max_length", None):
-                prop["maxLength"] = ml
-
-        # minimum for positive integer fields (rule 30)
-        if json_type in ("integer", "number") and "Positive" in field_type:
-            prop["minimum"] = 0
-
+        prop.update(_scalar_props(field, field_type, nullable))
         return prop
+
+    def _relation_schema(self, field, nullable: bool) -> dict:
+        """Return the type part of a FK/OneToOne property.
+
+        A relation to a ``BaseEnum`` gives the enum's ``type`` and ``oneOf``;
+        any other relation a ``$ref`` to the related model. Both are wrapped
+        in ``anyOf [..., null]`` when nullable.
+
+        Parameters
+        ----------
+        field : django.db.models.ForeignKey
+            The FK or OneToOne field.
+        nullable : bool
+            Whether the column accepts NULL.
+
+        Returns
+        -------
+        dict
+            Keys to merge into the property.
+        """
+        if _is_base_enum(field.related_model):
+            enum_schema = self._enum_def(field.related_model, field=field)
+            enum_type_part: dict = {"type": enum_schema["type"]}
+            if "oneOf" in enum_schema:
+                enum_type_part["oneOf"] = enum_schema["oneOf"]
+            return _nullable(enum_type_part, nullable, wrap=True)
+        ref = self._ensure_def(model_class=field.related_model)
+        return _nullable({"$ref": ref}, nullable, wrap=True)
 
     def _is_skipped_fk_target(self, model_class) -> bool:
         """Return True if *model_class* not in models."""
@@ -622,6 +593,181 @@ class SchemaGenerator:
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
+
+
+def _nullable(schema: dict, nullable: bool, *, wrap: bool = False) -> dict:
+    """Make *schema* accept ``null`` when *nullable*.
+
+    Parameters
+    ----------
+    schema : dict
+        The (partial) JSON Schema to make nullable.
+    nullable : bool
+        Whether the column accepts NULL; when False *schema* is returned as is.
+    wrap : bool, optional
+        True wraps the schema as ``{"anyOf": [schema, {"type": "null"}]}``
+        (for ``$ref`` and enum parts); False (default) returns a copy with
+        ``type`` turned into ``[type, "null"]``, keeping the key order.
+
+    Returns
+    -------
+    dict
+        The nullable schema, or *schema* itself when not nullable.
+    """
+    if not nullable:
+        return schema
+    if wrap:
+        return {"anyOf": [schema, {"type": "null"}]}
+    return {**schema, "type": [schema["type"], "null"]}
+
+
+def _metadata_props(field) -> dict:
+    """Return the descriptive keywords of a field property.
+
+    Collects, in this order, ``title`` (verbose name, rule 22),
+    ``description`` (``doc_short``, rule 21), ``docFull``, ``unit``
+    (``doc_unit``), ``precision``, ``modules`` and ``presentation`` from the
+    field and its ``Config``. Keywords without a value are left out.
+
+    Parameters
+    ----------
+    field : django.db.models.Field
+        The field to describe.
+
+    Returns
+    -------
+    dict
+        The keywords that have a value.
+    """
+    prop: dict = {}
+    if title := _verbose_title(field):
+        prop["title"] = title
+    if doc := _config_attr(field, "doc_short"):
+        prop["description"] = doc
+    # background information
+    if doc_full := _config_attr(field, "doc_full"):
+        prop["docFull"] = doc_full
+    # e.g. "m", "°C" – aansluitend op rgs-schema custom keyword
+    if unit := _config_attr(field, "doc_unit"):
+        prop["unit"] = unit
+    if (precision := _config_attr(field, "precision")) is not None:
+        prop["precision"] = precision
+    # None = niet beperkt
+    if modules := _modules_to_list(_config_attr(field, "modules")):
+        prop["modules"] = modules
+    # field-layer hints for tables, bulk edit, map labels
+    if (presentation := _config_attr(field, "presentation")) is not None:
+        prop["presentation"] = _presentation_to_dict(presentation)
+    return prop
+
+
+def _is_readonly(field) -> bool:
+    """Return True when the field is read-only in forms (rules 24-26).
+
+    Parameters
+    ----------
+    field : django.db.models.Field
+        The field to check.
+
+    Returns
+    -------
+    bool
+        True for calculated (``c_``-prefixed) fields, primary keys,
+        auto-generated PKs, non-editable fields and ``auto_now(_add)`` fields.
+    """
+    return (
+        field.name.startswith("c_")  # rule 25: calculated fields
+        or getattr(field, "primary_key", False)  # rule 24
+        or type(field).__name__ in _AUTO_PK_TYPES  # rule 24
+        or not getattr(field, "editable", True)  # rule 26
+        or getattr(field, "auto_now", False)  # rule 26
+        or getattr(field, "auto_now_add", False)  # rule 26
+    )
+
+
+def _scalar_json_type(field, field_type: str) -> str:
+    """Return the JSON Schema ``type`` of a scalar field.
+
+    Parameters
+    ----------
+    field : django.db.models.Field
+        The scalar field.
+    field_type : str
+        ``type(field).__name__``.
+
+    Returns
+    -------
+    str
+        The mapped type; custom subclasses (e.g. ``TextStringField`` →
+        ``CharField``) are resolved via the MRO, with ``"string"`` as fallback.
+    """
+    json_type = _TYPE_MAP.get(field_type)
+    if json_type is not None:
+        return json_type
+    for base_cls in type(field).__mro__[1:]:
+        if json_type := _TYPE_MAP.get(base_cls.__name__):
+            return json_type
+    return "string"  # safe fallback
+
+
+def _scalar_props(field, field_type: str, nullable: bool) -> dict:
+    """Return the type keywords of a scalar field property.
+
+    Parameters
+    ----------
+    field : django.db.models.Field
+        The scalar field.
+    field_type : str
+        ``type(field).__name__``.
+    nullable : bool
+        Whether the column accepts NULL.
+
+    Returns
+    -------
+    dict
+        ``type`` plus, when applicable, ``format``, ``maxLength`` (rule 31)
+        and ``minimum`` (rule 30).
+    """
+    json_type = _scalar_json_type(field, field_type)
+    prop = _nullable({"type": json_type}, nullable)
+    if fmt := _FORMAT_MAP.get(field_type):
+        prop["format"] = fmt
+    if json_type == "string" and (ml := getattr(field, "max_length", None)):
+        prop["maxLength"] = ml
+    if json_type in ("integer", "number") and "Positive" in field_type:
+        prop["minimum"] = 0
+    return prop
+
+
+def _fk_attname_prop(field, *, with_title: bool = False, with_readonly: bool = False) -> dict:
+    """Return the property for the scalar FK column (``field.attname``, e.g. ``project_id``).
+
+    Parameters
+    ----------
+    field : django.db.models.ForeignKey
+        The FK field.
+    with_title : bool, optional
+        Add the verbose name as ``title``.
+    with_readonly : bool, optional
+        Add ``readOnly`` when the field is not editable or a primary key.
+
+    Returns
+    -------
+    dict
+        ``type`` and, when applicable, ``format``, ``readOnly``, ``title``
+        and ``description`` (``doc_short``).
+    """
+    pk_type, pk_fmt = _fk_pk_json_type(field)
+    prop: dict = {"type": pk_type}
+    if pk_fmt:
+        prop["format"] = pk_fmt
+    if with_readonly and (not getattr(field, "editable", True) or getattr(field, "primary_key", False)):
+        prop["readOnly"] = True
+    if with_title and (title := str(field.verbose_name).capitalize()):
+        prop["title"] = title
+    if doc := _config_attr(field, "doc_short"):
+        prop["description"] = doc
+    return prop
 
 
 def _fk_pk_json_type(field) -> tuple[str, str | None]:
