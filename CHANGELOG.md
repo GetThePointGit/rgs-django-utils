@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.1] - 2026-10-06
+
+### Changed
+- **JSON-schema-export opgeschoond, zonder wijziging in de uitvoer.** Lange
+  functies in `export_datamodel_to_json_schema` zijn opgesplitst in helpers en
+  dode meta-model-vergelijkingen plus `_metadata_def` zijn verwijderd. Het
+  gegenereerde schema is byte-identiek aan dat van 0.15.0 (utils#57).
+
 ## [0.15.0] - 2026-10-02
 
 ### Security
