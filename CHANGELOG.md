@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **`HasuraTrackedView.all()` heeft een vaste volgorde.** Het gaf een set
+  terug, waarvan de iteratievolgorde per proces verschilt (klasse-hash op
+  geheugenadres). Daardoor wisselden de views van plaats in de
+  JSON-schema-export, de Hasura-metadata en de view-installatie, en gaf elke
+  `generate_hasura_metadata` of `write_models_to_json_schema` volgorde-ruis.
+  Nu een lijst, ontdubbeld en gesorteerd op `__module__` + `__qualname__`.
+  Twee runs in losse processen zijn byte-identiek. Bij de eerstvolgende
+  generatie in een afnemer ontstaat eenmalig een volgorde-diff (utils#59).
+
 ## [0.15.1] - 2026-10-06
 
 ### Changed

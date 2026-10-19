@@ -45,6 +45,12 @@ class HasuraTrackedView(ABC):
     def all() -> list[Type[Self]]:
         """All classes that inherit HasuraTrackedView. Used for auto generation of tracked views and permissions in hasura.
 
+        De volgorde is vast: gesorteerd op ``__module__`` en ``__qualname__``,
+        ontdubbeld. Een set zou per proces een andere volgorde geven (de hash
+        van een klasse hangt van het geheugenadres af), waardoor de
+        JSON-schema- en Hasura-metadata-export bij elke run anders gesorteerd
+        waren (utils#59).
+
         Returns
         -------
             list[Type[Self]]: All classes that inherit HasuraTrackedView.
@@ -56,7 +62,7 @@ class HasuraTrackedView(ABC):
         # returns [<class 'UserView'>, <class 'AnotherView'>, ...]
         ```
         """
-        return set(all)
+        return sorted(set(all), key=lambda cls: (cls.__module__, cls.__qualname__))
 
     def get_json_schema_parts(self) -> SchemaJsonParts:
         return {
