@@ -112,9 +112,17 @@ class TestSummarizeSchemaDifferences(SimpleTestCase):
         )
 
     def test_velden_en_tabelmetadata(self):
-        oud = self._doc({"a": {"title": "A", "required": [], "properties": {"x": {"type": "string"}, "y": {"type": "integer"}}}})
+        oud = self._doc(
+            {"a": {"title": "A", "required": [], "properties": {"x": {"type": "string"}, "y": {"type": "integer"}}}}
+        )
         nieuw = self._doc(
-            {"a": {"title": "A2", "required": ["x"], "properties": {"x": {"type": "number"}, "z": {"type": "integer"}}}}
+            {
+                "a": {
+                    "title": "A2",
+                    "required": ["x"],
+                    "properties": {"x": {"type": "number"}, "z": {"type": "integer"}},
+                }
+            }
         )
         self.assertEqual(
             summarize_schema_differences(oud, nieuw),
