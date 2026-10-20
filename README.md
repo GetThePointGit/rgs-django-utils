@@ -435,8 +435,17 @@ Full matrix (every supported Python × Django combination, via tox):
 ```bash
 pixi run tox                              # every env in tox.ini
 pixi run -- tox -e py3.12-django5.2       # one env
+pixi run -- tox -e py3.12-djangomain      # Django's main branch (next release)
 pixi run -- tox -e ruff                   # the lint-only env
 ```
+
+The `djangomain` envs install Django's `main` branch *after* the package
+(`commands_pre` in `tox.ini`), because the package metadata pins `Django<6.1`
+and a plain `deps` entry would be overwritten by the release that satisfies
+that pin. The env prints the Django version it runs. In CI these jobs run
+only on pushes to `main`, the weekly schedule and manual runs, and with
+`continue-on-error`: they warn about the next Django release without
+blocking a merge.
 
 ### Style and lint
 
