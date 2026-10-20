@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **CI: de `djangomain`-omgevingen testen nu echt tegen Django main** (utils#53).
+  De package-metadata pint `Django<6.1`, waardoor tox's `install_package_deps`
+  de main-tarball uit `deps` stilletjes door de nieuwste release verving (de
+  jobs draaiden Django 6.0). Django main wordt nu ná het pakket geïnstalleerd
+  (`commands_pre`, `--no-deps`) en de omgeving print de versie. De main-jobs
+  draaien alleen op `main`/weekly/handmatig en zijn `continue-on-error`.
+  Geen wijziging in de code of de PR-CI (`py3.12-django5.2`).
+
 ### Fixed
 - **`HasuraTrackedView.all()` heeft een vaste volgorde.** Het gaf een set
   terug, waarvan de iteratievolgorde per proces verschilt (klasse-hash op
