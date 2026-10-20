@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-10-20
+
+### Added
+- **`write_models_to_json_schema --check`** (waterworks#494). Schrijft niets,
+  vergelijkt het bestand op `--path` met een verse generatie en faalt (exit 1)
+  met een korte samenvatting van de verschillen: nieuwe/vervallen tabellen,
+  per gewijzigde tabel de velden erbij/weg/gewijzigd en tabelmetadata, of
+  "alleen opmaak of volgorde". Exit 0 als het bestand byte-identiek is. De
+  exporter is daarvoor gesplitst in `build_datamodel_json_schema()`,
+  `render_datamodel_json_schema()`, `export_datamodel_to_json_schema()` en
+  `check_datamodel_json_schema()`; `summarize_schema_differences()` is de pure
+  vergelijking. De uitvoer van het schrijven is ongewijzigd (byte-identiek).
+
 ### Changed
 - **CI: de `djangomain`-omgevingen testen nu echt tegen Django main** (utils#53).
   De package-metadata pint `Django<6.1`, waardoor tox's `install_package_deps`
@@ -25,6 +38,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Nu een lijst, ontdubbeld en gesorteerd op `__module__` + `__qualname__`.
   Twee runs in losse processen zijn byte-identiek. Bij de eerstvolgende
   generatie in een afnemer ontstaat eenmalig een volgorde-diff (utils#59).
+- **Getrackte `.pixi`-symlink verwijderd.** Een zelfverwijzende symlink
+  `.pixi -> ../rgs-django-utils/.pixi` was per ongeluk meegecommit (#62);
+  in een worktree én in de hoofdcheckout gaf dat "Too many levels of symbolic
+  links" bij elk `pixi`-commando. Lokaal herstellen: `rm .pixi && pixi install`.
 
 ## [0.15.1] - 2026-10-06
 

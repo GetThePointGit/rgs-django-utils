@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 
@@ -84,26 +85,20 @@ log = logging.getLogger(__name__)
 # ── Management command ────────────────────────────────────────────────────────
 
 
-def export_datamodel_to_json_schema(export_path=None):
-    """Dump the full datamodel as a JSON Schema 2020-12 document.
+def build_datamodel_json_schema() -> dict:
+    """Build the full datamodel as a JSON Schema 2020-12 document.
 
     Walks every installed Django model, converts it to a JSON Schema
-    definition via :class:`SchemaGenerator` and writes the combined
-    ``oneOf`` / ``$defs`` document. The output is used as input for the
-    form builder, for client-side validation and as source for parts of
-    the Hasura metadata.
+    definition via :class:`SchemaGenerator` and returns the combined
+    ``oneOf`` / ``$defs`` document. Nothing is written; see
+    :func:`export_datamodel_to_json_schema` and
+    :func:`check_datamodel_json_schema`.
 
-    Parameters
-    ----------
-    export_path : str, optional
-        Target ``.json`` path. Defaults to
-        ``<BASE_DIR>/../var/template.schema.json``. Parent directories are
-        created on demand.
+    Returns
+    -------
+    dict
+        The schema document (``$schema``, ``title``, ``oneOf``, ``$defs``, ...).
     """
-    if export_path is None:
-        export_path = os.path.join(settings.BASE_DIR, os.pardir, "var", "template.schema.json")
-        os.makedirs(os.path.dirname(export_path), exist_ok=True)
-
     app_models = [model for model in apps.get_models() if callable(model) and issubclass(model, dj_models.Model)]  # NOQA
     schema_generator = SchemaGenerator(models=app_models)
     result: dict[str, dict | str] = {
@@ -133,12 +128,151 @@ def export_datamodel_to_json_schema(export_path=None):
             result["$defs"][model._meta.db_table] = table_def
 
     _merge_view_defs(result, app_models)
+    return result
+
+
+def render_datamodel_json_schema() -> str:
+    """Render the datamodel schema exactly as :func:`export_datamodel_to_json_schema` writes it.
+
+    One renderer for writing and checking, so both compare the same bytes
+    (indent 2, unicode untouched, no trailing newline — unchanged since the
+    first export, so an unchanged model yields a byte-identical file).
+
+    Returns
+    -------
+    str
+        The JSON text of :func:`build_datamodel_json_schema`.
+    """
+    return json.dumps(build_datamodel_json_schema(), indent=2, ensure_ascii=False)
+
+
+def export_datamodel_to_json_schema(export_path=None):
+    """Dump the full datamodel as a JSON Schema 2020-12 document.
+
+    The output is used as input for the form builder, for client-side
+    validation and as source for parts of the Hasura metadata.
+
+    Parameters
+    ----------
+    export_path : str, optional
+        Target ``.json`` path. Defaults to
+        ``<BASE_DIR>/../var/template.schema.json``. Parent directories are
+        created on demand.
+    """
+    if export_path is None:
+        export_path = os.path.join(settings.BASE_DIR, os.pardir, "var", "template.schema.json")
+        os.makedirs(os.path.dirname(export_path), exist_ok=True)
 
     with open(export_path, "w") as f:
-        import json
+        f.write(render_datamodel_json_schema())
+    log.info(f"Exported datamodel JSON Schema to {export_path}")
 
-        json.dump(result, f, indent=2, ensure_ascii=False)
-        log.info(f"Exported datamodel JSON Schema to {export_path}")
+
+def check_datamodel_json_schema(path) -> list[str]:
+    """Compare the schema file at *path* with a fresh generation.
+
+    Used by ``write_models_to_json_schema --check``: a consumer keeps a copy
+    of the generated schema (waterworks-ui), and this tells whether that
+    copy is stale and, briefly, where it differs.
+
+    Parameters
+    ----------
+    path : str or os.PathLike
+        The schema file to check.
+
+    Returns
+    -------
+    list of str
+        One line per difference category (tables added/removed, fields per
+        changed table, other metadata, formatting). Empty when the file is
+        byte-identical to a fresh generation.
+    """
+    nieuw_tekst = render_datamodel_json_schema()
+    if not os.path.isfile(path):
+        return [f"bestand ontbreekt: {path}"]
+    with open(path, encoding="utf-8") as f:
+        huidig_tekst = f.read()
+    if huidig_tekst == nieuw_tekst:
+        return []
+    try:
+        huidig = json.loads(huidig_tekst)
+    except ValueError:
+        return ["bestand is geen geldige JSON"]
+    verschillen = summarize_schema_differences(huidig, json.loads(nieuw_tekst))
+    return verschillen or ["alleen opmaak of volgorde verschilt (inhoud gelijk)"]
+
+
+_MAX_NAMEN = 8
+
+
+def _namen(items) -> str:
+    """Join at most ``_MAX_NAMEN`` names, with an ellipsis for the rest."""
+    items = list(items)
+    kop = ", ".join(items[:_MAX_NAMEN])
+    return kop + (f", … (+{len(items) - _MAX_NAMEN})" if len(items) > _MAX_NAMEN else "")
+
+
+def summarize_schema_differences(huidig: dict, nieuw: dict) -> list[str]:
+    """Summarize how two schema documents differ, per table and field.
+
+    Parameters
+    ----------
+    huidig : dict
+        The schema as found on disk (the stale copy).
+    nieuw : dict
+        The freshly generated schema.
+
+    Returns
+    -------
+    list of str
+        Human-readable lines; empty when both documents are equal as JSON
+        (key order ignored).
+    """
+    if huidig == nieuw:
+        return []
+    regels: list[str] = []
+    defs_huidig = huidig.get("$defs") or {}
+    defs_nieuw = nieuw.get("$defs") or {}
+    if not isinstance(defs_huidig, dict) or not isinstance(defs_nieuw, dict):
+        return ["$defs ontbreekt of heeft een onverwachte vorm"]
+
+    toegevoegd = sorted(set(defs_nieuw) - set(defs_huidig))
+    vervallen = sorted(set(defs_huidig) - set(defs_nieuw))
+    if toegevoegd:
+        regels.append(f"nieuwe tabellen ({len(toegevoegd)}): {_namen(toegevoegd)}")
+    if vervallen:
+        regels.append(f"vervallen tabellen ({len(vervallen)}): {_namen(vervallen)}")
+
+    for tabel in sorted(set(defs_huidig) & set(defs_nieuw)):
+        oud_def, nieuw_def = defs_huidig[tabel], defs_nieuw[tabel]
+        if oud_def == nieuw_def:
+            continue
+        oud_props = oud_def.get("properties") if isinstance(oud_def, dict) else None
+        nieuw_props = nieuw_def.get("properties") if isinstance(nieuw_def, dict) else None
+        if not isinstance(oud_props, dict) or not isinstance(nieuw_props, dict):
+            regels.append(f"{tabel}: definitie gewijzigd")
+            continue
+        delen = []
+        if erbij := sorted(set(nieuw_props) - set(oud_props)):
+            delen.append(f"velden erbij: {_namen(erbij)}")
+        if weg := sorted(set(oud_props) - set(nieuw_props)):
+            delen.append(f"velden weg: {_namen(weg)}")
+        if anders := sorted(v for v in set(oud_props) & set(nieuw_props) if oud_props[v] != nieuw_props[v]):
+            delen.append(f"velden gewijzigd: {_namen(anders)}")
+        rest_oud = {k: v for k, v in oud_def.items() if k != "properties"}
+        rest_nieuw = {k: v for k, v in nieuw_def.items() if k != "properties"}
+        if rest_oud != rest_nieuw:
+            sleutels = sorted(k for k in set(rest_oud) | set(rest_nieuw) if rest_oud.get(k) != rest_nieuw.get(k))
+            delen.append(f"tabelmetadata gewijzigd: {_namen(sleutels)}")
+        regels.append(f"{tabel}: " + "; ".join(delen))
+
+    # ``oneOf`` is één $ref per tabel en volgt dus uit ``$defs``; niet dubbel melden.
+    rest_huidig = {k: v for k, v in huidig.items() if k not in ("$defs", "oneOf")}
+    rest_nieuw = {k: v for k, v in nieuw.items() if k not in ("$defs", "oneOf")}
+    if rest_huidig != rest_nieuw:
+        sleutels = sorted(k for k in set(rest_huidig) | set(rest_nieuw) if rest_huidig.get(k) != rest_nieuw.get(k))
+        regels.append(f"documentniveau gewijzigd: {_namen(sleutels)}")
+    return regels
 
 
 def _merge_view_defs(result: dict, app_models: list) -> None:
