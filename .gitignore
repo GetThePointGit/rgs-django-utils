@@ -172,6 +172,7 @@ cython_debug/
 .pypirc
 
 # pixi
+.pixi
 .pixi/
 
 # mac system files
