@@ -115,3 +115,13 @@ jobs:
           TOXENV: quality
         run: |
           tox
+
+  dev-config:
+    # Gedeelde dev-config-afspraken (ruff-kopie, editorconfig, Dependabot) uit
+    # GetThePointGit/rgs-dev-config; zie docs/dependencies.md daar. Vereist dat
+    # rgs-dev-config voor de organisatie toegankelijk is en het secret
+    # GH_PAT_RGS_LIBS (read:packages) beschikbaar is.
+    uses: GetThePointGit/rgs-dev-config/.github/workflows/dev-config-check.yml@main
+    with:
+      strict: true
+    secrets: inherit

@@ -31,7 +31,11 @@ projects (`waterworks`, `urbanworks`, …) get their own `CLAUDE.md`.
   `pyproject.toml`. Regular library modules (under `database/`,
   `models/`, `utils/`, …) must keep imports at the top.
 - **Numpy-style docstrings.** Ruff lint enforces `pydocstyle` (`D`)
-  with the numpy convention. Class-level docstrings on tiny helpers
+  with the numpy convention. The core ruff rules live in `ruff-gedeeld.toml`,
+  a copy of the shared config from `GetThePointGit/rgs-dev-config`
+  (`docs/dependencies.md` there); never edit the copy, run
+  `rgs-config sync-ruff .` instead. Repo-specific exceptions go in
+  `pyproject.toml` (`extend-exclude`, `extend-per-file-ignores`). Class-level docstrings on tiny helpers
   can be skipped (`D1` is ignored), but public callables get a short
   summary plus `Parameters` / `Returns`.
 - **Tests don't get adapted to make them pass.** If a test fails,
