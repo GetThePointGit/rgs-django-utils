@@ -1,0 +1,33 @@
+# Gedeelde ruff-regels voor alle GetThePointGit-backends en -libs
+# (GetThePointGit/rgs-dev-config, packages/dev-config/templates/ruff-gedeeld.toml).
+#
+# NIET HIER BEWERKEN in een consumer-repo: dit bestand is een kopie. Ruff kan
+# geen config op afstand `extend`-en, dus elke repo houdt deze kopie naast zijn
+# eigen config en extendt hem lokaal:
+#
+#   ruff.toml:       extend = "ruff-gedeeld.toml"
+#   pyproject.toml:  [tool.ruff]  extend = "ruff-gedeeld.toml"
+#
+# Bijwerken: `rgs-config sync-ruff <map>`; `rgs-config check` meldt een kopie
+# die afwijkt. Repo-eigen zaken (extend-exclude, extra per-file-ignores via
+# `extend-per-file-ignores`) staan in de eigen config, niet hier.
+# Regels: https://docs.astral.sh/ruff/rules/
+
+line-length = 119
+include = ["*.py"]
+
+[format]
+quote-style = "double"
+
+[lint]
+select = ["D", "E", "F", "NPY", "PD", "C4", "I"]
+# D401 (gebiedende wijs) kent alleen Engelse werkwoorden; de docstrings zijn Nederlands.
+ignore = ["D1", "D202", "D205", "D400", "D401", "D404", "E501", "PD002"]
+fixable = ["I"]
+
+[lint.pydocstyle]
+convention = "numpy"
+
+[lint.per-file-ignores]
+# Init-modules her-exporteren bewust (ook via import *).
+"__init__.py" = ["F401", "F403", "I001"]

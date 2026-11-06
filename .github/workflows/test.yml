@@ -115,3 +115,25 @@ jobs:
           TOXENV: quality
         run: |
           tox
+
+  dev-config:
+    # Gedeelde dev-config-afspraken (ruff-kopie, editorconfig, Dependabot) uit
+    # GetThePointGit/rgs-dev-config; zie docs/dependencies.md daar. Deze repo is
+    # publiek en mag de herbruikbare workflow dev-config-check.yml uit die
+    # (private) repo niet aanroepen ("workflow file issue", geen jobs); daarom
+    # dezelfde stap hier inline. De CLI komt uit GitHub Packages: het
+    # Actions-secret GH_PAT_RGS_LIBS (read:packages) moet voor deze repo
+    # beschikbaar zijn.
+    name: rgs-config check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@getthepointgit"
+      - run: npx --yes --package @getthepointgit/dev-config@latest -- rgs-config check --dir . --strict
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GH_PAT_RGS_LIBS }}

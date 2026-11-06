@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.1] - 2026-11-06
+
+### Changed
+- **Gedeelde dev-config uit `GetThePointGit/rgs-dev-config`** (rgs-ui-stack#305,
+  #65). De ruff-kernregels staan in `ruff-gedeeld.toml` (kopie, `pyproject.toml`
+  extendt hem); lokaal blijven alleen `extend-exclude` en de repo-eigen
+  per-file-ignores. Gevolgen: `D401` wordt genegeerd (Nederlandse docstrings),
+  `fixable = ["I"]` (ruff repareert automatisch alleen nog imports) en
+  `F403` erbij voor `__init__.py`. Verder `.editorconfig`, Dependabot voor
+  GitHub Actions, de herbruikbare workflow `dev-config-check.yml` in CI, de
+  python-pin `3.12.*` en ruff gepind op 0.16.3 (pixi én pre-commit).
+
 ## [0.16.0] - 2026-10-20
 
 ### Added
