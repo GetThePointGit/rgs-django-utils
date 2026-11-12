@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.2] - 2026-11-12
+
+### Fixed
+- **JSON-schema-export: nullable `ArrayField` krijgt `type: ["array", "null"]`.**
+  `null=True` werd voor arrayvelden genegeerd (altijd `"array"`), terwijl
+  andere velden wel nullable werden. Daardoor kon de UI NULL ("geen waarde")
+  niet onderscheiden van een lege lijst (waterworks ww#846/#848: leggerpunten).
+  Let op voor afnemers: wie `type === "array"` letterlijk vergelijkt, moet ook
+  `["array", "null"]` herkennen.
+
 ## [0.16.1] - 2026-11-06
 
 ### Changed

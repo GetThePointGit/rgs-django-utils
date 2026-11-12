@@ -408,6 +408,33 @@ class TestFieldToPropertyMetadata(UnitTestCase):
         self.assertEqual(prop["type"], "string", "type moet 'string' zijn in JSON Schema voor TimeField")
         self.assertEqual(prop["format"], "time", "format moet 'time' zijn in JSON Schema voor TimeField")
 
+    def test_nullable_array(self):
+        """Een nullable ArrayField krijgt type ['array', 'null'], een niet-nullable 'array'."""
+        from django.contrib.postgres.fields import ArrayField
+
+        field = _bare_field(ArrayField, base_field=dj_models.FloatField(), null=True)
+        field.set_attributes_from_name("points")  # zet ook de naam van base_field
+        prop = self._gen()._field_to_property(field=field)
+        self.assertEqual(
+            prop["type"], ["array", "null"], "type moet ['array', 'null'] zijn voor een nullable ArrayField"
+        )
+        self.assertEqual(prop["items"]["type"], "number", "items moet het basisveld beschrijven")
+
+        field = _bare_field(ArrayField, base_field=dj_models.FloatField(), null=False)
+        field.set_attributes_from_name("points")
+        prop = self._gen()._field_to_property(field=field)
+        self.assertEqual(prop["type"], "array", "type moet 'array' blijven voor een niet-nullable ArrayField")
+
+    def test_nullable_nested_array(self):
+        """Een nullable 2D-ArrayField (bv. leggerpunten) is nullable; de binnenste array niet."""
+        from django.contrib.postgres.fields import ArrayField
+
+        field = _bare_field(ArrayField, base_field=ArrayField(dj_models.FloatField()), null=True)
+        field.set_attributes_from_name("points")
+        prop = self._gen()._field_to_property(field=field)
+        self.assertEqual(prop["type"], ["array", "null"], "buitenste array moet nullable zijn")
+        self.assertEqual(prop["items"]["type"], "array", "binnenste array blijft niet-nullable")
+
     def test_boolean(self):
         """BooleanField moet type 'boolean' hebben in JSON Schema."""
 
