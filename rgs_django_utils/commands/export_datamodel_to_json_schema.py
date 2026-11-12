@@ -629,7 +629,9 @@ class SchemaGenerator:
 
         # ── ArrayField (rule 34) ──────────────────────────────────────────────
         if field_type == "ArrayField":
-            prop["type"] = "array"
+            # Nullable zoals de andere velden: NULL ("geen waarde") is iets
+            # anders dan een lege lijst, en de UI mag NULL niet omzetten.
+            prop.update(_nullable({"type": "array"}, nullable))
             base = getattr(field, "base_field", None)
             if base and (inner := self._field_to_property(field=base)):
                 prop["items"] = inner
