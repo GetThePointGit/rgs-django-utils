@@ -45,6 +45,13 @@ dependencies = [
 ]
 dynamic = ["version"]
 
+[project.optional-dependencies]
+# Voor rgs_django_utils.observability (Sentry-init en Prometheus-logteller).
+observability = [
+  "sentry-sdk>=2.0,<3",
+  "prometheus-client>=0.20",
+]
+
 [project.urls]
 repository = "https://github.com/GetThePointGit/rgs-django-utils"
 

@@ -7,6 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.0] - 2026-11-18
+
+### Added
+- **`rgs_django_utils.observability`** (#64, waterworks#757). De
+  observability-basis die waterworks en urbanworks elk als
+  `thissite/observability.py` hadden, staat nu één keer in de lib:
+  `parse_log_levels`, `build_logging_config`, `PrometheusLogCounterHandler`
+  (teller `wit_log_records_total`), `make_traces_sampler`, `before_send`,
+  `is_interactive_shell` en `init_sentry`. App-specifieke keuzes zijn
+  parameters van `init_sentry`: de sample rates, `celery=True` (Sentry's
+  `CeleryIntegration`, zonder beat-monitors in `preview`), `redact_kuma=True`
+  (Kuma push-URL uit events en breadcrumbs, setting `KUMA_HEARTBEAT_URL`),
+  `health_paths` en `unsampled_tasks`. De sampler herkent zowel Celery-taken
+  (`celery_job`) als Procrastinate-taken (transactie-`op` `TASK_OP`).
+  `sentry_task_middleware` (Procrastinate) en `silence_http_loggers` zijn
+  losse functies die de app zelf ophangt; er wordt niets automatisch
+  geregistreerd.
+- **`rgs_django_utils.media_storage`** (#64). `default_media_storage`,
+  `media_nested_storage` en `tiles_storage_entry` bouwen de `STORAGES`-entries
+  voor media en tiles (lokaal of S3 via `django-fsspec`). De harde validatie
+  van bucket/key/secret staat standaard aan; `validate=False` slaat hem over en
+  `env_names` bepaalt welke variabelenamen de foutmelding noemt.
+- **Extra `rgs-django-utils[observability]`**: `sentry-sdk` en
+  `prometheus-client`. De rest van de lib heeft ze niet nodig; alleen
+  `rgs_django_utils.observability` importeert ze (`sentry-sdk` pas bij een
+  echte `init_sentry` of in de taak-middleware).
+
+### Notes voor afnemers
+- De handlerklasse in de logging-config heet nu
+  `rgs_django_utils.observability.PrometheusLogCounterHandler`. Vervang de
+  eigen `thissite/observability.py` en `thissite/media_storage.py` door imports
+  uit de lib; voor gelijk gedrag roept waterworks `init_sentry(..., celery=True)`
+  aan en urbanworks `init_sentry(..., redact_kuma=True,
+  unsampled_tasks={...})` plus `validate=False` op de storage-functies.
+- De standaard-`HEALTH_PATHS` is de vereniging van beide apps
+  (`/livez/`, `/readyz/`, `/health/`, `/metrics`).
+
 ## [0.16.2] - 2026-11-12
 
 ### Fixed

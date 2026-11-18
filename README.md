@@ -358,6 +358,8 @@ Where to look when you know what you need. Paths are relative to
 | View-backed Django models (`HasuraTrackedView`, `UserView`) | `models/views/abstract.py`, `models/views/user_view.py` |
 | Runtime logging (`RunContext`, `TaskContext`, `PostgresHandler`) | `logging/logging/`                       |
 | Layered settings (`SettingsGetter`)             | `utils/settings_getter.py`                                 |
+| Sentry-init, logging-config, Prometheus-logteller (extra `observability`) | `observability.py`               |
+| `STORAGES`-entries voor media en tiles (lokaal / S3) | `media_storage.py`                                   |
 | Django settings introspection helper            | `database/dj_settings_helper.py`                           |
 | Email templates                                 | `utils/email_template.py`                                  |
 | Django bootstrap helper (`setup_django`)        | `setup_django.py`                                          |
