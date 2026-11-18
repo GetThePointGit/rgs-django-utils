@@ -83,6 +83,10 @@ tox = "*"
 pytest-django = "*"
 pytest-cov = "*"
 
+# Extra `observability` (rgs_django_utils.observability); hier voor de tests.
+sentry-sdk = ">=2.0,<3"
+prometheus-client = ">=0.20"
+
 # -----------------------------------------------------------------------------
 # Environments
 # -----------------------------------------------------------------------------
