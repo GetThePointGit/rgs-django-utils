@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **`HasuraConfig.register_relationship`** (waterworks#548). Registreert een
+  handmatige Hasura-relatie (`manual_configuration`) tussen twee tabellen die
+  in de database geen foreign key hebben, bv. een scope-kolom `access_id` die
+  naar een project wijst. De generator zet hem op de tabel, zodat een
+  rechtenfilter erlangs kan. Een relatie naar een tabel die niet in de
+  metadata staat, of met een naam die al bestaat, laat de generatie falen met
+  een `ValueError` in plaats van stil weg te vallen.
+
 ## [0.17.0] - 2026-11-18
 
 ### Added
