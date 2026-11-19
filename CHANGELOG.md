@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.0] - 2026-11-19
+
 ### Added
 - **`HasuraConfig.register_relationship`** (waterworks#548). Registreert een
   handmatige Hasura-relatie (`manual_configuration`) tussen twee tabellen die
