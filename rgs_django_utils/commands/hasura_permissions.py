@@ -31,6 +31,7 @@ class HasuraConfigClass(type):
 
         cls.registered_functions = []
         cls.registered_views = []
+        cls.registered_relationships = []
         return new_cls
 
 
@@ -42,7 +43,61 @@ class HasuraConfig(metaclass=HasuraConfigClass):
     ``registered_views`` per subclass so apps don't inherit each other's
     entries. ``HasuraPermissions`` reads both lists when it emits the
     final metadata blob.
+
+    ``registered_relationships`` holds manual relationships between tables
+    that have no foreign key in the database, see
+    :meth:`register_relationship`.
     """
+
+    @classmethod
+    def register_relationship(cls, table, name, remote_table, column_mapping, kind="object"):
+        """Registreer een handmatige Hasura-relatie tussen twee tabellen.
+
+        De generator leidt relaties af uit de foreign keys van de Django-modellen.
+        Een relatie zonder foreign key in de database (bv. een scope-kolom
+        ``access_id`` die naar een project of een organisatie wijst) bestaat
+        daardoor niet in Hasura, en een rechtenfilter kan er niet langs. Met deze
+        registratie komt hij als ``manual_configuration`` in de metadata.
+
+        Parameters
+        ----------
+        table : str
+            Tabel (schema ``public``) die de relatie krijgt. Moet in de
+            gegenereerde metadata voorkomen.
+        name : str
+            Naam van de relatie; mag niet botsen met een bestaande relatie van
+            die tabel.
+        remote_table : str
+            Tabel (schema ``public``) waar de relatie naar wijst.
+        column_mapping : dict of str to str
+            Kolom van ``table`` naar kolom van ``remote_table``.
+        kind : {"object", "array"}, optional
+            ``"object"`` voor hoogstens één rij aan de andere kant (standaard),
+            ``"array"`` voor meerdere.
+
+        Raises
+        ------
+        ValueError
+            Bij een onbekende ``kind``, een lege ``column_mapping`` of een
+            relatie die al geregistreerd is met een andere definitie.
+        """
+        if kind not in ("object", "array"):
+            raise ValueError(f"kind moet 'object' of 'array' zijn, kreeg {kind!r}")
+        if not column_mapping:
+            raise ValueError(f"relatie {table}.{name}: column_mapping is leeg")
+        relatie = {
+            "table": table,
+            "name": name,
+            "remote_table": remote_table,
+            "column_mapping": dict(column_mapping),
+            "kind": kind,
+        }
+        for bestaand in cls.registered_relationships:
+            if bestaand["table"] == table and bestaand["name"] == name:
+                if bestaand != relatie:
+                    raise ValueError(f"relatie {table}.{name} is al geregistreerd met een andere definitie")
+                return
+        cls.registered_relationships.append(relatie)
 
     @classmethod
     def register_multiple_functions(cls, functions):
@@ -201,8 +256,71 @@ class HasuraPermissions(object):
     """
 
     def get_tables(self):
-        """Return the combined table-entries list (ORM tables + registered views)."""
-        return [*self.get_tables_from_models(), *HasuraConfig.registered_views]
+        """Return the combined table-entries list (ORM tables + registered views).
+
+        Handmatige relaties uit :meth:`HasuraConfig.register_relationship` komen
+        erbij op de tabellen uit de modellen.
+
+        Raises
+        ------
+        ValueError
+            Als een geregistreerde relatie naar een tabel wijst die niet in de
+            metadata staat, of botst met een bestaande relatienaam. Een relatie
+            die stil wegvalt zou een rechtenfilter ongemerkt breken.
+        """
+        tables = self.get_tables_from_models()
+        self.voeg_handmatige_relaties_toe(tables, HasuraConfig.registered_relationships)
+        return [*tables, *HasuraConfig.registered_views]
+
+    @staticmethod
+    def voeg_handmatige_relaties_toe(tables: list[dict], relaties: list[dict]) -> None:
+        """Zet geregistreerde handmatige relaties op hun tabel (in place).
+
+        Parameters
+        ----------
+        tables : list of dict
+            Tabel-entries van de metadata.
+        relaties : list of dict
+            Relaties in de vorm van :meth:`HasuraConfig.register_relationship`.
+
+        Raises
+        ------
+        ValueError
+            Bij een onbekende tabel of een relatienaam die al bestaat.
+        """
+        per_naam = {table["table"]["name"]: table for table in tables}
+        for relatie in relaties:
+            table = per_naam.get(relatie["table"])
+            if table is None:
+                raise ValueError(
+                    f"handmatige relatie {relatie['table']}.{relatie['name']}: tabel staat niet in de metadata"
+                )
+            if relatie["remote_table"] not in per_naam:
+                raise ValueError(
+                    f"handmatige relatie {relatie['table']}.{relatie['name']}: "
+                    f"doeltabel {relatie['remote_table']} staat niet in de metadata"
+                )
+            bestaand = {
+                rel["name"]
+                for soort in ("object_relationships", "array_relationships")
+                for rel in table.get(soort, [])
+            }
+            if relatie["name"] in bestaand:
+                raise ValueError(f"handmatige relatie {relatie['table']}.{relatie['name']}: naam bestaat al")
+            sleutel = f"{relatie['kind']}_relationships"
+            table[sleutel] = [
+                *table.get(sleutel, []),
+                {
+                    "name": relatie["name"],
+                    "using": {
+                        "manual_configuration": {
+                            "column_mapping": dict(relatie["column_mapping"]),
+                            "insertion_order": None,
+                            "remote_table": {"name": relatie["remote_table"], "schema": "public"},
+                        }
+                    },
+                },
+            ]
 
     def get_functions(self):
         """Return the list of registered SQL-function metadata entries."""
