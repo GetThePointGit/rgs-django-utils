@@ -146,6 +146,7 @@ class DescriptionTable(models.Model):
     )
 
     order = models.IntegerField(
+        "volgorde",
         db_default=-1,
         config=models.Config(doc_short="Volgorde van de tabel.", permissions=models.FPerm("-s-", user_self="-s-")),
     )
@@ -177,7 +178,7 @@ class DescriptionTable(models.Model):
         ),
     )
     description = models.TextField(
-        "description",
+        "omschrijving",
         null=True,
         blank=True,
         config=models.Config(
@@ -273,16 +274,17 @@ class DescriptionCalculation(models.Model):
     )
 
     name = models.TextField(
+        "naam",
         config=models.Config(
             doc_development="Name of the calculation in the database.",
             permissions=models.FPerm("-s-", user_self="-s-"),
         ),
     )
     description = models.TextField(
-        "description",
+        "omschrijving",
         config=models.Config(
-            doc_short="Description of the calculation.",
-            doc_constraint="Must be unique within the database.",
+            doc_short="Omschrijving van de berekening.",
+            doc_constraint="Moet uniek zijn binnen de database.",
             permissions=models.FPerm("-s-", user_self="-s-"),
         ),
     )
@@ -440,7 +442,7 @@ class DescriptionField(models.Model):
         ),
     )
     dbf_name = models.CharField(
-        "dbf naam",
+        "dbf-naam",
         max_length=10,
         null=True,
         blank=True,
@@ -467,7 +469,7 @@ class DescriptionField(models.Model):
         ),
     )
     nullable = models.BooleanField(
-        "nullable",
+        "mag leeg zijn",
         config=models.Config(
             doc_short="Geeft aan of het veld in de database NULL waardes kan bevatten.",
             permissions=models.FPerm("-s-", user_self="-s-"),
@@ -558,7 +560,7 @@ class DescriptionField(models.Model):
 
     import_mode = models.TextStringField(
         default="all",
-        verbose_name="import mode",
+        verbose_name="importmodus",
         config=models.Config(
             doc_short="Import modus van het veld.",
             permissions=models.FPerm("-s-", user_self="-s-"),
@@ -586,7 +588,7 @@ class DescriptionField(models.Model):
         ),
     )
     default_value = models.TextField(
-        "default waarde of functie",
+        "standaardwaarde of functie",
         null=True,
         blank=True,
         config=models.Config(

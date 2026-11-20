@@ -106,7 +106,7 @@ class EnumRole(BaseEnumExtended):
             "data": [
                 {
                     "id": cls.DEVELOPER_MANAGER,
-                    "name": "Developer manager",
+                    "name": "Ontwikkelaar (beheer)",
                     "order": 0,
                     "for_staff": True,
                     "for_org": False,
@@ -115,7 +115,7 @@ class EnumRole(BaseEnumExtended):
                 },
                 {
                     "id": cls.DEVELOPER,
-                    "name": "Developer",
+                    "name": "Ontwikkelaar",
                     "order": 1,
                     "for_staff": True,
                     "for_org": False,
