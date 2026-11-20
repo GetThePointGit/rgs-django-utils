@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.0] - 2026-11-20
+
+### Changed
+- **Nederlandse veldnamen** (waterworks#320). De `verbose_name`s die nog
+  Engels waren of ontbraken zijn vertaald: `name` op `BaseEnum` heet nu
+  "naam", `db_last_modified` op `ModificationMixin` "laatst aangepast in
+  centrale database", en in de beschrijvingstabellen "volgorde",
+  "omschrijving", "naam", "dbf-naam", "mag leeg zijn", "importmodus" en
+  "standaardwaarde of functie". De rollen `dev_man` en `dev` heten
+  "Ontwikkelaar (beheer)" en "Ontwikkelaar".
+- **Let op voor afnemers.** `BaseEnum.name` en
+  `ModificationMixin.db_last_modified` zijn abstracte velden: na de bump
+  geeft `makemigrations` in de app een `AlterField` per enum-tabel en per
+  tabel met de mixin (alleen `verbose_name`, geen SQL). Migratie
+  `0004_nederlandse_veldnamen` dekt de eigen tabellen van de lib, inclusief
+  `EnumAccessThrough`.
+
 ## [0.18.0] - 2026-11-19
 
 ### Added

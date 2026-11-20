@@ -62,7 +62,7 @@ class BaseEnum(models.Model, metaclass=BaseEnumMetaClass):
         ),
     )
     name = models.TextStringField(
-        "name",
+        "naam",
         config=models.Config(
             doc_short="naam van de enum",
             permissions=FPerm("-s-"),

@@ -23,7 +23,7 @@ class ModificationMetaMixin(models.Model):
     section = FieldSection("metadata", "metadata", 90)
     # meta
     db_last_modified = models.DateTimeField(
-        "laatst aangepast in central database",
+        "laatst aangepast in centrale database",
         editable=False,
         auto_now=True,
         config=models.Config(
