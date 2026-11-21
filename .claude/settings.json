@@ -12,5 +12,17 @@
         ]
       }
     ]
+  },
+  "extraKnownMarketplaces": {
+    "rgs": {
+      "source": {
+        "source": "github",
+        "repo": "GetThePointGit/rgs-dev-config"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "rgs-secrets@rgs": true,
+    "rgs-werkwijze@rgs": true
   }
 }
