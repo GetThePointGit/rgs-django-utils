@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.1] - 2026-11-21
+
+### Changed
+- **Django 6.1 toegestaan en getest** (waterworks#661). De bovengrens gaat
+  van `<6.1` naar `<6.2`, en Django 6.1 staat in de tox-envlist en in de
+  matrix voor `main`, het weekschema en handmatige runs. Pull requests testen
+  nog steeds alleen de productieversie, 5.2.
+
 ## [0.19.0] - 2026-11-20
 
 ### Changed

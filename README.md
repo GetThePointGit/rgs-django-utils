@@ -442,7 +442,7 @@ pixi run -- tox -e ruff                   # the lint-only env
 ```
 
 The `djangomain` envs install Django's `main` branch *after* the package
-(`commands_pre` in `tox.ini`), because the package metadata pins `Django<6.1`
+(`commands_pre` in `tox.ini`), because the package metadata pins `Django<6.2`
 and a plain `deps` entry would be overwritten by the release that satisfies
 that pin. The env prints the Django version it runs. In CI these jobs run
 only on pushes to `main`, the weekly schedule and manual runs, and with
