@@ -2,9 +2,23 @@ version: 2
 
 # Template uit GetThePointGit/rgs-dev-config (packages/dev-config/templates/
 # dependabot.yml); de afspraken staan in docs/dependencies.md daar.
-# Alleen GitHub Actions: pixi/pypi kent Dependabot niet (bumpen is handwerk,
-# `pixi update`), en er is geen npm of Docker in deze repo.
+# GitHub Actions en `pip` (waterworks#938). `pip` leest alleen de PEP 621-
+# dependencies in pyproject.toml (de ranges van het pakket zelf). pixi.toml en
+# pixi.lock kent Dependabot niet: die bumpen blijft handwerk (`pixi update`).
+# Er is geen npm of Docker in deze repo.
 updates:
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+    groups:
+      pip:
+        update-types: [minor, patch]
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
   - package-ecosystem: github-actions
     directory: /
     schedule:
